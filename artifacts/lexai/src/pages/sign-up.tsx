@@ -11,11 +11,11 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[#0d1b2e] flex flex-col items-center justify-center px-4 py-12">
       <div className="mb-8 flex flex-col items-center gap-3">
-        <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src={`${basePath}/logo.svg`} alt="MAOS Legal" className="w-10 h-10" />
-          <span className="font-serif font-bold text-3xl tracking-tight text-white">MAOS Legal</span>
+        <Link href="/" className="flex flex-col items-center gap-2 transition-opacity hover:opacity-80">
+          <img src={`${basePath}/logo-dark.png`} alt="MAOS Legal" className="h-12 w-auto object-contain" />
+          <span className="text-[#c9a227] text-sm font-semibold tracking-widest uppercase font-serif">Legal</span>
         </Link>
-        <p className="text-[#c9a227] text-sm font-medium tracking-widest uppercase">Intelligence Juridique Premium</p>
+        <p className="text-slate-400 text-xs font-medium tracking-widest uppercase">Intelligence Juridique Premium</p>
       </div>
 
       <SignUp
