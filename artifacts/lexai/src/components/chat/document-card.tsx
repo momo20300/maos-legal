@@ -16,7 +16,7 @@ function renderDocumentLine(line: string, idx: number): React.ReactNode {
   if (!line.trim()) return <div key={idx} className="h-4" />;
 
   if (line.match(/^---+$/) || line.match(/^___+$/)) {
-    return <hr key={idx} className="my-6 border-gray-300" />;
+    return <hr key={idx} className="my-6 border-border" />;
   }
 
   if (line.match(/^#{1,3} /)) {
@@ -235,26 +235,26 @@ export function DocumentCard({ content }: DocumentCardProps) {
       {/* Document Body — letter paper simulation */}
       <div
         className={`
-          bg-white border border-border rounded-b-xl shadow-lg overflow-hidden
+          bg-card border border-border rounded-b-xl shadow-lg overflow-hidden
           ${isRTL ? "font-[Amiri,serif] text-right" : "font-serif"}
         `}
         dir={isRTL ? "rtl" : "ltr"}
       >
         {/* Letterhead area — blank/dashed to suggest user's own paper */}
-        <div className="h-10 border-b border-dashed border-gray-200 bg-gray-50/60 flex items-center justify-center">
-          <span className="text-[9px] text-gray-300 uppercase tracking-widest select-none">
+        <div className="h-10 border-b border-dashed border-border bg-muted/40 flex items-center justify-center">
+          <span className="text-[9px] text-muted-foreground/50 uppercase tracking-widest select-none">
             {isRTL ? "← ورقتك المكتبية الخاصة" : language === "en" ? "← Your own letterhead paper" : "← Espace pour votre en-tête professionnel"}
           </span>
         </div>
 
         {/* Document content */}
-        <div className="px-10 py-8 text-sm leading-relaxed text-gray-900 space-y-0.5 min-h-[300px]">
+        <div className="px-10 py-8 text-sm leading-relaxed text-foreground space-y-0.5 min-h-[300px]">
           {lines.map((line, idx) => renderDocumentLine(line, idx))}
         </div>
 
         {/* Bottom print hint */}
-        <div className="px-10 py-3 border-t border-dashed border-gray-200 bg-gray-50/60 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+        <div className="px-10 py-3 border-t border-dashed border-border bg-muted/40 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <Printer className="w-3 h-3" />
             <span className="select-none">
               {isRTL
