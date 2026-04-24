@@ -7,6 +7,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft } from "lucide-react";
+import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/language-context";
@@ -234,6 +235,7 @@ export default function ConversationPage() {
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
           {/* Mobile header */}
           <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
+            <JusticeScaleSVG size={22} className="shrink-0" />
             <Link href="/chat">
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                 <ChevronLeft className="w-5 h-5" />
@@ -264,23 +266,32 @@ export default function ConversationPage() {
           {/* Desktop header */}
           <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0">
             {isLoadingConv ? (
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-48" />
-                <Skeleton className="h-3 w-24" />
+              <div className="flex items-center gap-3">
+                <JusticeScaleSVG size={28} />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
               </div>
             ) : conversation ? (
-              <div>
-                <h2 className="font-serif font-bold text-lg leading-tight flex items-center gap-3">
-                  {conversation.title}
-                  <JurisdictionBadge jurisdiction={conversation.jurisdiction} className="text-[10px] h-5 py-0 px-2" />
-                </h2>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                  <FileText className="w-3 h-3" />
-                  {conversation.legalDomain}
-                </p>
+              <div className="flex items-center gap-3">
+                <JusticeScaleSVG size={28} />
+                <div>
+                  <h2 className="font-serif font-bold text-lg leading-tight flex items-center gap-3">
+                    {conversation.title}
+                    <JurisdictionBadge jurisdiction={conversation.jurisdiction} className="text-[10px] h-5 py-0 px-2" />
+                  </h2>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <FileText className="w-3 h-3" />
+                    {conversation.legalDomain}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div>Conversation not found</div>
+              <div className="flex items-center gap-3">
+                <JusticeScaleSVG size={28} />
+                <span>Conversation not found</span>
+              </div>
             )}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
               <ScanSearch className="w-3.5 h-3.5 text-accent" />

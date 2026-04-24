@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "wouter";
 import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft } from "lucide-react";
+import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -201,9 +202,7 @@ export default function ChatPage() {
             <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Scale className="w-4 h-4 text-primary" />
-            </div>
+            <JusticeScaleSVG size={22} />
             <div>
               <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
               <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
@@ -325,113 +324,136 @@ export default function ChatPage() {
     );
   }
 
-  /* ── DESKTOP: two-column layout ── */
+  /* ── DESKTOP: sidebar + same form as mobile ── */
   return (
     <Layout>
       <div className="flex flex-1 overflow-hidden">
         <ChatSidebar />
-        <main className="flex-1 flex flex-col bg-background overflow-y-auto">
-          <div className="flex items-start justify-center p-6 min-h-full">
-            <div className="max-w-md w-full py-8">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/10">
-                  <Scale className="w-8 h-8 text-primary" />
-                </div>
-                <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground mb-2">
-                  {t.chat.consultationTitle}
-                </h1>
-                <p className="text-muted-foreground text-sm">{t.chat.consultationSubtitle}</p>
-              </div>
 
-              <div className="grid grid-cols-2 gap-2 mb-5">
-                {JURISDICTIONS.map(({ key, flag, short }) => {
-                  const isSelected = watchJurisdiction === key;
-                  const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
-                      className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-left transition-all ${
-                        isSelected ? "border-[#c9a227] bg-[#c9a227]/10" : "border-border bg-card hover:bg-muted"
-                      }`}
-                    >
-                      {isText ? (
-                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
-                      ) : (
-                        <span className="text-xl">{flag}</span>
-                      )}
-                      <span className={`text-sm font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
-                        {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+        {/* Center — same layout/principle as mobile */}
+        <main className="flex-1 flex flex-col bg-background overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
-              <div key={language} className="bg-card border border-border rounded-xl p-6 shadow-sm">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                    <FormField
-                      control={form.control}
-                      name="jurisdiction"
-                      render={({ field }) => (
-                        <FormItem className="hidden">
-                          <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder={t.chat.casePlaceholder} className="bg-background" {...field} data-testid="input-title" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="legalDomain"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
-                            <FormControl>
-                              <SelectTrigger className="bg-background" data-testid="select-domain">
-                                <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {filteredDomains?.map((domain) => (
-                                <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" className="w-full h-12 text-base font-medium shadow-md" disabled={createMutation.isPending} data-testid="button-create-consultation">
-                      {createMutation.isPending ? (
-                        <><Loader2 className="w-5 h-5 mr-2 animate-spin" />{t.chat.initializingExpert}</>
-                      ) : (
-                        <>{t.chat.beginConsultation}<ChevronRight className="w-5 h-5 ml-1" /></>
-                      )}
-                    </Button>
-                  </form>
-                </Form>
-              </div>
+          {/* Page header — same style as mobile form header */}
+          <div className="flex items-center gap-3 px-5 py-3 border-b border-border bg-card shrink-0">
+            <JusticeScaleSVG size={26} />
+            <div>
+              <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
             </div>
+          </div>
+
+          {/* Form body — same as mobile, scrollable */}
+          <div key={language} className="flex-1 overflow-y-auto">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-4 px-5 pt-5 pb-6 max-w-lg"
+              >
+                {/* Jurisdiction cards — 2×2, identical to mobile */}
+                <div className="grid grid-cols-2 gap-2">
+                  {JURISDICTIONS.map(({ key, flag, short }) => {
+                    const isSelected = watchJurisdiction === key;
+                    const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? "border-[#c9a227] bg-[#c9a227]/10 shadow-sm"
+                            : "border-border bg-card hover:bg-muted"
+                        }`}
+                      >
+                        {isText ? (
+                          <span className={`text-xs font-bold px-1 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
+                        ) : (
+                          <span className="text-lg leading-none">{flag}</span>
+                        )}
+                        <span className={`text-sm font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
+                          {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Hidden jurisdiction field for validation */}
+                <FormField
+                  control={form.control}
+                  name="jurisdiction"
+                  render={({ field }) => (
+                    <FormItem className="hidden">
+                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Title */}
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder={t.chat.casePlaceholder}
+                          className="bg-card h-11 text-sm"
+                          {...field}
+                          data-testid="input-title"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Legal Domain */}
+                <FormField
+                  control={form.control}
+                  name="legalDomain"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
+                        <FormControl>
+                          <SelectTrigger className="bg-card h-11 text-sm" data-testid="select-domain">
+                            <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {filteredDomains?.map((domain) => (
+                            <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-base font-semibold shadow-md mt-2"
+                  disabled={createMutation.isPending}
+                  data-testid="button-create-consultation"
+                >
+                  {createMutation.isPending ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" />{t.chat.initializingExpert}</>
+                  ) : (
+                    <>{t.chat.beginConsultation}<ChevronRight className="w-5 h-5 ml-1" /></>
+                  )}
+                </Button>
+              </form>
+            </Form>
           </div>
         </main>
       </div>
