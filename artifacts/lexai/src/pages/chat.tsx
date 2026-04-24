@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout/layout";
-import { ChatSidebar } from "@/components/chat/sidebar";
 import {
   useListLegalDomains, getListLegalDomainsQueryKey, useCreateAnthropicConversation,
   useListAnthropicConversations, getListAnthropicConversationsQueryKey,
@@ -324,16 +323,13 @@ export default function ChatPage() {
     );
   }
 
-  /* ── DESKTOP: sidebar + same form as mobile ── */
+  /* ── DESKTOP: form left + conversations right ── */
   return (
     <Layout>
-      <div className="flex flex-1 overflow-hidden">
-        <ChatSidebar />
+      <div className="flex flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
-        {/* Center — same layout/principle as mobile */}
-        <main className="flex-1 flex flex-col bg-background overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
-
-          {/* Page header — same style as mobile form header */}
+        {/* LEFT: New Consultation form */}
+        <div className="w-[420px] shrink-0 flex flex-col border-r border-border">
           <div className="flex items-center gap-3 px-5 py-3 border-b border-border bg-card shrink-0">
             <JusticeScaleSVG size={26} />
             <div>
@@ -342,14 +338,10 @@ export default function ChatPage() {
             </div>
           </div>
 
-          {/* Form body — same as mobile, scrollable */}
           <div key={language} className="flex-1 overflow-y-auto">
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col gap-4 px-5 pt-5 pb-6 max-w-lg"
-              >
-                {/* Jurisdiction cards — 2×2, identical to mobile */}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 px-5 pt-5 pb-6">
+                {/* Jurisdiction 2×2 */}
                 <div className="grid grid-cols-2 gap-2">
                   {JURISDICTIONS.map(({ key, flag, short }) => {
                     const isSelected = watchJurisdiction === key;
@@ -360,9 +352,7 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
                         className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
-                          isSelected
-                            ? "border-[#c9a227] bg-[#c9a227]/10 shadow-sm"
-                            : "border-border bg-card hover:bg-muted"
+                          isSelected ? "border-[#c9a227] bg-[#c9a227]/10 shadow-sm" : "border-border bg-card hover:bg-muted"
                         }`}
                       >
                         {isText ? (
@@ -378,68 +368,43 @@ export default function ChatPage() {
                   })}
                 </div>
 
-                {/* Hidden jurisdiction field for validation */}
-                <FormField
-                  control={form.control}
-                  name="jurisdiction"
-                  render={({ field }) => (
-                    <FormItem className="hidden">
-                      <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="jurisdiction" render={({ field }) => (
+                  <FormItem className="hidden">
+                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                      <FormControl><SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>{JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
-                {/* Title */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="title" render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder={t.chat.casePlaceholder} className="bg-card h-11 text-sm" {...field} data-testid="input-title" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="legalDomain" render={({ field }) => (
+                  <FormItem>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
                       <FormControl>
-                        <Input
-                          placeholder={t.chat.casePlaceholder}
-                          className="bg-card h-11 text-sm"
-                          {...field}
-                          data-testid="input-title"
-                        />
+                        <SelectTrigger className="bg-card h-11 text-sm" data-testid="select-domain">
+                          <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      <SelectContent>
+                        {filteredDomains?.map((domain) => (
+                          <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
-                {/* Legal Domain */}
-                <FormField
-                  control={form.control}
-                  name="legalDomain"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
-                        <FormControl>
-                          <SelectTrigger className="bg-card h-11 text-sm" data-testid="select-domain">
-                            <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredDomains?.map((domain) => (
-                            <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Submit */}
                 <Button
                   type="submit"
                   className="w-full h-12 text-base font-semibold shadow-md mt-2"
@@ -455,7 +420,72 @@ export default function ChatPage() {
               </form>
             </Form>
           </div>
-        </main>
+        </div>
+
+        {/* RIGHT: Conversations list */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-background">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card shrink-0">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-accent" />
+              <h2 className="text-sm font-bold text-foreground">
+                {isRTL ? "استشاراتي" : "Consultations récentes"}
+              </h2>
+              {conversations && conversations.length > 0 && (
+                <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
+                  {conversations.length}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4">
+            {convsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
+              </div>
+            ) : !conversations?.length ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
+                  <MessageSquare className="w-7 h-7 text-[#c9a227]" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {isRTL ? "لا توجد استشارات بعد" : "Aucune consultation pour l'instant"}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                {conversations.map((conv) => (
+                  <Link key={conv.id} href={`/conversations/${conv.id}`}>
+                    <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer">
+                      <button
+                        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                        onClick={(e) => handleDelete(e, conv.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="flex items-start gap-2.5 pr-8">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <MessageSquare className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-foreground line-clamp-1">{conv.title}</p>
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <JurisdictionBadge jurisdiction={conv.jurisdiction} className="text-[10px] h-4 py-0 px-1.5" />
+                            <span className="text-[10px] text-muted-foreground">{format(new Date(conv.createdAt), "d MMM yyyy")}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground font-medium">
+                            <Shield className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{conv.legalDomain}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );
