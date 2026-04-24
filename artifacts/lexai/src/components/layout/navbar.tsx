@@ -1,5 +1,5 @@
-import { Link, useLocation } from "wouter";
-import { MessageSquare, CreditCard, Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
+import { Link } from "wouter";
+import { Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useLanguage, type Language } from "@/contexts/language-context";
@@ -20,15 +20,11 @@ const LANGUAGES: { code: Language; label: string; flag: string }[] = [
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export function Navbar() {
-  const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const { isSignedIn, user, logout } = useAuthContext();
 
-  const navLinks = [
-    ...(isSignedIn ? [{ href: "/chat", label: t.nav.chat, icon: <MessageSquare className="w-4 h-4 mr-2" /> }] : []),
-    { href: "/pricing", label: t.nav.pricing, icon: <CreditCard className="w-4 h-4 mr-2" /> },
-  ];
+  const navLinks: { href: string; label: string; icon: React.ReactNode }[] = [];
 
   const currentLang = LANGUAGES.find((l) => l.code === language);
   const displayName = user?.firstName || user?.email?.split("@")[0] || "Mon compte";
