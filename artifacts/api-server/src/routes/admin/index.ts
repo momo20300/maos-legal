@@ -7,8 +7,16 @@ const router: IRouter = Router();
 const ADMIN_EMAIL = "elasri.mounsef@gmail.com";
 
 async function isAdmin(req: any): Promise<boolean> {
-  const email = req.session?.email;
-  return email === ADMIN_EMAIL;
+  const userId = req.session?.userId;
+  if (!userId) return false;
+  const sessionEmail = req.session?.email;
+  if (sessionEmail) return sessionEmail === ADMIN_EMAIL;
+  try {
+    const [user] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+    return user?.email === ADMIN_EMAIL;
+  } catch {
+    return false;
+  }
 }
 
 router.get("/admin/stats", async (req, res): Promise<void> => {
