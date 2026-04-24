@@ -55,25 +55,27 @@ export function Navbar() {
             <JusticeScaleSVG size={26} />
           </div>
           {isSignedIn && (
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-0.5 px-1.5 py-1 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
-              title="Se déconnecter"
-            >
-              <LogOut className="w-3 h-3 shrink-0" />
-              <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Déc</span>
-            </button>
-          )}
-          {isAdmin && (
-            <Link href="/admin">
+            <div className="flex flex-col gap-0">
               <button
-                className="flex items-center gap-0.5 px-1.5 py-1 rounded-md text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 active:bg-amber-500/20 transition-colors"
-                title="Administration"
+                onClick={handleLogout}
+                className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
+                title="Se déconnecter"
               >
-                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Admin</span>
+                <LogOut className="w-3 h-3 shrink-0" />
+                <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Déc</span>
               </button>
-            </Link>
+              {isAdmin && (
+                <Link href="/admin">
+                  <button
+                    className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 active:bg-amber-500/20 transition-colors"
+                    title="Administration"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Admin</span>
+                  </button>
+                </Link>
+              )}
+            </div>
           )}
         </div>
 
