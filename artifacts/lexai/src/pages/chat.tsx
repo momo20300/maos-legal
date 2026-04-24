@@ -117,13 +117,13 @@ export default function ChatPage() {
             </div>
 
             {/* List */}
-            <div className="flex-1 p-4 space-y-3">
+            <div className="flex-1 flex flex-col overflow-y-auto">
               {convsLoading ? (
-                <div className="space-y-3">
+                <div className="space-y-3 p-4">
                   {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
                 </div>
               ) : !conversations?.length ? (
-                <div className="flex flex-col items-center justify-center flex-1 py-16 gap-4 text-center">
+                <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center px-6">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
                     <Scale className="w-7 h-7 text-[#c9a227]" />
                   </div>
@@ -137,7 +137,8 @@ export default function ChatPage() {
                   </Button>
                 </div>
               ) : (
-                conversations?.map((conv) => (
+                <div className="p-4 space-y-3">
+                {conversations?.map((conv) => (
                   <Link key={conv.id} href={`/conversations/${conv.id}`}>
                     <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all active:scale-[0.99]">
                       <button
@@ -166,7 +167,8 @@ export default function ChatPage() {
                       </div>
                     </div>
                   </Link>
-                ))
+                ))}
+                </div>
               )}
             </div>
           </div>

@@ -117,7 +117,7 @@ export default function PreparationsPage() {
         }
       );
     } catch (err) {
-      toast({ variant: "destructive", title: "Erreur", description: "Impossible de générer l'exercice." });
+      toast({ variant: "destructive", title: isRTL ? "خطأ" : "Erreur", description: isRTL ? "تعذّر توليد التمرين." : "Impossible de générer l'exercice." });
       setPhase("select");
     }
   };
@@ -147,7 +147,7 @@ export default function PreparationsPage() {
         }
       );
     } catch (err) {
-      toast({ variant: "destructive", title: "Erreur", description: "Impossible de corriger la réponse." });
+      toast({ variant: "destructive", title: isRTL ? "خطأ" : "Erreur", description: isRTL ? "تعذّر تصحيح الإجابة." : "Impossible de corriger la réponse." });
       setPhase("answering");
     }
   };
@@ -261,8 +261,8 @@ export default function PreparationsPage() {
             </Button>
           </div>
 
-          {/* Empty state */}
-          <div className="flex flex-col items-center justify-center flex-1 py-16 gap-4 text-center px-6">
+          {/* Empty state — perfectly centered */}
+          <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center px-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
               <BookOpen className="w-7 h-7 text-[#c9a227]" />
             </div>
