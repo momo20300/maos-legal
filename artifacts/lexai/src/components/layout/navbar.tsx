@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
+import { Moon, Sun, Globe, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useLanguage, type Language } from "@/contexts/language-context";
@@ -31,6 +31,7 @@ export function Navbar() {
   const { isSignedIn, user, logout } = useAuthContext();
 
   const navLinks: { href: string; label: string; icon: React.ReactNode }[] = [];
+  const isAdmin = user?.email === "elasri.mounsef@gmail.com";
 
   const currentLang = LANGUAGES.find((l) => l.code === language);
   const displayName = user?.firstName || user?.email?.split("@")[0] || "Mon compte";
@@ -62,6 +63,17 @@ export function Navbar() {
               <LogOut className="w-3 h-3 shrink-0" />
               <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Déc</span>
             </button>
+          )}
+          {isAdmin && (
+            <Link href="/admin">
+              <button
+                className="flex items-center gap-0.5 px-1.5 py-1 rounded-md text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 active:bg-amber-500/20 transition-colors"
+                title="Administration"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Admin</span>
+              </button>
+            </Link>
           )}
         </div>
 
@@ -187,6 +199,14 @@ export function Navbar() {
                   <DropdownMenuItem className="text-xs text-muted-foreground cursor-default">
                     {user?.email}
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <Link href="/admin">
+                      <DropdownMenuItem className="gap-2 cursor-pointer text-amber-600 hover:text-amber-700 font-medium">
+                        <ShieldCheck className="w-4 h-4" />
+                        Administration
+                      </DropdownMenuItem>
+                    </Link>
+                  )}
                   <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer text-red-500 hover:text-red-600">
                     <LogOut className="w-4 h-4" />
                     Se déconnecter
