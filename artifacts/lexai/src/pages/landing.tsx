@@ -80,18 +80,29 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Link href={isSignedIn ? "/chat" : "/sign-in"}>
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl gap-2">
-                  {isSignedIn ? <ArrowRight className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
-                  {isSignedIn ? t.landing.startConsultation : t.landing.signIn}
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-medium gap-2 border-accent/40 text-accent hover:bg-accent/5">
-                  <CreditCard className="w-4 h-4" />
-                  {t.landing.payToStart}
-                </Button>
-              </Link>
+              {isSignedIn ? (
+                <Link href="/chat">
+                  <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl">
+                    {t.landing.startConsultation}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/sign-in">
+                    <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl gap-2">
+                      <LogIn className="w-4 h-4" />
+                      {t.landing.signIn}
+                    </Button>
+                  </Link>
+                  <Link href="/pricing">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-medium gap-2 border-accent/40 text-accent hover:bg-accent/5">
+                      <CreditCard className="w-4 h-4" />
+                      {t.landing.payToStart}
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <div className="pt-8 flex items-center justify-center gap-8 text-sm font-medium text-muted-foreground">
