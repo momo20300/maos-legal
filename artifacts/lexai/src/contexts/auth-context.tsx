@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  jobTitle: string | null;
   plan: string | null;
   subscriptionStatus: string | null;
   isAdmin: boolean;
@@ -21,6 +22,8 @@ interface AuthContextValue {
   register: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateProfile: (data: { firstName?: string; lastName?: string; jobTitle?: string }) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -45,16 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
-    fetchMe();
-  }, [fetchMe]);
+  useEffect(() => { fetchMe(); }, [fetchMe]);
 
   const login = async (email: string, password: string) => {
     const res = await fetch(`${API}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      credentials: "include", body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur de connexion.");
@@ -63,10 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, firstName?: string, lastName?: string) => {
     const res = await fetch(`${API}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password, firstName, lastName }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      credentials: "include", body: JSON.stringify({ email, password, firstName, lastName }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur lors de l'inscription.");
@@ -78,18 +75,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const updateProfile = async (profileData: { firstName?: string; lastName?: string; jobTitle?: string }) => {
+    const res = await fetch(`${API}/auth/profile`, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      credentials: "include", body: JSON.stringify(profileData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur lors de la mise à jour.");
+    setUser(prev => prev ? { ...prev, ...data } : data);
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    const res = await fetch(`${API}/auth/password`, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      credentials: "include", body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur lors du changement de mot de passe.");
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoaded,
-        isSignedIn: !!user,
-        login,
-        register,
-        logout,
-        refreshUser: fetchMe,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user, isLoaded, isSignedIn: !!user,
+      login, register, logout, refreshUser: fetchMe,
+      updateProfile, changePassword,
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -15,6 +15,7 @@ import SignInPage from "@/pages/sign-in";
 import SignUpPage from "@/pages/sign-up";
 import AdminPage from "@/pages/admin";
 import DossiersPage from "@/pages/dossiers";
+import ProfilePage from "@/pages/profile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +78,11 @@ function Router() {
       <Route path="/admin">
         <ProtectedRoute>
           <AdminPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/profile">
+        <ProtectedRoute>
+          <ProfilePage />
         </ProtectedRoute>
       </Route>
       <Route component={NotFound} />

@@ -1,15 +1,8 @@
 import { useLocation, Link } from "wouter";
-import { Home, Scale, MessageSquare, CreditCard, User, LogOut, Plus } from "lucide-react";
+import { Home, Scale, MessageSquare, User } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -23,19 +16,12 @@ type NavItem = {
 
 export function MobileNav() {
   const isMobile = useIsMobile();
-  const { isSignedIn, user, logout } = useAuthContext();
+  const { isSignedIn } = useAuthContext();
   const { language } = useLanguage();
   const [location] = useLocation();
   const isRTL = language === "ar";
 
   if (!isMobile) return null;
-
-  const displayName = user?.firstName || user?.email?.split("@")[0] || "Compte";
-
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = `${basePath}/`;
-  };
 
   const navItems: NavItem[] = [
     {
@@ -59,10 +45,10 @@ export function MobileNav() {
       auth: true,
     },
     {
-      href: "/pricing",
-      icon: <CreditCard className="w-5 h-5" />,
-      label: isRTL ? "الأسعار" : "Tarifs",
-      activePattern: /^\/pricing$/,
+      href: isSignedIn ? "/profile" : "/sign-in",
+      icon: <User className="w-5 h-5" />,
+      label: isRTL ? "حسابي" : "Compte",
+      activePattern: /^\/profile$/,
     },
   ];
 
@@ -81,7 +67,7 @@ export function MobileNav() {
             <Link
               key={item.href + item.label}
               href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors relative ${
                 isActive
                   ? "text-[#c9a227]"
                   : "text-white/50 hover:text-white/80"
@@ -92,47 +78,11 @@ export function MobileNav() {
               </span>
               <span className="text-[10px] font-medium leading-none">{item.label}</span>
               {isActive && (
-                <span className="absolute top-0 w-6 h-0.5 rounded-full bg-[#c9a227]" />
+                <span className="absolute top-0 inset-x-1/4 h-0.5 rounded-full bg-[#c9a227]" />
               )}
             </Link>
           );
         })}
-
-        {/* Account item — always shown */}
-        {isSignedIn ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex-1 flex flex-col items-center justify-center gap-0.5 text-white/50 hover:text-white/80 transition-colors">
-                <User className="w-5 h-5" />
-                <span className="text-[10px] font-medium leading-none">
-                  {isRTL ? "حسابي" : "Compte"}
-                </span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              side="top"
-              align={isRTL ? "start" : "end"}
-              className="mb-2 min-w-[180px]"
-            >
-              <div className="px-3 py-2 text-sm font-semibold text-foreground">{displayName}</div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="gap-2 text-destructive focus:text-destructive">
-                <LogOut className="w-4 h-4" />
-                {isRTL ? "تسجيل الخروج" : "Se déconnecter"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Link
-            href="/sign-in"
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-white/50 hover:text-white/80 transition-colors"
-          >
-            <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium leading-none">
-              {isRTL ? "دخول" : "Connexion"}
-            </span>
-          </Link>
-        )}
       </div>
     </nav>
   );
