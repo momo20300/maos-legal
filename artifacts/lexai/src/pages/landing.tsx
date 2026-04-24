@@ -131,7 +131,7 @@ export default function LandingPage() {
                 </Badge>
               ))}
             </div>
-            <Link href={isSignedIn ? "/chat" : "/sign-in"}>
+            <Link href={isSignedIn ? "/preparations" : "/sign-in"}>
               <Button variant="outline" className="border-[#C1272D] text-[#C1272D] hover:bg-[#C1272D]/5 whitespace-nowrap">
                 <GraduationCap className="w-4 h-4 mr-2" />
                 {t.landing.maosRevisionMode}
