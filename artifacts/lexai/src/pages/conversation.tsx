@@ -10,12 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Info, FileText } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function ConversationPage() {
   const [, params] = useRoute("/conversations/:id");
   const id = Number(params?.id);
   const queryClient = useQueryClient();
-  
+  const { t } = useLanguage();
+
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
@@ -154,9 +156,13 @@ export default function ConversationPage() {
                     <Info className="w-8 h-8 opacity-50" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-bold text-foreground text-lg mb-1">Consultation Ready</h3>
+                    <h3 className="font-serif font-bold text-foreground text-lg mb-1">
+                        {conversation?.jurisdiction === "Morocco" ? "🇲🇦 MAOS Legal — Prêt" : "Consultation Ready"}
+                      </h3>
                     <p className="text-sm max-w-md mx-auto">
-                      Your legal intelligence expert is ready. Describe your situation, ask for definitions, or request analysis based on {conversation?.jurisdiction} law.
+                      {conversation?.jurisdiction === "Morocco"
+                        ? "Votre expert MAOS Legal est prêt. Posez votre question en droit marocain, demandez une fiche de révision, ou préparez le concours d'avocat / procureur."
+                        : "Your legal intelligence expert is ready. Describe your situation, ask for definitions, or request analysis based on " + conversation?.jurisdiction + " law."}
                     </p>
                   </div>
                 </div>
@@ -193,11 +199,11 @@ export default function ConversationPage() {
           {/* Input Area */}
           <div className="p-4 bg-background border-t border-border shrink-0">
             <div className="max-w-4xl mx-auto relative rounded-xl overflow-hidden border border-input bg-card shadow-sm focus-within:ring-1 focus-within:ring-ring transition-all">
-              <Textarea 
+              <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Detail your legal inquiry..."
+                placeholder={t.chat.typeMessage}
                 className="min-h-[80px] max-h-[300px] w-full resize-none border-0 focus-visible:ring-0 p-4 pb-12 bg-transparent text-sm"
                 data-testid="textarea-message"
               />

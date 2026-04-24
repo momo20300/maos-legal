@@ -117,6 +117,87 @@ const LEGAL_DOMAINS = [
     icon: "Home",
     expertTitle: "Arab Property Law Specialist",
   },
+  // ─── MAOS Legal — Droit Marocain ───────────────────────────────────────────
+  {
+    id: "droit-civil-maroc",
+    name: "Droit Civil (DOC)",
+    jurisdiction: "Morocco",
+    description: "Obligations, contrats, responsabilité civile — Dahir des Obligations et Contrats 1913",
+    icon: "FileText",
+    expertTitle: "Expert Droit Civil Marocain",
+  },
+  {
+    id: "droit-penal-maroc",
+    name: "Droit Pénal",
+    jurisdiction: "Morocco",
+    description: "Infractions, peines, responsabilité pénale — Code Pénal marocain",
+    icon: "Gavel",
+    expertTitle: "Expert Droit Pénal Marocain",
+  },
+  {
+    id: "procedure-civile-maroc",
+    name: "Procédure Civile (CPC)",
+    jurisdiction: "Morocco",
+    description: "Saisine des tribunaux, référé, voies d'exécution — Code de Procédure Civile",
+    icon: "Scale",
+    expertTitle: "Expert Procédure Civile Marocaine",
+  },
+  {
+    id: "procedure-penale-maroc",
+    name: "Procédure Pénale (CPP)",
+    jurisdiction: "Morocco",
+    description: "Enquête, garde à vue, instruction, jugement, voies de recours — Code de Procédure Pénale",
+    icon: "Shield",
+    expertTitle: "Expert Procédure Pénale Marocaine",
+  },
+  {
+    id: "moudawwana",
+    name: "Moudawwana — Code de la Famille",
+    jurisdiction: "Morocco",
+    description: "Mariage, divorce, garde des enfants, pension alimentaire, héritage — Loi 70-03",
+    icon: "Heart",
+    expertTitle: "Expert Droit de la Famille Marocain",
+  },
+  {
+    id: "droit-commercial-maroc",
+    name: "Droit Commercial",
+    jurisdiction: "Morocco",
+    description: "Sociétés (SA, SARL), contrats commerciaux, faillites — Code de Commerce Loi 15-95",
+    icon: "TrendingUp",
+    expertTitle: "Expert Droit Commercial Marocain",
+  },
+  {
+    id: "droit-travail-maroc",
+    name: "Droit du Travail",
+    jurisdiction: "Morocco",
+    description: "Contrat de travail, licenciement, CNSS, conventions collectives — Code du Travail Loi 65-99",
+    icon: "Briefcase",
+    expertTitle: "Expert Droit du Travail Marocain",
+  },
+  {
+    id: "droit-administratif-maroc",
+    name: "Droit Administratif",
+    jurisdiction: "Morocco",
+    description: "Recours contre l'Administration, marchés publics, responsabilité de l'État",
+    icon: "Landmark",
+    expertTitle: "Expert Droit Administratif Marocain",
+  },
+  {
+    id: "droit-immobilier-maroc",
+    name: "Droit Immobilier & Foncier",
+    jurisdiction: "Morocco",
+    description: "Titre foncier, copropriété, hypothèque, bail, expropriation",
+    icon: "Home",
+    expertTitle: "Expert Droit Immobilier Marocain",
+  },
+  {
+    id: "concours-juridiques-maroc",
+    name: "Préparation Concours — Avocat / Procureur",
+    jurisdiction: "Morocco",
+    description: "Révision structurée pour le concours CNAOF (avocat) et INPJ (procureur), fiches de cours, questions-type",
+    icon: "GraduationCap",
+    expertTitle: "Coach Juridique — Concours Marocains",
+  },
 ];
 
 router.get("/legal-domains", async (_req, res): Promise<void> => {
@@ -148,9 +229,10 @@ router.get("/legal-domains/stats", async (_req, res): Promise<void> => {
 
   if (byJurisdiction.length === 0) {
     byJurisdiction.push(
-      { jurisdiction: "EU", count: 0, percentage: 33 },
-      { jurisdiction: "US", count: 0, percentage: 33 },
-      { jurisdiction: "Arabic", count: 0, percentage: 34 },
+      { jurisdiction: "EU", count: 0, percentage: 25 },
+      { jurisdiction: "US", count: 0, percentage: 25 },
+      { jurisdiction: "Arabic", count: 0, percentage: 25 },
+      { jurisdiction: "Morocco", count: 0, percentage: 25 },
     );
   }
 
