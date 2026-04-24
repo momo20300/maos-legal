@@ -12,7 +12,7 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const PLAN_META = [
   { id: "professional", price: 49, questionsPerMonth: 100, highlighted: false },
-  { id: "expert", price: 199, questionsPerMonth: null, highlighted: true },
+  { id: "expert", price: 99, questionsPerMonth: null, highlighted: true },
 ];
 
 export default function LandingPage() {
