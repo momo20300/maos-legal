@@ -7,6 +7,7 @@ import legalDomainsRouter from "./legal-domains";
 import adminRouter from "./admin";
 import voiceRouter from "./voice";
 import prepRouter from "./prep";
+import dossiersRouter from "./dossiers";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(legalDomainsRouter);
 router.use(adminRouter);
 router.use(voiceRouter);
 router.use(prepRouter);
+router.use(dossiersRouter);
 
 export default router;
