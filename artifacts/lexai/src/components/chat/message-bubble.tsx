@@ -8,7 +8,7 @@ import { DocumentCard } from "./document-card";
 import type { Components } from "react-markdown";
 
 interface MessageBubbleProps {
-  message: Pick<AnthropicMessage, "role" | "content">;
+  message: Pick<AnthropicMessage, "role" | "content" | "attachmentData">;
 }
 
 const DOC_START = "<<<DOCUMENT_START>>>";
@@ -289,6 +289,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <span className="text-xs font-medium text-muted-foreground ml-1 mr-1">
             {isAssistant ? t.chat.lexaiPartnerLabel : t.chat.youLabel}
           </span>
+
+          {attachmentType && message.attachmentData && attachmentType === "image" && (
+            <div className="mb-1 rounded-xl overflow-hidden border border-white/15 max-w-[280px]">
+              <img
+                src={message.attachmentData}
+                alt={attachmentFilename}
+                className="w-full h-auto object-contain max-h-48"
+              />
+            </div>
+          )}
 
           {attachmentType && (
             <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium mb-1 ${

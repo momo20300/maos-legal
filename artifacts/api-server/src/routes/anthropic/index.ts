@@ -500,11 +500,17 @@ router.post(
         : `🖼️ [Image: ${file.originalname}]\n\nAnalyse juridique demandée`;
     }
 
-    // Save user message to DB
+    // Save user message to DB (store image as base64 data URL if ≤ 2MB)
+    const attachmentData: string | null =
+      file.mimetype !== "application/pdf" && file.buffer.length <= 2 * 1024 * 1024
+        ? `data:${file.mimetype};base64,${file.buffer.toString("base64")}`
+        : null;
+
     await db.insert(messages).values({
       conversationId: conv.id,
       role: "user",
       content: storedContent,
+      attachmentData,
     });
 
     // Retrieve conversation history (text only, for context)

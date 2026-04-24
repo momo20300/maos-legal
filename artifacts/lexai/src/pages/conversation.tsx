@@ -68,8 +68,8 @@ export default function ConversationPage() {
     }
   }, [toast, t]);
 
-  const clearFile = useCallback(() => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  const clearFile = useCallback((revokeUrl = true) => {
+    if (revokeUrl && previewUrl) URL.revokeObjectURL(previewUrl);
     setAttachedFile(null);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -86,7 +86,8 @@ export default function ConversationPage() {
 
     const isFileMessage = !!attachedFile;
     const currentFile = attachedFile;
-    clearFile();
+    const capturedPreviewUrl = previewUrl;
+    clearFile(false);
 
     const displayContent = isFileMessage
       ? (currentFile!.type.startsWith("image/")
@@ -99,6 +100,10 @@ export default function ConversationPage() {
       conversationId: id,
       role: "user",
       content: displayContent,
+      attachmentData:
+        isFileMessage && currentFile!.type.startsWith("image/") && capturedPreviewUrl
+          ? capturedPreviewUrl
+          : null,
       createdAt: new Date().toISOString()
     };
 
@@ -117,11 +122,13 @@ export default function ConversationPage() {
 
         response = await fetch(`${BASE_URL}/api/anthropic/conversations/${id}/analyze`, {
           method: "POST",
+          credentials: "include",
           body: formData,
         });
       } else {
         response = await fetch(`${BASE_URL}/api/anthropic/conversations/${id}/messages`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: userContent }),
         });
@@ -157,6 +164,7 @@ export default function ConversationPage() {
       }
 
       await queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
+      await queryClient.refetchQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
 
     } catch (error: any) {
       console.error("Send error:", error);

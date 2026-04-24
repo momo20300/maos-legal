@@ -23,6 +23,7 @@ export interface AnthropicMessage {
   conversationId: number;
   role: string;
   content: string;
+  attachmentData?: string | null;
   createdAt: string;
 }
 

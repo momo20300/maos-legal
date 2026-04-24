@@ -83,6 +83,7 @@ export const ListAnthropicMessagesResponseItem = zod.object({
   conversationId: zod.number(),
   role: zod.string(),
   content: zod.string(),
+  attachmentData: zod.string().nullable().optional(),
   createdAt: zod.coerce.date(),
 });
 export const ListAnthropicMessagesResponse = zod.array(
