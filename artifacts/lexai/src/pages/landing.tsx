@@ -53,7 +53,7 @@ export default function LandingPage() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative py-24 lg:py-32 overflow-hidden border-b border-border bg-gradient-to-b from-background to-secondary/20">
+      <section className="relative pt-12 pb-24 lg:pt-16 lg:pb-32 overflow-hidden border-b border-border bg-gradient-to-b from-background to-secondary/20">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-8">
