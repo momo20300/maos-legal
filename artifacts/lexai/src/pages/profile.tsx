@@ -29,16 +29,6 @@ type CallLog = {
 
 const PLANS = [
   {
-    id: "free",
-    name: "Gratuit",
-    nameAr: "مجاني",
-    price: "0€",
-    icon: <Shield className="w-4 h-4" />,
-    color: "text-muted-foreground",
-    features: ["3 consultations/mois", "1 juridiction", "Chat IA de base"],
-    featuresAr: ["3 استشارات/شهر", "اختصاص قضائي واحد", "دردشة أساسية"],
-  },
-  {
     id: "professional",
     name: "Professionnel",
     nameAr: "احترافي",
@@ -52,7 +42,7 @@ const PLANS = [
     id: "expert",
     name: "Expert",
     nameAr: "خبير",
-    price: "199€/mois",
+    price: "99€/mois",
     icon: <Star className="w-4 h-4" />,
     color: "text-purple-500",
     features: ["Tout Professionnel", "Appels vocaux IA", "Analyse de documents", "Support prioritaire"],
@@ -99,7 +89,7 @@ export default function ProfilePage() {
       setFirstName(user.firstName || "");
       setLastName(user.lastName || "");
       setJobTitle(user.jobTitle || "");
-      setSelectedPlan(user.plan || "free");
+      setSelectedPlan(user.plan || "professional");
     }
   }, [user]);
 
@@ -174,8 +164,8 @@ export default function ProfilePage() {
 
   const displayName = `${firstName || ""} ${lastName || ""}`.trim() || user?.email?.split("@")[0] || "Utilisateur";
   const initials = `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || (user?.email?.[0] || "U").toUpperCase();
-  const currentPlan = PLANS.find(p => p.id === (user?.plan || "free"));
-  const planLabel = currentPlan ? (isRTL ? currentPlan.nameAr : currentPlan.name) : (isRTL ? "مجاني" : "Gratuit");
+  const currentPlan = PLANS.find(p => p.id === user?.plan);
+  const planLabel = currentPlan ? (isRTL ? currentPlan.nameAr : currentPlan.name) : null;
 
   const tabs = [
     { id: "profil", label: isRTL ? "ملفي" : "Profil" },
@@ -209,9 +199,11 @@ export default function ProfilePage() {
             <div className="flex-1 min-w-0">
               <div className="text-foreground font-semibold text-lg truncate">{displayName}</div>
               <div className="text-muted-foreground text-sm truncate">{user?.email}</div>
-              <Badge variant="outline" className={`text-xs mt-1 ${currentPlan?.color || ""} border-current/30`}>
-                {planLabel}
-              </Badge>
+              {planLabel && (
+                <Badge variant="outline" className={`text-xs mt-1 ${currentPlan?.color || ""} border-current/30`}>
+                  {planLabel}
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -420,7 +412,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="p-5 space-y-3">
                   {PLANS.map(plan => {
-                    const isCurrent = (user?.plan || "free") === plan.id;
+                    const isCurrent = user?.plan === plan.id;
                     const isSelected = selectedPlan === plan.id;
                     return (
                       <button
@@ -464,7 +456,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Card payment form */}
-              {selectedPlan !== "free" && selectedPlan !== (user?.plan || "free") && (
+              {selectedPlan !== user?.plan && (
                 <div className="bg-card rounded-2xl border border-border overflow-hidden">
                   <div className="px-5 py-4 border-b border-border flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-accent" />
@@ -546,7 +538,7 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {selectedPlan === (user?.plan || "free") && (
+              {selectedPlan === user?.plan && (
                 <p className="text-center text-sm text-muted-foreground py-4">
                   {isRTL ? "أنت حالياً على هذه الخطة." : "Vous êtes déjà sur ce plan."}
                   {" "}
