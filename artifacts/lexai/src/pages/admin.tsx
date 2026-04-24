@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, CreditCard, TrendingUp, Trash2, RefreshCw, ShieldAlert, Wallet, Plus, X, Eye, Gift, ArrowUpCircle, PhoneCall, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, CreditCard, TrendingUp, Trash2, ShieldAlert, Wallet, Plus, X, Eye, Gift, ArrowUpCircle, PhoneCall, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -58,8 +58,8 @@ export default function AdminPage() {
   const [editPlan, setEditPlan] = useState<string>("");
   const [editStatus, setEditStatus] = useState<string>("active");
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [statsRes, usersRes] = await Promise.all([
         fetch(`${API}/api/admin/stats`, { credentials: "include" }),
@@ -68,11 +68,16 @@ export default function AdminPage() {
       if (statsRes.status === 403) { setForbidden(true); return; }
       setStats(await statsRes.json());
       if (usersRes.ok) setUsers(await usersRes.json());
-    } catch { toast({ title: "Erreur", description: "Impossible de charger les données.", variant: "destructive" }); }
-    finally { setLoading(false); }
+    } catch { if (!silent) toast({ title: "Erreur", description: "Impossible de charger les données.", variant: "destructive" }); }
+    finally { if (!silent) setLoading(false); }
   }, []);
 
-  useEffect(() => { if (isLoaded && isSignedIn) loadData(); }, [isLoaded, isSignedIn, loadData]);
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+    loadData();
+    const interval = setInterval(() => loadData(true), 20000);
+    return () => clearInterval(interval);
+  }, [isLoaded, isSignedIn, loadData]);
 
   const handleCreateUser = async () => {
     if (!newEmail || !newPassword) return;
@@ -136,9 +141,9 @@ export default function AdminPage() {
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3"><ShieldAlert className="w-6 h-6 text-accent" /><h1 className="text-xl font-bold text-foreground">Administration</h1></div>
-            <Button variant="outline" size="sm" onClick={loadData} className="gap-2 h-8 text-xs"><RefreshCw className="w-3.5 h-3.5" />Actualiser</Button>
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="w-6 h-6 text-accent" />
+            <h1 className="text-xl font-bold text-foreground">Administration</h1>
           </div>
 
           {/* Tabs */}

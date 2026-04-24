@@ -13,7 +13,7 @@ import {
   User, Mail, Briefcase, Lock, Phone,
   Save, Eye, EyeOff, LogOut, CheckCircle2, Clock,
   CreditCard, Shield, Zap, Star, Check, Wallet, TrendingUp,
-  PhoneCall, ArrowUpCircle, ArrowDownCircle, Gift, Plus, RefreshCw,
+  PhoneCall, ArrowUpCircle, ArrowDownCircle, Gift, Plus,
 } from "lucide-react";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -101,8 +101,16 @@ export default function ProfilePage() {
   }, [isSignedIn]);
 
   useEffect(() => {
-    if (activeTab === "solde") fetchBalance();
-    if (activeTab === "appels") fetchCalls();
+    if (activeTab === "solde") {
+      fetchBalance();
+      const interval = setInterval(fetchBalance, 15000);
+      return () => clearInterval(interval);
+    }
+    if (activeTab === "appels") {
+      fetchCalls();
+      const interval = setInterval(fetchCalls, 15000);
+      return () => clearInterval(interval);
+    }
   }, [activeTab, fetchBalance, fetchCalls]);
 
   const handleSaveProfile = async () => {
@@ -337,9 +345,9 @@ export default function ProfilePage() {
 
                   {/* Transaction history */}
                   <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                    <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-                      <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-accent" /><span className="text-foreground font-semibold text-sm">Historique des transactions</span></div>
-                      <button onClick={fetchBalance} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground"><RefreshCw className="w-3.5 h-3.5" /></button>
+                    <div className="px-5 py-4 border-b border-border flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-accent" />
+                      <span className="text-foreground font-semibold text-sm">Historique des transactions</span>
                     </div>
                     {transactions.length === 0 ? (
                       <div className="p-8 text-center text-muted-foreground text-sm">Aucune transaction</div>
