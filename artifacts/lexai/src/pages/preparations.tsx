@@ -34,6 +34,13 @@ const DIFFICULTIES = {
   ar: ["مبتدئ", "متوسط", "متقدم", "خبير (مباراة)"],
 };
 
+const DIFF_COLORS = [
+  "text-green-500 border-green-500/60 bg-green-500/15",
+  "text-blue-500 border-blue-500/60 bg-blue-500/15",
+  "text-orange-500 border-orange-500/60 bg-orange-500/15",
+  "text-red-500 border-red-500/60 bg-red-500/15",
+];
+
 type Phase = "select" | "generating" | "exercise" | "answering" | "correcting" | "result";
 
 export default function PreparationsPage() {
@@ -76,9 +83,7 @@ export default function PreparationsPage() {
       body: JSON.stringify(body),
     });
 
-    if (!res.ok || !res.body) {
-      throw new Error("Erreur API");
-    }
+    if (!res.ok || !res.body) throw new Error("Erreur API");
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -99,11 +104,9 @@ export default function PreparationsPage() {
       toast({ variant: "destructive", title: isRTL ? "اختر المادة والمستوى" : "Choisissez une matière et un niveau" });
       return;
     }
-
     setPhase("generating");
     setExercise("");
     setStreamBuffer("");
-
     try {
       await streamFromApi(
         "prep/exercise",
@@ -116,7 +119,7 @@ export default function PreparationsPage() {
           setTimeout(() => exerciseRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
         }
       );
-    } catch (err) {
+    } catch {
       toast({ variant: "destructive", title: isRTL ? "خطأ" : "Erreur", description: isRTL ? "تعذّر توليد التمرين." : "Impossible de générer l'exercice." });
       setPhase("select");
     }
@@ -124,14 +127,12 @@ export default function PreparationsPage() {
 
   const submitAnswer = async () => {
     if (!answer.trim() || answer.trim().length < 20) {
-      toast({ variant: "destructive", title: isRTL ? "الإجابة قصيرة جداً" : "Réponse trop courte", description: isRTL ? "أكتب إجابة أكثر تفصيلاً" : "Développez davantage votre réponse" });
+      toast({ variant: "destructive", title: isRTL ? "الإجابة قصيرة جداً" : "Réponse trop courte" });
       return;
     }
-
     setPhase("correcting");
     setCorrection("");
     setStreamBuffer("");
-
     try {
       await streamFromApi(
         "prep/correct",
@@ -140,14 +141,10 @@ export default function PreparationsPage() {
           setStreamBuffer(prev => prev + chunk);
           setTimeout(() => correctionRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
         },
-        (full) => {
-          setCorrection(full);
-          setStreamBuffer("");
-          setPhase("result");
-        }
+        (full) => { setCorrection(full); setStreamBuffer(""); setPhase("result"); }
       );
-    } catch (err) {
-      toast({ variant: "destructive", title: isRTL ? "خطأ" : "Erreur", description: isRTL ? "تعذّر تصحيح الإجابة." : "Impossible de corriger la réponse." });
+    } catch {
+      toast({ variant: "destructive", title: isRTL ? "خطأ" : "Erreur" });
       setPhase("answering");
     }
   };
@@ -158,11 +155,6 @@ export default function PreparationsPage() {
     setAnswer("");
     setCorrection("");
     setStreamBuffer("");
-  };
-
-  const exit = () => {
-    if (isMobile) { setMobileShowList(true); reset(); }
-    else navigate(`${BASE_URL}/`);
   };
 
   const formatText = (text: string) => {
@@ -199,12 +191,8 @@ export default function PreparationsPage() {
 
     lines.forEach((line, i) => {
       const isTableRow = /^\|/.test(line.trim()) || (line.includes("|") && line.trim().startsWith("|"));
-      if (isTableRow) {
-        tableLines.push(line);
-        return;
-      } else {
-        flushTable(`table-${i}`);
-      }
+      if (isTableRow) { tableLines.push(line); return; }
+      else { flushTable(`table-${i}`); }
 
       if (line.startsWith("### ")) {
         elements.push(<h4 key={i} className="text-[#c9a227] font-bold text-sm mt-3 mb-1">{line.slice(4)}</h4>);
@@ -249,19 +237,15 @@ export default function PreparationsPage() {
     return (
       <Layout>
         <div className="flex flex-col bg-background overflow-y-auto" style={{ height: "calc(100dvh - 56px - 64px - env(safe-area-inset-bottom))" }} dir={isRTL ? "rtl" : "ltr"}>
-          {/* Header */}
           <div className="sticky top-0 z-10 bg-card px-4 py-3 flex items-center justify-between border-b border-border">
             <div className="flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-accent" />
               <h1 className="text-base font-bold text-foreground">{labelTitle}</h1>
             </div>
             <Button size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setMobileShowList(false)}>
-              <Plus className="w-3.5 h-3.5" />
-              {labelNew}
+              <Plus className="w-3.5 h-3.5" />{labelNew}
             </Button>
           </div>
-
-          {/* Empty state — perfectly centered */}
           <div className="flex flex-col items-center justify-center flex-1 gap-4 text-center px-6">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
               <BookOpen className="w-7 h-7 text-[#c9a227]" />
@@ -271,8 +255,7 @@ export default function PreparationsPage() {
               <p className="text-sm text-muted-foreground mt-1">{labelEmptyDesc}</p>
             </div>
             <Button className="gap-2 mt-2 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold" onClick={() => setMobileShowList(false)}>
-              <Plus className="w-4 h-4" />
-              {labelNew}
+              <Plus className="w-4 h-4" />{labelNew}
             </Button>
           </div>
         </div>
@@ -280,267 +263,316 @@ export default function PreparationsPage() {
     );
   }
 
-  return (
-    <Layout>
-      <div className="bg-background pb-20 md:pb-24 md:min-h-screen" dir={isRTL ? "rtl" : "ltr"}>
-
-        {/* Header */}
-        <div className="sticky top-0 z-20 bg-[#0d1b2e]/95 backdrop-blur border-b border-white/10">
-          <div className="flex items-center gap-3 px-4 py-3 max-w-2xl mx-auto">
-            <button onClick={() => phase === "select" ? exit() : reset()} className="text-white/60 hover:text-white transition-colors">
-              <ChevronLeft className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
-            </button>
-            <div className="flex items-center gap-2 flex-1">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#c9a227] to-[#a07c1e] flex items-center justify-center">
-                <GraduationCap className="w-4 h-4 text-[#0d1b2e]" />
+  /* ── MOBILE: exercise view ── */
+  if (isMobile) {
+    return (
+      <Layout>
+        <div className="bg-background pb-20" dir={isRTL ? "rtl" : "ltr"}>
+          <div className="sticky top-0 z-20 bg-[#0d1b2e]/95 backdrop-blur border-b border-white/10">
+            <div className="flex items-center gap-3 px-4 py-3 max-w-2xl mx-auto">
+              <button onClick={() => phase === "select" ? setMobileShowList(true) : reset()} className="text-white/60 hover:text-white transition-colors">
+                <ChevronLeft className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
+              </button>
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#c9a227] to-[#a07c1e] flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4 text-[#0d1b2e]" />
+                </div>
+                <div>
+                  <h1 className="text-white font-bold text-sm leading-none">{isRTL ? "التحضير والتدريب" : "Préparations"}</h1>
+                  {selectedDomain && <p className="text-muted-foreground text-[10px] leading-none mt-0.5">{selectedDomain} · {selectedDifficulty}</p>}
+                </div>
               </div>
-              <div>
-                <h1 className="text-white font-bold text-sm leading-none">
-                  {isRTL ? "التحضير والتدريب" : "Préparations"}
-                </h1>
-                {selectedDomain && (
-                  <p className="text-muted-foreground text-[10px] leading-none mt-0.5">{selectedDomain} · {selectedDifficulty}</p>
-                )}
-              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-4 pb-3 max-w-2xl mx-auto">
+              {["select", "exercise", "answering", "result"].map((p, i) => {
+                const phaseOrder = ["select", "generating", "exercise", "answering", "correcting", "result"];
+                const current = phaseOrder.indexOf(phase);
+                const target = phaseOrder.indexOf(p);
+                return <div key={i} className={`h-1 rounded-full transition-all flex-1 ${current >= target ? "bg-[#c9a227]" : "bg-white/15"}`} />;
+              })}
             </div>
           </div>
 
-          {/* Progress dots */}
-          <div className="flex items-center gap-1.5 px-4 pb-3 max-w-2xl mx-auto">
-            {["select", "exercise", "answering", "result"].map((p, i) => {
-              const phaseOrder = ["select", "generating", "exercise", "answering", "correcting", "result"];
-              const current = phaseOrder.indexOf(phase);
-              const target = phaseOrder.indexOf(p);
-              const isActive = current >= target;
-              return (
-                <div key={p} className={`h-1 rounded-full transition-all flex-1 ${isActive ? "bg-[#c9a227]" : "bg-white/15"}`} />
-              );
-            })}
+          <div className="max-w-2xl mx-auto px-4 py-2 space-y-3">
+            {/* Mobile select phase */}
+            {phase === "select" && (
+              <div className="space-y-3 pt-2">
+                <div className="space-y-1.5">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">{isRTL ? "المادة القانونية" : "Matière"}</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {domains.map((d) => (
+                      <button key={d} onClick={() => setSelectedDomain(d)} className={`text-left px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all border ${selectedDomain === d ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}>{d}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">{isRTL ? "المستوى" : "Niveau"}</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {difficulties.map((d, i) => (
+                      <button key={d} onClick={() => setSelectedDifficulty(d)} className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all border ${selectedDifficulty === d ? DIFF_COLORS[i] : "bg-muted/50 border-border text-muted-foreground"}`}>{d}</button>
+                    ))}
+                  </div>
+                </div>
+                <Button onClick={generateExercise} disabled={!selectedDomain || !selectedDifficulty} className="w-full h-10 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm">
+                  <Zap className="w-4 h-4 mr-2" />{isRTL ? "توليد تمرين" : "Générer un exercice"}
+                </Button>
+              </div>
+            )}
+            {/* Other mobile phases follow same pattern as original */}
+            {phase === "generating" && (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2 text-[#c9a227]">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm font-medium">{isRTL ? "جارٍ توليد التمرين..." : "Génération en cours..."}</span>
+                </div>
+                {streamBuffer && <div className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">{formatText(streamBuffer)}<span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" /></div>}
+              </div>
+            )}
+            {(phase === "exercise" || phase === "answering") && (
+              <div ref={exerciseRef} className="space-y-4 pt-2">
+                <div className="bg-muted/30 rounded-2xl border border-[#c9a227]/30 overflow-hidden">
+                  <div className="px-4 py-3 bg-[#c9a227]/10 border-b border-[#c9a227]/20 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-[#c9a227]" />
+                    <span className="text-[#c9a227] font-bold text-sm">{isRTL ? "التمرين" : "Exercice"}</span>
+                    <span className="ml-auto text-muted-foreground text-xs">{selectedDomain}</span>
+                  </div>
+                  <div className="p-5 space-y-1">{formatText(exercise)}</div>
+                </div>
+                {phase === "exercise" && <Button onClick={() => setPhase("answering")} className="w-full h-11 bg-muted text-foreground border"><Send className="w-4 h-4 mr-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}</Button>}
+                {phase === "answering" && (
+                  <div className="space-y-3">
+                    <Textarea value={answer} onChange={e => setAnswer(e.target.value)} placeholder={isRTL ? "اكتب إجابتك..." : "Rédigez votre réponse..."} className="text-sm resize-none min-h-[180px]" dir={isRTL ? "rtl" : "ltr"} />
+                    <div className="flex gap-2">
+                      <Button onClick={() => setPhase("exercise")} variant="ghost" className="flex-1 h-11 text-sm"><ChevronLeft className="w-4 h-4 mr-1" />{isRTL ? "رجوع" : "Retour"}</Button>
+                      <Button onClick={submitAnswer} disabled={!answer.trim() || answer.trim().length < 20} className="flex-[2] h-11 bg-[#c9a227] text-[#0d1b2e] font-bold text-sm"><CheckCircle2 className="w-4 h-4 mr-2" />{isRTL ? "تقديم" : "Soumettre"}</Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {phase === "correcting" && (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2 text-[#c9a227]"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">{isRTL ? "جارٍ التصحيح..." : "Correction en cours..."}</span></div>
+                {streamBuffer && <div ref={correctionRef} className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">{formatText(streamBuffer)}<span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" /></div>}
+              </div>
+            )}
+            {phase === "result" && (
+              <div className="space-y-4 pt-2">
+                <div className="bg-muted/30 rounded-2xl border border-border overflow-hidden">
+                  <div className="px-4 py-3 bg-gradient-to-r from-green-500/10 to-[#c9a227]/10 border-b border-border flex items-center gap-2">
+                    <Award className="w-4 h-4 text-[#c9a227]" />
+                    <span className="text-foreground font-bold text-sm">{isRTL ? "التصحيح النموذجي" : "Correction détaillée"}</span>
+                  </div>
+                  <div ref={correctionRef} className="p-5 space-y-1">{formatText(correction)}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={reset} variant="outline" className="flex-1 h-11 text-sm"><RotateCcw className="w-4 h-4 mr-2" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}</Button>
+                  <Button onClick={() => setMobileShowList(true)} className="flex-1 h-11 text-sm"><X className="w-4 h-4 mr-2" />{isRTL ? "خروج" : "Terminer"}</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  /* ── DESKTOP: horizontal split — form TOP, exercise BOTTOM ── */
+  return (
+    <Layout>
+      <div className="flex flex-col flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+
+        {/* TOP: compact selection form */}
+        <div className="shrink-0 bg-card border-b border-border">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-6 pt-4 pb-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c9a227] to-[#a07c1e] flex items-center justify-center shrink-0">
+              <GraduationCap className="w-4 h-4 text-[#0d1b2e]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground leading-none">{isRTL ? "التحضير والتدريب" : "Préparation & Entraînement"}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{isRTL ? "اختر المادة والمستوى ثم ولّد تمريناً" : "Choisissez la matière, le niveau et générez un exercice"}</p>
+            </div>
+            {phase !== "select" && (
+              <Button variant="ghost" size="sm" onClick={reset} className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+                <RotateCcw className="w-3.5 h-3.5" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}
+              </Button>
+            )}
+          </div>
+
+          {/* Controls row */}
+          <div className="flex items-start gap-4 px-6 pb-4 flex-wrap lg:flex-nowrap">
+            {/* Domain pills */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المادة" : "Matière"}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {domains.map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setSelectedDomain(d)}
+                    className={`px-2.5 py-1 rounded-lg border text-xs font-medium transition-all whitespace-nowrap ${
+                      selectedDomain === d ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227]" : "border-border bg-background hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Difficulty pills */}
+            <div className="shrink-0">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المستوى" : "Niveau"}</p>
+              <div className="flex gap-1.5">
+                {difficulties.map((d, i) => (
+                  <button
+                    key={d}
+                    onClick={() => setSelectedDifficulty(d)}
+                    className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all whitespace-nowrap ${
+                      selectedDifficulty === d ? DIFF_COLORS[i] : "border-border bg-background hover:bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Generate button */}
+            <div className="shrink-0 flex items-end">
+              <div>
+                <div className="h-[22px]" />
+                <Button
+                  onClick={generateExercise}
+                  disabled={!selectedDomain || !selectedDifficulty || phase === "generating"}
+                  className="h-9 px-5 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm gap-1.5"
+                >
+                  {phase === "generating"
+                    ? <><Loader2 className="w-4 h-4 animate-spin" />{isRTL ? "جارٍ..." : "Génération..."}</>
+                    : <><Zap className="w-4 h-4" />{isRTL ? "توليد تمرين" : "Générer"}</>}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 py-2 md:py-5 space-y-3 md:space-y-5">
+        {/* BOTTOM: exercise content */}
+        <div className="flex-1 overflow-y-auto bg-background">
+          <div className="max-w-3xl mx-auto px-6 py-6 space-y-5">
 
-          {/* PHASE: SELECT */}
-          {phase === "select" && (
-            <div className="space-y-3 md:space-y-5">
-              <div className="text-center py-1 md:py-2">
-                <div className="hidden md:flex w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 items-center justify-center mx-auto mb-3">
-                  <BookOpen className="w-7 h-7 text-[#c9a227]" />
+            {/* Empty state */}
+            {phase === "select" && (
+              <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
+                  <BookOpen className="w-8 h-8 text-[#c9a227]" />
                 </div>
-                <h2 className="text-foreground font-bold text-base md:text-lg">
-                  {isRTL ? "اختر مادتك" : "Choisissez votre exercice"}
-                </h2>
-                <p className="text-muted-foreground text-xs mt-0.5 md:mt-1">
-                  {isRTL ? "مرن ذاكرتك القانونية وتعلم من التصحيح" : "Entraînez-vous et apprenez de la correction IA"}
-                </p>
-              </div>
-
-              {/* Domain selection */}
-              <div className="space-y-1.5 md:space-y-2">
-                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
-                  {isRTL ? "المادة القانونية" : "Matière"}
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-                  {domains.map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setSelectedDomain(d)}
-                      className={`text-left px-2.5 py-1.5 md:px-3 md:py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all border ${
-                        selectedDomain === d
-                          ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]"
-                          : "bg-muted/50 border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      {d}
-                    </button>
-                  ))}
+                <div>
+                  <p className="font-semibold text-foreground">{isRTL ? "اختر المادة والمستوى واضغط توليد" : "Sélectionnez une matière et un niveau, puis cliquez sur Générer"}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{isRTL ? "سيولّد الذكاء الاصطناعي تمريناً مناسباً" : "L'IA générera un exercice adapté à votre niveau"}</p>
                 </div>
               </div>
+            )}
 
-              {/* Difficulty selection */}
-              <div className="space-y-1.5 md:space-y-2">
-                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
-                  {isRTL ? "المستوى" : "Niveau"}
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 md:gap-2">
-                  {difficulties.map((d, i) => {
-                    const colors = ["text-green-500 border-green-500/40 bg-green-500/10", "text-blue-500 border-blue-500/40 bg-blue-500/10", "text-orange-500 border-orange-500/40 bg-orange-500/10", "text-red-500 border-red-500/40 bg-red-500/10"];
-                    const selectedColors = ["bg-green-500/20 border-green-500/60", "bg-blue-500/20 border-blue-500/60", "bg-orange-500/20 border-orange-500/60", "bg-red-500/20 border-red-500/60"];
-                    return (
-                      <button
-                        key={d}
-                        onClick={() => setSelectedDifficulty(d)}
-                        className={`px-2.5 py-1.5 md:px-3 md:py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all border ${
-                          selectedDifficulty === d
-                            ? selectedColors[i]
-                            : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-                        } ${selectedDifficulty === d ? colors[i] : ""}`}
-                      >
-                        {d}
-                      </button>
-                    );
-                  })}
+            {/* Generating */}
+            {phase === "generating" && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[#c9a227]">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm font-medium">{isRTL ? "جارٍ توليد التمرين..." : "Génération de l'exercice en cours..."}</span>
                 </div>
-              </div>
-
-              <Button
-                onClick={generateExercise}
-                disabled={!selectedDomain || !selectedDifficulty}
-                className="w-full h-10 md:h-12 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm shadow-lg shadow-[#c9a227]/20 disabled:opacity-30"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                {isRTL ? "توليد تمرين" : "Générer un exercice"}
-              </Button>
-            </div>
-          )}
-
-          {/* PHASE: GENERATING (streaming) */}
-          {phase === "generating" && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-[#c9a227]">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm font-medium">
-                  {isRTL ? "جارٍ توليد التمرين..." : "Génération de l'exercice en cours..."}
-                </span>
-              </div>
-              {streamBuffer && (
-                <div className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">
-                  {formatText(streamBuffer)}
-                  <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* PHASE: EXERCISE */}
-          {(phase === "exercise" || phase === "answering") && (
-            <div ref={exerciseRef} className="space-y-4">
-              {/* Exercise card */}
-              <div className="bg-muted/30 rounded-2xl border border-[#c9a227]/30 overflow-hidden">
-                <div className="px-4 py-3 bg-[#c9a227]/10 border-b border-[#c9a227]/20 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-[#c9a227]" />
-                  <span className="text-[#c9a227] font-bold text-sm">
-                    {isRTL ? "التمرين" : "Exercice"}
-                  </span>
-                  <span className="ml-auto text-muted-foreground text-xs">{selectedDomain} · {selectedDifficulty}</span>
-                </div>
-                <div className="p-5 space-y-1">
-                  {formatText(exercise)}
-                </div>
-              </div>
-
-              {/* Answer input */}
-              {phase === "exercise" && (
-                <Button
-                  onClick={() => setPhase("answering")}
-                  className="w-full h-11 bg-muted hover:bg-muted/80 text-foreground border border-border font-medium text-sm"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  {isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}
-                </Button>
-              )}
-
-              {phase === "answering" && (
-                <div className="space-y-3">
-                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                    {isRTL ? "إجابتك" : "Votre réponse"}
-                  </p>
-                  <Textarea
-                    value={answer}
-                    onChange={e => setAnswer(e.target.value)}
-                    placeholder={isRTL ? "اكتب إجابتك القانونية المفصلة هنا..." : "Rédigez votre réponse juridique ici... (minimum 20 caractères)"}
-                    className="bg-background border-border text-foreground placeholder:text-muted-foreground text-sm resize-none focus:border-[#c9a227]/60 min-h-[180px]"
-                    dir={isRTL ? "rtl" : "ltr"}
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => setPhase("exercise")}
-                      variant="ghost"
-                      className="flex-1 h-11 text-muted-foreground hover:text-foreground text-sm"
-                    >
-                      <ChevronLeft className={`w-4 h-4 mr-1 ${isRTL ? "rotate-180" : ""}`} />
-                      {isRTL ? "رجوع" : "Retour"}
-                    </Button>
-                    <Button
-                      onClick={submitAnswer}
-                      disabled={!answer.trim() || answer.trim().length < 20}
-                      className="flex-[2] h-11 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm disabled:opacity-30"
-                    >
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      {isRTL ? "تقديم للتصحيح" : "Soumettre pour correction"}
-                    </Button>
+                {streamBuffer && (
+                  <div className="bg-muted/50 rounded-2xl border border-border p-6 space-y-1">
+                    {formatText(streamBuffer)}
+                    <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
 
-          {/* PHASE: CORRECTING (streaming) */}
-          {phase === "correcting" && (
-            <div className="space-y-4">
-              {/* Show exercise mini */}
-              <div className="bg-muted/30 rounded-xl border border-border p-3 text-muted-foreground text-xs leading-relaxed line-clamp-3">
-                {exercise.slice(0, 200)}...
-              </div>
-              <div className="flex items-center gap-2 text-[#c9a227]">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm font-medium">
-                  {isRTL ? "جارٍ التصحيح..." : "Correction en cours..."}
-                </span>
-              </div>
-              {streamBuffer && (
-                <div ref={correctionRef} className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">
-                  {formatText(streamBuffer)}
-                  <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
+            {/* Exercise + answering */}
+            {(phase === "exercise" || phase === "answering") && (
+              <div ref={exerciseRef} className="space-y-5">
+                <div className="bg-muted/30 rounded-2xl border border-[#c9a227]/30 overflow-hidden">
+                  <div className="px-5 py-3 bg-[#c9a227]/10 border-b border-[#c9a227]/20 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-[#c9a227]" />
+                    <span className="text-[#c9a227] font-bold text-sm">{isRTL ? "التمرين" : "Exercice"}</span>
+                    <span className="ml-auto text-muted-foreground text-xs">{selectedDomain} · {selectedDifficulty}</span>
+                  </div>
+                  <div className="p-6 space-y-1">{formatText(exercise)}</div>
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* PHASE: RESULT */}
-          {phase === "result" && (
-            <div className="space-y-4">
-              {/* Correction card */}
-              <div className="bg-muted/30 rounded-2xl border border-border overflow-hidden">
-                <div className="px-4 py-3 bg-gradient-to-r from-green-500/10 to-[#c9a227]/10 border-b border-border flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[#c9a227]" />
-                  <span className="text-foreground font-bold text-sm">
-                    {isRTL ? "التصحيح النموذجي" : "Correction détaillée"}
-                  </span>
-                </div>
-                <div ref={correctionRef} className="p-5 space-y-1">
-                  {formatText(correction)}
-                </div>
-              </div>
+                {phase === "exercise" && (
+                  <Button onClick={() => setPhase("answering")} className="w-full h-11 bg-muted hover:bg-muted/80 text-foreground border border-border font-medium">
+                    <Send className="w-4 h-4 mr-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}
+                  </Button>
+                )}
 
-              {/* Your answer reminder */}
-              <div className="bg-muted/30 rounded-xl border border-border overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
-                  <span className="text-muted-foreground text-xs font-semibold">{isRTL ? "إجابتك" : "Votre réponse"}</span>
-                </div>
-                <div className="p-4 text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{answer}</div>
+                {phase === "answering" && (
+                  <div className="space-y-3">
+                    <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{isRTL ? "إجابتك" : "Votre réponse"}</p>
+                    <Textarea
+                      value={answer}
+                      onChange={e => setAnswer(e.target.value)}
+                      placeholder={isRTL ? "اكتب إجابتك القانونية المفصلة هنا..." : "Rédigez votre réponse juridique ici..."}
+                      className="bg-background border-border text-foreground text-sm resize-none focus:border-[#c9a227]/60 min-h-[200px]"
+                      dir={isRTL ? "rtl" : "ltr"}
+                    />
+                    <div className="flex gap-2">
+                      <Button onClick={() => setPhase("exercise")} variant="ghost" className="flex-1 h-11 text-muted-foreground text-sm">
+                        <ChevronLeft className={`w-4 h-4 mr-1 ${isRTL ? "rotate-180" : ""}`} />{isRTL ? "رجوع" : "Retour"}
+                      </Button>
+                      <Button onClick={submitAnswer} disabled={!answer.trim() || answer.trim().length < 20} className="flex-[2] h-11 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm">
+                        <CheckCircle2 className="w-4 h-4 mr-2" />{isRTL ? "تقديم للتصحيح" : "Soumettre pour correction"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button
-                  onClick={reset}
-                  variant="outline"
-                  className="flex-1 h-11 border-border text-muted-foreground hover:bg-muted hover:text-foreground text-sm font-medium"
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  {isRTL ? "تمرين جديد" : "Nouvel exercice"}
-                </Button>
-                <Button
-                  onClick={exit}
-                  className="flex-1 h-11 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm"
-                >
-                  {isRTL ? "خروج" : "EXIT"}
-                </Button>
+            {/* Correcting */}
+            {phase === "correcting" && (
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl border border-border p-4 text-muted-foreground text-xs leading-relaxed line-clamp-3">{exercise.slice(0, 200)}...</div>
+                <div className="flex items-center gap-2 text-[#c9a227]">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm font-medium">{isRTL ? "جارٍ التصحيح..." : "Correction en cours..."}</span>
+                </div>
+                {streamBuffer && (
+                  <div ref={correctionRef} className="bg-muted/50 rounded-2xl border border-border p-6 space-y-1">
+                    {formatText(streamBuffer)}
+                    <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Result */}
+            {phase === "result" && (
+              <div className="space-y-5">
+                <div className="bg-muted/30 rounded-2xl border border-border overflow-hidden">
+                  <div className="px-5 py-3 bg-gradient-to-r from-green-500/10 to-[#c9a227]/10 border-b border-border flex items-center gap-2">
+                    <Award className="w-4 h-4 text-[#c9a227]" />
+                    <span className="text-foreground font-bold text-sm">{isRTL ? "التصحيح النموذجي" : "Correction détaillée"}</span>
+                  </div>
+                  <div ref={correctionRef} className="p-6 space-y-1">{formatText(correction)}</div>
+                </div>
+
+                <div className="bg-muted/30 rounded-xl border border-border overflow-hidden">
+                  <div className="px-5 py-2.5 border-b border-border">
+                    <span className="text-muted-foreground text-xs font-semibold">{isRTL ? "إجابتك" : "Votre réponse"}</span>
+                  </div>
+                  <div className="p-5 text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{answer}</div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button onClick={reset} variant="outline" className="flex-1 h-11 text-sm">
+                    <RotateCcw className="w-4 h-4 mr-2" />{isRTL ? "تمرين جديد بنفس الإعدادات" : "Nouvel exercice (mêmes paramètres)"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, max } from "drizzle-orm";
+import { eq, max, sql } from "drizzle-orm";
 import { db, conversations, messages, documentArchive } from "@workspace/db";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import {
@@ -332,6 +332,7 @@ router.get("/anthropic/conversations", requireAuth, async (req, res): Promise<vo
       jurisdiction: conversations.jurisdiction,
       legalDomain: conversations.legalDomain,
       createdAt: conversations.createdAt,
+      source: conversations.source,
       messageCount: sql<number>`(SELECT COUNT(*) FROM messages WHERE messages.conversation_id = ${conversations.id})::int`,
     })
     .from(conversations)
