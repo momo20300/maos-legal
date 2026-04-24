@@ -77,7 +77,7 @@ export default function LandingPage() {
               {t.landing.headline1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent/60">{t.landing.headline2}</span>
             </h1>
-            <p className="text-lg lg:text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="text-base lg:text-lg text-muted-foreground font-light leading-loose max-w-xl mx-auto whitespace-pre-line">
               {t.landing.subtitle}
             </p>
 
