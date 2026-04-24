@@ -45,6 +45,22 @@ export interface Translations {
     intelligenceJuridiquePremium: string;
     signInDisclaimer: string;
     signUpDisclaimer: string;
+    signInTitle: string;
+    signInSubtitle: string;
+    signUpTitle: string;
+    signUpSubtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    passwordLabel: string;
+    firstNameLabel: string;
+    lastNameLabel: string;
+    signInButton: string;
+    signUpButton: string;
+    homeButton: string;
+    noAccount: string;
+    alreadyAccount: string;
+    signUpLink: string;
+    signInLink: string;
   };
   chat: {
     newConsultation: string;
@@ -195,6 +211,22 @@ const translations: Record<Language, Translations> = {
       intelligenceJuridiquePremium: "Premium Legal Intelligence",
       signInDisclaimer: "By accessing MAOS Legal, you agree to our terms of use and privacy policy.",
       signUpDisclaimer: "Create your MAOS Legal account and choose your subscription to access premium legal intelligence.",
+      signInTitle: "Welcome back!",
+      signInSubtitle: "Sign in to your MAOS Legal account",
+      signUpTitle: "Create an account",
+      signUpSubtitle: "Join MAOS Legal",
+      emailLabel: "Email",
+      emailPlaceholder: "your@email.com",
+      passwordLabel: "Password",
+      firstNameLabel: "First name",
+      lastNameLabel: "Last name",
+      signInButton: "Sign in",
+      signUpButton: "Create my account",
+      homeButton: "Home",
+      noAccount: "No account yet?",
+      alreadyAccount: "Already have an account?",
+      signUpLink: "Sign up",
+      signInLink: "Sign in",
     },
     chat: {
       newConsultation: "New Consultation",
@@ -362,6 +394,22 @@ const translations: Record<Language, Translations> = {
       intelligenceJuridiquePremium: "Intelligence Juridique Premium",
       signInDisclaimer: "En accédant à MAOS Legal, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
       signUpDisclaimer: "Créez votre compte MAOS Legal et choisissez votre abonnement pour accéder à l'intelligence juridique premium.",
+      signInTitle: "Bon retour !",
+      signInSubtitle: "Connectez-vous à votre espace MAOS Legal",
+      signUpTitle: "Créer un compte",
+      signUpSubtitle: "Rejoignez MAOS Legal",
+      emailLabel: "Email",
+      emailPlaceholder: "votre@email.com",
+      passwordLabel: "Mot de passe",
+      firstNameLabel: "Prénom",
+      lastNameLabel: "Nom",
+      signInButton: "Se connecter",
+      signUpButton: "Créer mon compte",
+      homeButton: "Accueil",
+      noAccount: "Pas encore de compte ?",
+      alreadyAccount: "Déjà un compte ?",
+      signUpLink: "S'inscrire",
+      signInLink: "Se connecter",
     },
     chat: {
       newConsultation: "Nouvelle Consultation",
@@ -529,6 +577,22 @@ const translations: Record<Language, Translations> = {
       intelligenceJuridiquePremium: "الذكاء القانوني المتميز",
       signInDisclaimer: "بالوصول إلى MAOS Legal، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا.",
       signUpDisclaimer: "أنشئ حسابك في MAOS Legal واختر اشتراكك للوصول إلى الذكاء القانوني المتميز.",
+      signInTitle: "مرحباً بعودتك!",
+      signInSubtitle: "تسجيل الدخول إلى حسابك في MAOS Legal",
+      signUpTitle: "إنشاء حساب",
+      signUpSubtitle: "انضم إلى MAOS Legal",
+      emailLabel: "البريد الإلكتروني",
+      emailPlaceholder: "بريدك@الإلكتروني.com",
+      passwordLabel: "كلمة المرور",
+      firstNameLabel: "الاسم الأول",
+      lastNameLabel: "اسم العائلة",
+      signInButton: "تسجيل الدخول",
+      signUpButton: "إنشاء حسابي",
+      homeButton: "الرئيسية",
+      noAccount: "ليس لديك حساب؟",
+      alreadyAccount: "لديك حساب بالفعل؟",
+      signUpLink: "إنشاء حساب",
+      signInLink: "تسجيل الدخول",
     },
     chat: {
       newConsultation: "استشارة جديدة",

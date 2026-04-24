@@ -1,133 +1,129 @@
-import { SignIn } from "@clerk/react";
-import { Link } from "wouter";
+import { useSignIn } from "@clerk/react";
+import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
-import { useEffect } from "react";
+import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-function useHideClerkJunk() {
-  useEffect(() => {
-    const selectors = [
-      ".cl-developerBanner",
-      "[data-localization-key='badge__devMode']",
-      ".cl-badge__devMode",
-      "#cl-dev-browser-warning",
-      "[data-clerk-development-mode]",
-      ".cl-footerPages",
-      ".cl-footerPagesLink__help",
-      ".cl-footerPagesLink__privacy",
-      ".cl-footerPagesLink__terms",
-      ".cl-header",
-      ".cl-headerTitle",
-      ".cl-headerSubtitle",
-    ];
-    const hide = () => {
-      selectors.forEach((sel) => {
-        document.querySelectorAll(sel).forEach((el) => {
-          (el as HTMLElement).style.setProperty("display", "none", "important");
-        });
-      });
-      document.querySelectorAll("*").forEach((el) => {
-        const text = el.textContent?.trim().toLowerCase() ?? "";
-        if (
-          text === "development mode" ||
-          (el as HTMLElement).className?.toString().toLowerCase().includes("devmode") ||
-          (el as HTMLElement).className?.toString().toLowerCase().includes("devbrand") ||
-          (el as HTMLElement).getAttribute?.("data-localization-key")?.includes("devMode")
-        ) {
-          (el as HTMLElement).style.setProperty("display", "none", "important");
-          let parent = el.parentElement;
-          while (parent && parent !== document.body) {
-            if (parent.textContent?.trim().toLowerCase() === "development mode") {
-              (parent as HTMLElement).style.setProperty("display", "none", "important");
-            }
-            parent = parent.parentElement;
-          }
-        }
-      });
-    };
-    hide();
-    const observer = new MutationObserver(hide);
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-    return () => observer.disconnect();
-  }, []);
-}
-
 export default function SignInPage() {
   const { t } = useLanguage();
-  useHideClerkJunk();
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [, navigate] = useLocation();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return;
+    setError("");
+    setLoading(true);
+    try {
+      const result = await signIn.create({ identifier: email, password });
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        navigate(`${basePath}/chat`);
+      }
+    } catch (err: any) {
+      const msg = err?.errors?.[0]?.message ?? "Erreur de connexion.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
-        {/* Branding */}
-        <div className="mb-8 flex flex-col items-center gap-1.5">
-          <Link href="/" className="flex flex-col items-center gap-1 transition-opacity hover:opacity-80">
-            <img src={`${basePath}/logo-light.png`} alt="MAOS Legal" className="h-14 w-auto object-contain" />
-            <span className="text-accent text-sm font-bold tracking-widest uppercase font-serif">Legal</span>
+        <div className="w-full max-w-sm bg-card border border-border rounded-xl shadow-lg p-8 flex flex-col items-center">
+          {/* Branding */}
+          <Link href={`${basePath}/`}>
+            <img
+              src={`${basePath}/logo-light.png`}
+              alt="MAOS Legal"
+              className="h-12 w-auto object-contain mb-4 cursor-pointer"
+            />
           </Link>
-          <p className="text-muted-foreground text-[11px] font-medium tracking-[0.2em] uppercase mt-1">
-            {t.auth.intelligenceJuridiquePremium}
+
+          <h1 className="text-2xl font-bold text-foreground mb-1">{t.auth.signInTitle}</h1>
+          <p className="text-muted-foreground text-sm mb-6">{t.auth.signInSubtitle}</p>
+
+          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-foreground">{t.auth.emailLabel}</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.auth.emailPlaceholder}
+                required
+                className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-foreground">{t.auth.passwordLabel}</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-red-500 text-xs text-center">{error}</p>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-lg bg-accent text-[#0d1b2e] font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-60 mt-1"
+            >
+              {loading ? "..." : `${t.auth.signInButton} →`}
+            </button>
+
+            {/* Home */}
+            <Link href={`${basePath}/`}>
+              <button
+                type="button"
+                className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition-colors"
+              >
+                🏠 {t.auth.homeButton}
+              </button>
+            </Link>
+          </form>
+
+          <p className="mt-6 text-sm text-muted-foreground text-center">
+            {t.auth.noAccount}{" "}
+            <Link href={`${basePath}/sign-up`} className="text-accent font-medium hover:underline">
+              {t.auth.signUpLink}
+            </Link>
           </p>
-          <Link href="/" className="mt-3">
-            <Button variant="outline" size="sm" className="gap-2 text-xs">
-              <Home className="w-3.5 h-3.5" />
-              {t.notFound.goHome}
-            </Button>
-          </Link>
         </div>
 
-        <SignIn
-          routing="path"
-          path={`${basePath}/sign-in`}
-          signUpUrl={`${basePath}/sign-up`}
-          fallbackRedirectUrl={`${basePath}/chat`}
-          appearance={{
-            variables: {
-              colorPrimary: "#c9a227",
-              colorBackground: "#faf8f3",
-              colorText: "#0d1b2e",
-              colorTextSecondary: "#4a5568",
-              colorInputBackground: "#ffffff",
-              colorInputText: "#0d1b2e",
-              colorNeutral: "#4a5568",
-              colorSuccess: "#15803d",
-              colorDanger: "#dc2626",
-              fontFamily: "'Inter', sans-serif",
-              borderRadius: "0.5rem",
-            },
-            elements: {
-              card: "shadow-lg border border-border bg-card",
-              header: "!hidden",
-              headerTitle: "!hidden",
-              headerSubtitle: "!hidden",
-              socialButtonsRoot: "!hidden",
-              socialButtonsBlockButton: "!hidden",
-              dividerRow: "!hidden",
-              dividerLine: "!hidden",
-              dividerText: "!hidden",
-              formFieldLabel: "text-foreground text-sm font-medium",
-              formFieldInput: "bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-accent",
-              formButtonPrimary: "bg-accent hover:bg-accent/90 text-[#0d1b2e] font-semibold",
-              footerActionLink: "text-accent hover:text-accent/80",
-              identityPreviewText: "text-foreground",
-              identityPreviewEditButton: "text-accent",
-              otpCodeFieldInput: "bg-background border-border text-foreground",
-              developerBanner: "!hidden",
-              footerPages: "!hidden",
-              footerPagesLink__help: "!hidden",
-              footerPagesLink__privacy: "!hidden",
-              footerPagesLink__terms: "!hidden",
-            },
-          }}
-        />
-
-        <p className="mt-8 text-muted-foreground text-xs text-center max-w-sm">
+        <p className="mt-6 text-muted-foreground text-xs text-center max-w-sm">
           {t.auth.signInDisclaimer}
         </p>
       </div>
