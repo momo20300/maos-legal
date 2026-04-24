@@ -350,26 +350,28 @@ export default function ChatPage() {
     );
   }
 
-  /* ── DESKTOP: form left + conversations right ── */
+  /* ── DESKTOP: horizontal split — form TOP, list BOTTOM ── */
   return (
     <Layout>
-      <div className="flex flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="flex flex-col flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
-        {/* LEFT: New Consultation form */}
-        <div className="w-[420px] shrink-0 flex flex-col border-r border-border">
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-border bg-card shrink-0">
-            <JusticeScaleSVG size={26} />
-            <div>
-              <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
-            </div>
-          </div>
+        {/* ── TOP: compact new-consultation form ── */}
+        <div className="shrink-0 bg-card border-b border-border">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              {/* Header row */}
+              <div className="flex items-center gap-3 px-6 pt-4 pb-2">
+                <JusticeScaleSVG size={22} />
+                <div>
+                  <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
+                </div>
+              </div>
 
-          <div key={language} className="flex-1 overflow-y-auto">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 px-5 pt-5 pb-6">
-                {/* Jurisdiction 2×2 */}
-                <div className="grid grid-cols-2 gap-2">
+              {/* Controls row: jurisdictions + inputs + button */}
+              <div className="flex items-start gap-3 px-6 pb-4 flex-wrap lg:flex-nowrap" key={language}>
+                {/* Jurisdiction pills — horizontal */}
+                <div className="flex gap-2 shrink-0 flex-wrap">
                   {JURISDICTIONS.map(({ key, flag, short }) => {
                     const isSelected = watchJurisdiction === key;
                     const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
@@ -378,23 +380,20 @@ export default function ChatPage() {
                         key={key}
                         type="button"
                         onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all ${
-                          isSelected ? "border-[#c9a227] bg-[#c9a227]/10 shadow-sm" : "border-border bg-card hover:bg-muted"
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-semibold transition-all whitespace-nowrap ${
+                          isSelected ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227] shadow-sm" : "border-border bg-background hover:bg-muted text-foreground"
                         }`}
                       >
-                        {isText ? (
-                          <span className={`text-xs font-bold px-1 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
-                        ) : (
-                          <span className="text-lg leading-none">{flag}</span>
-                        )}
-                        <span className={`text-sm font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
-                          {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
-                        </span>
+                        {isText
+                          ? <span className={`text-xs font-bold px-1 py-0.5 rounded ${isSelected ? "bg-[#c9a227]/20" : "bg-muted"}`}>{flag}</span>
+                          : <span className="text-base leading-none">{flag}</span>}
+                        {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
                       </button>
                     );
                   })}
                 </div>
 
+                {/* Hidden jurisdiction validation field */}
                 <FormField control={form.control} name="jurisdiction" render={({ field }) => (
                   <FormItem className="hidden">
                     <Select onValueChange={field.onChange} value={field.value ?? ""}>
@@ -405,20 +404,22 @@ export default function ChatPage() {
                   </FormItem>
                 )} />
 
+                {/* Title */}
                 <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1 min-w-[180px]">
                     <FormControl>
-                      <Input placeholder={t.chat.casePlaceholder} className="bg-card h-11 text-sm" {...field} data-testid="input-title" />
+                      <Input placeholder={t.chat.casePlaceholder} className="h-9 text-sm" {...field} data-testid="input-title" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
 
+                {/* Legal Domain */}
                 <FormField control={form.control} name="legalDomain" render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-[200px] shrink-0">
                     <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
                       <FormControl>
-                        <SelectTrigger className="bg-card h-11 text-sm" data-testid="select-domain">
+                        <SelectTrigger className="h-9 text-sm" data-testid="select-domain">
                           <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
                         </SelectTrigger>
                       </FormControl>
@@ -432,81 +433,77 @@ export default function ChatPage() {
                   </FormItem>
                 )} />
 
+                {/* Submit */}
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base font-semibold shadow-md mt-2"
+                  className="h-9 px-5 text-sm font-semibold shrink-0"
                   disabled={createMutation.isPending}
                   data-testid="button-create-consultation"
                 >
-                  {createMutation.isPending ? (
-                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" />{t.chat.initializingExpert}</>
-                  ) : (
-                    <>{t.chat.beginConsultation}<ChevronRight className="w-5 h-5 ml-1" /></>
-                  )}
+                  {createMutation.isPending
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t.chat.initializingExpert}</>
+                    : <>{t.chat.beginConsultation}<ChevronRight className="w-4 h-4 ml-1" /></>}
                 </Button>
-              </form>
-            </Form>
-          </div>
+              </div>
+            </form>
+          </Form>
         </div>
 
-        {/* RIGHT: Conversations + archived documents */}
+        {/* ── BOTTOM: consultations + archived documents ── */}
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card shrink-0">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-accent" />
-              <h2 className="text-sm font-bold text-foreground">
-                {isRTL ? "استشاراتي ومراسلاتي" : "Consultations & Courriers"}
-              </h2>
-              {(conversations?.length ?? 0) + archivedDocs.length > 0 && (
-                <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
-                  {(conversations?.length ?? 0) + archivedDocs.length}
-                </span>
-              )}
-            </div>
+          <div className="flex items-center gap-2 px-6 py-3 border-b border-border bg-card shrink-0">
+            <MessageSquare className="w-4 h-4 text-accent" />
+            <h2 className="text-sm font-bold text-foreground">
+              {isRTL ? "استشاراتي ومراسلاتي" : "Consultations & Courriers"}
+            </h2>
+            {(conversations?.length ?? 0) + archivedDocs.length > 0 && (
+              <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
+                {(conversations?.length ?? 0) + archivedDocs.length}
+              </span>
+            )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            {/* ── Conversations ── */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-6">
+
+            {/* Conversations */}
             <div>
               {convsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
+                <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                  {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />)}
                 </div>
               ) : !conversations?.length ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
                     <MessageSquare className="w-6 h-6 text-[#c9a227]" />
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {isRTL ? "لا توجد استشارات بعد" : "Aucune consultation pour l'instant"}
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                   {conversations.map((conv) => {
                     const isVoice = (conv as any).source === "voice";
                     return (
                       <Link key={conv.id} href={`/conversations/${conv.id}`}>
-                        <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer">
+                        <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer h-full">
                           <button
-                            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                            className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
                             onClick={(e) => handleDelete(e, conv.id)}
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
-                          <div className="flex items-start gap-2.5 pr-8">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isVoice ? "bg-[#c9a227]/15" : "bg-primary/10"}`}>
-                              {isVoice
-                                ? <Phone className="w-4 h-4 text-[#c9a227]" />
-                                : <MessageSquare className="w-4 h-4 text-primary" />}
+                          <div className="flex items-start gap-2.5 pr-6">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isVoice ? "bg-[#c9a227]/15" : "bg-primary/10"}`}>
+                              {isVoice ? <Phone className="w-4 h-4 text-[#c9a227]" /> : <MessageSquare className="w-4 h-4 text-primary" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm text-foreground line-clamp-1">{conv.title}</p>
-                              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                              <p className="font-semibold text-sm text-foreground line-clamp-2 leading-snug">{conv.title}</p>
+                              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                                 <JurisdictionBadge jurisdiction={conv.jurisdiction} className="text-[10px] h-4 py-0 px-1.5" />
                                 <span className="text-[10px] text-muted-foreground">{format(new Date(conv.createdAt), "d MMM yyyy")}</span>
                               </div>
-                              <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground font-medium">
+                              <div className="flex items-center gap-1 mt-1.5 text-[10px] text-muted-foreground">
                                 <Shield className="w-3 h-3 shrink-0" />
                                 <span className="truncate">{conv.legalDomain}</span>
                               </div>
@@ -520,7 +517,7 @@ export default function ChatPage() {
               )}
             </div>
 
-            {/* ── Archived Documents ── */}
+            {/* Archived Documents */}
             {(docsLoading || archivedDocs.length > 0) && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -529,22 +526,20 @@ export default function ChatPage() {
                     {isRTL ? "المراسلات والوثائق القانونية" : "Courriers & Documents archivés"}
                   </h3>
                   {archivedDocs.length > 0 && (
-                    <span className="text-[10px] bg-[#c9a227]/20 text-[#c9a227] rounded-full px-1.5 py-0.5 font-bold">
-                      {archivedDocs.length}
-                    </span>
+                    <span className="text-[10px] bg-[#c9a227]/20 text-[#c9a227] rounded-full px-1.5 py-0.5 font-bold">{archivedDocs.length}</span>
                   )}
                 </div>
                 {docsLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2].map(i => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
+                  <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
+                    {[1,2].map(i => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                     {archivedDocs.map((doc) => (
                       <Link key={doc.id} href={doc.conversationId ? `/conversations/${doc.conversationId}` : "/chat"}>
                         <div className="group bg-card border border-[#c9a227]/30 rounded-xl p-4 hover:border-[#c9a227]/70 transition-all cursor-pointer">
                           <div className="flex items-start gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0 mt-0.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0">
                               <FileText className="w-4 h-4 text-[#c9a227]" />
                             </div>
                             <div className="flex-1 min-w-0">
