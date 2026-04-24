@@ -1,0 +1,87 @@
+import { Link, useLocation } from "wouter";
+import { Scale, MessageSquare, CreditCard, Menu, X, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/use-theme";
+import { useState } from "react";
+
+export function Navbar() {
+  const [location] = useLocation();
+  const { theme, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { href: "/chat", label: "Chat", icon: <MessageSquare className="w-4 h-4 mr-2" /> },
+    { href: "/pricing", label: "Pricing", icon: <CreditCard className="w-4 h-4 mr-2" /> },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80" data-testid="link-home">
+          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground">
+            <Scale className="w-5 h-5" />
+          </div>
+          <span className="font-serif font-bold text-xl tracking-tight text-primary dark:text-primary-foreground">LexAI</span>
+        </Link>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.href} 
+                href={link.href}
+                className={`text-sm font-medium transition-colors hover:text-primary flex items-center ${location.startsWith(link.href) ? "text-primary" : "text-muted-foreground"}`}
+                data-testid={`link-nav-${link.label.toLowerCase()}`}
+              >
+                {link.icon}
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          
+          <div className="flex items-center gap-4 border-l border-border pl-6">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle">
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+            <Link href="/chat" data-testid="link-nav-cta">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                New Case
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile Toggle */}
+        <div className="md:hidden flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle-mobile">
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="button-mobile-menu">
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Nav */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-border bg-background p-4 flex flex-col gap-4">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.href} 
+              href={link.href}
+              className={`text-sm font-medium p-2 rounded-md transition-colors hover:bg-muted flex items-center ${location.startsWith(link.href) ? "bg-muted text-primary" : "text-muted-foreground"}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.icon}
+              {link.label}
+            </Link>
+          ))}
+          <Link href="/chat" onClick={() => setMobileMenuOpen(false)}>
+            <Button className="w-full mt-2">New Case</Button>
+          </Link>
+        </div>
+      )}
+    </nav>
+  );
+}

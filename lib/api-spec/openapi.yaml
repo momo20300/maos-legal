@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: LexAI Legal Intelligence Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: anthropic
+    description: Anthropic AI chat operations
+  - name: subscriptions
+    description: Subscription management
+  - name: legalDomains
+    description: Legal domain and jurisdiction info
 paths:
   /healthz:
     get:
@@ -24,6 +30,181 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /anthropic/conversations:
+    get:
+      operationId: listAnthropicConversations
+      tags: [anthropic]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicConversation"
+    post:
+      operationId: createAnthropicConversation
+      tags: [anthropic]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnthropicConversationBody"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversation"
+
+  /anthropic/conversations/{id}:
+    get:
+      operationId: getAnthropicConversation
+      tags: [anthropic]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+    delete:
+      operationId: deleteAnthropicConversation
+      tags: [anthropic]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+
+  /anthropic/conversations/{id}/messages:
+    get:
+      operationId: listAnthropicMessages
+      tags: [anthropic]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicMessage"
+    post:
+      operationId: sendAnthropicMessage
+      tags: [anthropic]
+      summary: Send a message and receive an AI legal expert response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendAnthropicMessageBody"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+  /subscriptions/plans:
+    get:
+      operationId: listSubscriptionPlans
+      tags: [subscriptions]
+      summary: List available subscription plans
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubscriptionPlan"
+
+  /subscriptions/status:
+    get:
+      operationId: getSubscriptionStatus
+      tags: [subscriptions]
+      summary: Get current user subscription status
+      responses:
+        "200":
+          description: Subscription status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionStatus"
+
+  /legal-domains:
+    get:
+      operationId: listLegalDomains
+      tags: [legalDomains]
+      summary: List all legal domains and jurisdictions
+      responses:
+        "200":
+          description: List of legal domains
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LegalDomain"
+
+  /legal-domains/stats:
+    get:
+      operationId: getLegalDomainStats
+      tags: [legalDomains]
+      summary: Get platform stats - questions answered by jurisdiction
+      responses:
+        "200":
+          description: Stats by jurisdiction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalDomainStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +215,224 @@ components:
       required:
         - status
 
+    AnthropicConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        jurisdiction:
+          type: string
+        legalDomain:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messageCount:
+          type: integer
+      required:
+        - id
+        - title
+        - jurisdiction
+        - legalDomain
+        - createdAt
+        - messageCount
+
+    AnthropicMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+
+    CreateAnthropicConversationBody:
+      type: object
+      properties:
+        title:
+          type: string
+        jurisdiction:
+          type: string
+        legalDomain:
+          type: string
+      required:
+        - title
+        - jurisdiction
+        - legalDomain
+
+    SendAnthropicMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+
+    AnthropicConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        jurisdiction:
+          type: string
+        legalDomain:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messageCount:
+          type: integer
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnthropicMessage"
+      required:
+        - id
+        - title
+        - jurisdiction
+        - legalDomain
+        - createdAt
+        - messageCount
+        - messages
+
+    AnthropicError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+        interval:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        questionsPerMonth:
+          type: ["integer", "null"]
+        highlighted:
+          type: boolean
+      required:
+        - id
+        - name
+        - price
+        - currency
+        - interval
+        - features
+        - questionsPerMonth
+        - highlighted
+
+    SubscriptionStatus:
+      type: object
+      properties:
+        plan:
+          type: string
+        questionsUsed:
+          type: integer
+        questionsLimit:
+          type: ["integer", "null"]
+        renewsAt:
+          type: ["string", "null"]
+          format: date-time
+        isActive:
+          type: boolean
+      required:
+        - plan
+        - questionsUsed
+        - questionsLimit
+        - renewsAt
+        - isActive
+
+    LegalDomain:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        jurisdiction:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        expertTitle:
+          type: string
+      required:
+        - id
+        - name
+        - jurisdiction
+        - description
+        - icon
+        - expertTitle
+
+    LegalDomainStats:
+      type: object
+      properties:
+        totalQuestions:
+          type: integer
+        byJurisdiction:
+          type: array
+          items:
+            $ref: "#/components/schemas/JurisdictionStat"
+        byDomain:
+          type: array
+          items:
+            $ref: "#/components/schemas/DomainStat"
+      required:
+        - totalQuestions
+        - byJurisdiction
+        - byDomain
+
+    JurisdictionStat:
+      type: object
+      properties:
+        jurisdiction:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+      required:
+        - jurisdiction
+        - count
+        - percentage
+
+    DomainStat:
+      type: object
+      properties:
+        domain:
+          type: string
+        count:
+          type: integer
+      required:
+        - domain
+        - count
