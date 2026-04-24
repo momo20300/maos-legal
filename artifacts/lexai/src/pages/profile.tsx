@@ -144,7 +144,7 @@ export default function ProfilePage() {
   return (
     <Layout>
       <div
-        className="min-h-screen bg-[#0d1b2e] pb-20 md:pb-8"
+        className="dark min-h-screen bg-[#0d1b2e] pb-20 md:pb-8"
         dir={isRTL ? "rtl" : "ltr"}
       >
         {/* Mobile header */}

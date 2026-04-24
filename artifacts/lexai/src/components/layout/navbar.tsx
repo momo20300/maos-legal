@@ -124,8 +124,19 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile: language + theme only (nav links are in bottom bar) */}
+        {/* Mobile: logout (left) + language + theme (nav links are in bottom bar) */}
         <div className="md:hidden flex items-center gap-1">
+          {isSignedIn && (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-xs font-semibold"
+              title="Se déconnecter"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-bold tracking-wide">QUIT</span>
+            </button>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">

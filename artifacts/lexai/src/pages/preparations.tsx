@@ -183,7 +183,7 @@ export default function PreparationsPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#0d1b2e] pb-24" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="dark min-h-screen bg-[#0d1b2e] pb-24" dir={isRTL ? "rtl" : "ltr"}>
 
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[#0d1b2e]/95 backdrop-blur border-b border-white/10">
