@@ -330,7 +330,7 @@ const translations: Record<Language, Translations> = {
       badge: "L'Avenir de l'Intelligence Juridique",
       headline1: "La clarté juridique",
       headline2: "sans compromis.",
-      subtitle: "Expert nouvelle génération en droit Marocain toutes branches.\nDroit Européen, Américain et Pays du Moyen-Orient.\nCitations exactes d'articles de loi et de jurisprudence.\nRéponses au niveau d'un associé senior, instantanées.\nPréparation aux concours Avocat et métiers juridiques.",
+      subtitle: "Expert nouvelle génération en droit Marocain toutes branches.\nDroit Européen, Américain et Pays du Moyen-Orient.\nCitations exactes d'articles de loi et de jurisprudence.\nPréparation aux concours Avocat et métiers juridiques.",
       startConsultation: "Démarrer une Consultation",
       viewPlans: "Voir les Offres",
       signIn: "Se connecter",
