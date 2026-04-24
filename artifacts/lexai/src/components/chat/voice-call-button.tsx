@@ -113,7 +113,7 @@ export function VoiceCallFAB() {
   // ACTIVE CALL — show controls instead of main FAB
   if (callState === "active") {
     return (
-      <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50 flex flex-col items-end gap-2`}>
+      <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50 flex flex-col items-end gap-2`}>
         {/* Mute button */}
         <button
           onClick={toggleMute}
@@ -145,7 +145,7 @@ export function VoiceCallFAB() {
   // CONNECTING
   if (callState === "connecting") {
     return (
-      <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50`}>
+      <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50`}>
         <div className="w-14 h-14 rounded-full bg-accent flex items-center justify-center shadow-xl">
           <Phone className="w-6 h-6 text-[#0d1b2e] animate-pulse" />
         </div>
@@ -156,7 +156,7 @@ export function VoiceCallFAB() {
 
   // IDLE — dropdown to pick language
   return (
-    <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50`}>
+    <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50`}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
