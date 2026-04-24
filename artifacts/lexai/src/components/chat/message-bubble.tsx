@@ -1,6 +1,7 @@
 import { AnthropicMessage } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Scale, User, FileText, Image } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 interface MessageBubbleProps {
   message: Pick<AnthropicMessage, "role" | "content">;
@@ -19,6 +20,7 @@ function parseAttachment(content: string): { type: "image" | "pdf" | null; filen
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === "assistant";
   const { type: attachmentType, filename, rest } = parseAttachment(message.content);
+  const { t } = useLanguage();
 
   const formatContent = (content: string) => {
     const citationRegex = /(\[.*?\]|\(.*?\b(Article|Art\.|U\.S\.C\.|C\.F\.R\.|v\.|Code|Section|Sec\.)\b.*?\))/g;
@@ -68,10 +70,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
         <div className={`flex flex-col gap-1 ${isAssistant ? "items-start" : "items-end"}`}>
           <span className="text-xs font-medium text-muted-foreground ml-1 mr-1">
-            {isAssistant ? "LexAI Partner" : "You"}
+            {isAssistant ? t.chat.lexaiPartnerLabel : t.chat.youLabel}
           </span>
 
-          {/* Attachment badge */}
           {attachmentType && (
             <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium mb-1 ${
               isAssistant

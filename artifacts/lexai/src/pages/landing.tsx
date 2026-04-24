@@ -89,7 +89,7 @@ export default function LandingPage() {
               <div className="text-4xl">🇲🇦</div>
               <div>
                 <h3 className="font-serif font-bold text-xl">MAOS Legal</h3>
-                <p className="text-sm text-muted-foreground">Intelligence Juridique Marocaine • Encyclopédie du Droit 2026</p>
+                <p className="text-sm text-muted-foreground">{t.landing.maosSubtitle}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 justify-center md:justify-end">
@@ -102,7 +102,7 @@ export default function LandingPage() {
             <Link href="/chat">
               <Button variant="outline" className="border-[#C1272D] text-[#C1272D] hover:bg-[#C1272D]/5 whitespace-nowrap">
                 <GraduationCap className="w-4 h-4 mr-2" />
-                Mode Révision
+                {t.landing.maosRevisionMode}
               </Button>
             </Link>
           </div>

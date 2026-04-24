@@ -124,9 +124,9 @@ export default function ChatPage() {
                     {/* MAOS Legal feature highlight */}
                     {watchJurisdiction === "Morocco" && (
                       <div className="rounded-lg border border-[#C1272D]/30 bg-[#C1272D]/5 p-3">
-                        <p className="text-xs font-semibold text-[#C1272D] mb-1">🇲🇦 MAOS Legal — Expert Droit Marocain</p>
+                        <p className="text-xs font-semibold text-[#C1272D] mb-1">{t.chat.maosExpertTitle}</p>
                         <p className="text-xs text-muted-foreground">
-                          DOC · Code Pénal · Moudawwana · CPC · CPP · Droit Commercial · Droit du Travail · Droit Administratif · Tous Tribunaux · Préparation Concours Avocat / Procureur
+                          {t.chat.maosExpertDesc}
                         </p>
                       </div>
                     )}

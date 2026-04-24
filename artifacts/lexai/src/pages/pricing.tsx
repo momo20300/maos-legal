@@ -13,12 +13,19 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function PricingPage() {
   const { data: plans, isLoading: isLoadingPlans } = useListSubscriptionPlans({ query: { queryKey: getListSubscriptionPlansQueryKey() } });
   const { data: status, isLoading: isLoadingStatus } = useGetSubscriptionStatus({ query: { queryKey: getGetSubscriptionStatusQueryKey() } });
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { isSignedIn } = useAuth();
 
   const handleSubscribe = (planId: string) => {
     window.location.href = `${basePath}/api/subscriptions/checkout?planId=${planId}`;
   };
+
+  const trustBadges = [
+    { icon: "🔒", label: t.pricing.sslBadge },
+    { icon: "🌍", label: t.pricing.jurisdictionsBadge },
+    { icon: "📚", label: t.pricing.citationsBadge },
+    { icon: "⚡", label: t.pricing.responseBadge },
+  ];
 
   return (
     <Layout>
@@ -27,18 +34,14 @@ export default function PricingPage() {
           <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-1.5 mb-6">
             <Lock className="w-3.5 h-3.5 text-accent" />
             <span className="text-xs font-medium text-accent uppercase tracking-wider">
-              {language === "ar" ? "وصول مدفوع فقط" : language === "en" ? "Premium Access Only" : "Accès Premium Uniquement"}
+              {t.pricing.premiumOnly}
             </span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-serif font-bold mb-4 tracking-tight">
-            {language === "ar" ? "استثمر في الذكاء القانوني" : language === "en" ? "Invest in Legal Intelligence" : "Investissez dans l'Intelligence Juridique"}
+            {t.pricing.title}
           </h1>
           <p className="text-lg text-muted-foreground">
-            {language === "ar"
-              ? "وصول كامل إلى القانون الأوروبي والأمريكي والعربي والمغربي مع الاستشهادات الدقيقة."
-              : language === "en"
-              ? "Full access to EU, US, Arabic and Moroccan law with precise citations."
-              : "Accès complet au droit européen, américain, arabe et marocain avec citations précises."}
+            {t.pricing.subtitle}
           </p>
         </div>
 
@@ -51,18 +54,18 @@ export default function PricingPage() {
                   <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-400 shrink-0" />
                   <div>
                     <p className="font-semibold text-green-800 dark:text-green-300">
-                      {language === "ar" ? `خطتك الحالية: ${status.plan}` : language === "en" ? `Active Plan: ${status.plan}` : `Votre abonnement actif : ${status.plan}`}
+                      {t.pricing.activePlan}: {status.plan}
                     </p>
                     {status.renewsAt && (
                       <p className="text-sm text-green-700 dark:text-green-400">
-                        {language === "ar" ? `يتجدد في` : language === "en" ? "Renews on" : "Renouvellement le"} {new Date(status.renewsAt).toLocaleDateString()}
+                        {t.pricing.renewsOn} {new Date(status.renewsAt).toLocaleDateString()}
                       </p>
                     )}
                   </div>
                 </div>
                 <Link href="/chat">
                   <Button className="bg-green-600 hover:bg-green-700 text-white shrink-0">
-                    {language === "ar" ? "ابدأ المحادثة" : language === "en" ? "Go to Chat" : "Accéder au Chat"}
+                    {t.pricing.goToChat}
                   </Button>
                 </Link>
               </CardContent>
@@ -90,7 +93,7 @@ export default function PricingPage() {
                   <div className="absolute top-0 left-0 right-0 h-1 bg-accent rounded-t-xl" />
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span className="bg-accent text-[#0d1b2e] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                      {language === "ar" ? "الأكثر شعبية" : language === "en" ? "Most Popular" : "Le Plus Populaire"}
+                      {t.pricing.mostPopular}
                     </span>
                   </div>
                 </>
@@ -104,13 +107,13 @@ export default function PricingPage() {
                 <div className="flex items-baseline gap-2 mb-3 mt-2">
                   <span className="text-5xl font-serif font-bold">${plan.price}</span>
                   <span className={`text-sm ${plan.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                    / {language === "ar" ? "شهر" : language === "en" ? "month" : "mois"}
+                    / {t.pricing.month}
                   </span>
                 </div>
                 <CardDescription className={`text-sm ${plan.highlighted ? "text-primary-foreground/80" : ""}`}>
                   {plan.questionsPerMonth
-                    ? (language === "ar" ? `${plan.questionsPerMonth} استشارة قانونية / شهر` : language === "en" ? `${plan.questionsPerMonth} legal queries / month` : `${plan.questionsPerMonth} consultations juridiques / mois`)
-                    : (language === "ar" ? "استشارات قانونية غير محدودة" : language === "en" ? "Unlimited legal queries" : "Consultations juridiques illimitées")}
+                    ? `${plan.questionsPerMonth} ${t.pricing.questionsPerMonth}`
+                    : t.pricing.unlimitedQuestions}
                 </CardDescription>
               </CardHeader>
 
@@ -141,8 +144,8 @@ export default function PricingPage() {
                   >
                     <CreditCard className="w-4 h-4" />
                     {status?.plan === plan.name && status.isActive
-                      ? (language === "ar" ? "خطتك الحالية" : language === "en" ? "Current Plan" : "Votre abonnement actuel")
-                      : (language === "ar" ? "اشترك الآن" : language === "en" ? "Subscribe Now" : "S'abonner maintenant")}
+                      ? t.pricing.currentPlanLabel
+                      : t.pricing.subscribeNow}
                   </Button>
                 ) : (
                   <Link href="/sign-up" className="w-full">
@@ -155,12 +158,12 @@ export default function PricingPage() {
                       data-testid={`button-subscribe-${plan.id}`}
                     >
                       <CreditCard className="w-4 h-4" />
-                      {language === "ar" ? "ابدأ الآن" : language === "en" ? "Get Started" : "Commencer maintenant"}
+                      {t.pricing.getStartedNow}
                     </Button>
                   </Link>
                 )}
                 <p className={`text-xs text-center ${plan.highlighted ? "text-primary-foreground/50" : "text-muted-foreground"}`}>
-                  {language === "ar" ? "بطاقة بنكية مطلوبة • بدون تجربة مجانية" : language === "en" ? "Credit card required • No free trial" : "Carte bancaire requise • Sans essai gratuit"}
+                  {t.pricing.cardRequired}
                 </p>
               </CardFooter>
             </Card>
@@ -169,12 +172,7 @@ export default function PricingPage() {
 
         {/* Trust badges */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { icon: "🔒", label: language === "en" ? "256-bit SSL" : "SSL 256 bits" },
-            { icon: "🌍", label: language === "en" ? "4 Jurisdictions" : "4 Juridictions" },
-            { icon: "📚", label: language === "en" ? "Real Law Citations" : "Citations Légales Réelles" },
-            { icon: "⚡", label: language === "en" ? "Instant Response" : "Réponse Instantanée" },
-          ].map((badge, i) => (
+          {trustBadges.map((badge, i) => (
             <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card">
               <span className="text-2xl">{badge.icon}</span>
               <span className="text-xs font-medium text-muted-foreground">{badge.label}</span>
@@ -183,11 +181,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-12 text-center text-sm text-muted-foreground max-w-xl mx-auto">
-          {language === "ar"
-            ? "جميع الاشتراكات تتضمن تشفيرًا من الدرجة المؤسسية. الأسعار بالدولار الأمريكي."
-            : language === "en"
-            ? "All subscriptions include enterprise-grade encryption. Prices are in USD."
-            : "Tous les abonnements incluent un chiffrement de niveau entreprise. Prix en USD."}
+          {t.pricing.encryptionNote}
         </div>
       </div>
     </Layout>

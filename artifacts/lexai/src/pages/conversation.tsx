@@ -53,11 +53,11 @@ export default function ConversationPage() {
     if (!file) return;
     const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
     if (!allowed.includes(file.type)) {
-      toast({ title: "Format non supporté", description: "Formats acceptés : JPG, PNG, WebP, GIF, PDF", variant: "destructive" });
+      toast({ title: t.chat.fileFormatError, description: t.chat.fileFormatDesc, variant: "destructive" });
       return;
     }
     if (file.size > 15 * 1024 * 1024) {
-      toast({ title: "Fichier trop volumineux", description: "La taille maximum est 15 Mo", variant: "destructive" });
+      toast({ title: t.chat.fileSizeError, description: t.chat.fileSizeDesc, variant: "destructive" });
       return;
     }
     setAttachedFile(file);
@@ -67,7 +67,7 @@ export default function ConversationPage() {
     } else {
       setPreviewUrl(null);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   const clearFile = useCallback(() => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -91,8 +91,8 @@ export default function ConversationPage() {
 
     const displayContent = isFileMessage
       ? (currentFile!.type.startsWith("image/")
-          ? `🖼️ [Image: ${currentFile!.name}]\n\n${userContent || "Analyse juridique demandée"}`
-          : `📄 [PDF: ${currentFile!.name}]\n\n${userContent || "Analyse juridique demandée"}`)
+          ? `🖼️ [Image: ${currentFile!.name}]\n\n${userContent || t.chat.defaultAnalysisRequest}`
+          : `📄 [PDF: ${currentFile!.name}]\n\n${userContent || t.chat.defaultAnalysisRequest}`)
       : userContent;
 
     const tempUserMessage: AnthropicMessage = {
@@ -161,7 +161,7 @@ export default function ConversationPage() {
 
     } catch (error: any) {
       console.error("Send error:", error);
-      toast({ title: "Erreur d'envoi", description: error?.message || "Impossible d'envoyer le message", variant: "destructive" });
+      toast({ title: t.chat.fileFormatError, description: error?.message || "Impossible d'envoyer le message", variant: "destructive" });
     } finally {
       setIsStreaming(false);
       setStreamedContent("");
@@ -179,7 +179,6 @@ export default function ConversationPage() {
 
   return (
     <Layout>
-      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
@@ -222,10 +221,9 @@ export default function ConversationPage() {
               <div>Conversation not found</div>
             )}
 
-            {/* Document scan badge */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
               <ScanSearch className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden sm:inline">Analyse de documents activée</span>
+              <span className="hidden sm:inline">{t.chat.analyzeDocBadge}</span>
             </div>
           </header>
 
@@ -240,25 +238,27 @@ export default function ConversationPage() {
                   </div>
                   <div>
                     <h3 className="font-serif font-bold text-foreground text-lg mb-1">
-                      {conversation?.jurisdiction === "Morocco" ? "🇲🇦 MAOS Legal — Prêt" : "Consultation Ready"}
+                      {conversation?.jurisdiction === "Morocco"
+                        ? t.chat.readyMaosTitle
+                        : t.chat.readyDefaultTitle}
                     </h3>
                     <p className="text-sm max-w-md mx-auto mb-4">
                       {conversation?.jurisdiction === "Morocco"
-                        ? "Votre expert MAOS Legal est prêt. Posez votre question ou soumettez un document pour analyse."
-                        : "Your legal intelligence expert is ready. Ask a question or upload a document for analysis."}
+                        ? t.chat.maosReadyDesc
+                        : t.chat.defaultReadyDesc}
                     </p>
                     <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <FileImage className="w-4 h-4 text-accent" />
-                        <span>Photos & images</span>
+                        <span>{t.chat.photosImages}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <FileText className="w-4 h-4 text-accent" />
-                        <span>Documents PDF</span>
+                        <span>{t.chat.pdfDocuments}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Camera className="w-4 h-4 text-accent" />
-                        <span>Photo directe</span>
+                        <span>{t.chat.takePhotoLabel}</span>
                       </div>
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export default function ConversationPage() {
                 <div className="flex items-center gap-3 text-muted-foreground text-sm py-4">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="font-serif italic">
-                    {attachedFile ? "Analyse du document en cours..." : "Analyzing legal precedents..."}
+                    {attachedFile ? t.chat.analyzingDoc : t.chat.analyzingLegal}
                   </span>
                 </div>
               )}
@@ -310,7 +310,7 @@ export default function ConversationPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{attachedFile.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {isPdf ? "Document PDF" : "Image"} — {(attachedFile.size / 1024).toFixed(0)} Ko
+                      {isPdf ? t.chat.fileTypePdf : t.chat.fileTypeImage} — {(attachedFile.size / 1024).toFixed(0)} Ko
                     </p>
                   </div>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0" onClick={clearFile}>
@@ -325,20 +325,19 @@ export default function ConversationPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={attachedFile ? "Posez votre question sur ce document (optionnel)..." : t.chat.typeMessage}
+                  placeholder={attachedFile ? t.chat.docQuestionPlaceholder : t.chat.typeMessage}
                   className="min-h-[80px] max-h-[300px] w-full resize-none border-0 focus-visible:ring-0 p-4 pb-12 bg-transparent text-sm"
                   data-testid="textarea-message"
                 />
 
                 <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                  {/* Upload buttons */}
                   <div className="flex items-center gap-1">
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-accent"
-                      title="Joindre un document ou une image"
+                      title={t.chat.attachFileLabel}
                       onClick={() => fileInputRef.current?.click()}
                       data-testid="button-attach-file"
                     >
@@ -349,14 +348,14 @@ export default function ConversationPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-accent"
-                      title="Prendre une photo"
+                      title={t.chat.attachCameraLabel}
                       onClick={() => cameraInputRef.current?.click()}
                       data-testid="button-camera"
                     >
                       <Camera className="w-4 h-4" />
                     </Button>
                     <span className="text-[10px] text-muted-foreground hidden sm:inline ml-1">
-                      JPG · PNG · PDF · 15 Mo max
+                      {t.chat.fileHint}
                     </span>
                   </div>
 
@@ -368,13 +367,13 @@ export default function ConversationPage() {
                     data-testid="button-send"
                   >
                     {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    {attachedFile ? "Analyser" : "Soumettre"}
+                    {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
                   </Button>
                 </div>
               </div>
 
               <div className="text-center text-[10px] text-muted-foreground">
-                Les réponses sont générées par IA et ne constituent pas un conseil juridique formel. Vérifiez toujours les citations et consultez un avocat qualifié.
+                {t.chat.legalDisclaimer}
               </div>
             </div>
           </div>

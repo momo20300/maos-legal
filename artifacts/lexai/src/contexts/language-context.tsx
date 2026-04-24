@@ -36,6 +36,8 @@ export interface Translations {
     inquiries: string;
     pricingTitle: string;
     pricingSubtitle: string;
+    maosSubtitle: string;
+    maosRevisionMode: string;
   };
   chat: {
     newConsultation: string;
@@ -61,6 +63,33 @@ export interface Translations {
     typeMessage: string;
     sendMessage: string;
     deleteConfirm: string;
+    maosExpertTitle: string;
+    maosExpertDesc: string;
+    fileFormatError: string;
+    fileSizeError: string;
+    fileFormatDesc: string;
+    fileSizeDesc: string;
+    defaultAnalysisRequest: string;
+    analyzeDocBadge: string;
+    readyMaosTitle: string;
+    readyDefaultTitle: string;
+    maosReadyDesc: string;
+    defaultReadyDesc: string;
+    photosImages: string;
+    pdfDocuments: string;
+    takePhotoLabel: string;
+    analyzingDoc: string;
+    analyzingLegal: string;
+    fileTypePdf: string;
+    fileTypeImage: string;
+    docQuestionPlaceholder: string;
+    attachFileLabel: string;
+    attachCameraLabel: string;
+    fileHint: string;
+    analyzeButton: string;
+    submitButton: string;
+    legalDisclaimer: string;
+    lexaiPartnerLabel: string;
   };
   jurisdictions: {
     EU: string;
@@ -82,6 +111,21 @@ export interface Translations {
     recommended: string;
     questionsPerMonth: string;
     unlimitedQuestions: string;
+    premiumOnly: string;
+    sslBadge: string;
+    jurisdictionsBadge: string;
+    citationsBadge: string;
+    responseBadge: string;
+    encryptionNote: string;
+    activePlan: string;
+    renewsOn: string;
+    goToChat: string;
+    currentPlanLabel: string;
+    subscribeNow: string;
+    getStartedNow: string;
+    mostPopular: string;
+    cardRequired: string;
+    month: string;
   };
 }
 
@@ -120,6 +164,8 @@ const translations: Record<Language, Translations> = {
       inquiries: "of inquiries",
       pricingTitle: "Transparent Investment",
       pricingSubtitle: "Choose the tier that matches your legal intelligence needs.",
+      maosSubtitle: "Moroccan Legal Intelligence • Legal Encyclopedia 2026",
+      maosRevisionMode: "Study Mode",
     },
     chat: {
       newConsultation: "New Consultation",
@@ -145,6 +191,33 @@ const translations: Record<Language, Translations> = {
       typeMessage: "Type your legal question...",
       sendMessage: "Send",
       deleteConfirm: "Are you sure you want to delete this conversation?",
+      maosExpertTitle: "🇲🇦 MAOS Legal — Moroccan Law Expert",
+      maosExpertDesc: "DOC · Penal Code · Moudawwana · CPC · CPP · Commercial Law · Labor Law · Administrative Law · All Courts · Bar / Prosecutor Exam Prep",
+      fileFormatError: "Unsupported format",
+      fileSizeError: "File too large",
+      fileFormatDesc: "Accepted formats: JPG, PNG, WebP, GIF, PDF",
+      fileSizeDesc: "Maximum file size is 15 MB",
+      defaultAnalysisRequest: "Legal analysis requested",
+      analyzeDocBadge: "Document analysis enabled",
+      readyMaosTitle: "🇲🇦 MAOS Legal — Ready",
+      readyDefaultTitle: "Consultation Ready",
+      maosReadyDesc: "Your MAOS Legal expert is ready. Ask your question or submit a document for analysis.",
+      defaultReadyDesc: "Your legal intelligence expert is ready. Ask a question or upload a document for analysis.",
+      photosImages: "Photos & images",
+      pdfDocuments: "PDF documents",
+      takePhotoLabel: "Take photo",
+      analyzingDoc: "Analyzing document...",
+      analyzingLegal: "Analyzing legal precedents...",
+      fileTypePdf: "PDF document",
+      fileTypeImage: "Image",
+      docQuestionPlaceholder: "Ask your question about this document (optional)...",
+      attachFileLabel: "Attach a document or image",
+      attachCameraLabel: "Take a photo",
+      fileHint: "JPG · PNG · PDF · 15 MB max",
+      analyzeButton: "Analyze",
+      submitButton: "Submit",
+      legalDisclaimer: "Responses are AI-generated and do not constitute formal legal advice. Always verify citations and consult a qualified attorney.",
+      lexaiPartnerLabel: "LexAI Partner",
     },
     jurisdictions: {
       EU: "European Union (EU)",
@@ -166,6 +239,21 @@ const translations: Record<Language, Translations> = {
       recommended: "Recommended",
       questionsPerMonth: "questions / mo",
       unlimitedQuestions: "Unlimited questions",
+      premiumOnly: "Premium Access Only",
+      sslBadge: "256-bit SSL",
+      jurisdictionsBadge: "4 Jurisdictions",
+      citationsBadge: "Real Law Citations",
+      responseBadge: "Instant Response",
+      encryptionNote: "All subscriptions include enterprise-grade encryption. Prices are in USD.",
+      activePlan: "Active Plan",
+      renewsOn: "Renews on",
+      goToChat: "Go to Chat",
+      currentPlanLabel: "Current Plan",
+      subscribeNow: "Subscribe Now",
+      getStartedNow: "Get Started",
+      mostPopular: "Most Popular",
+      cardRequired: "Credit card required • No free trial",
+      month: "month",
     },
   },
 
@@ -203,6 +291,8 @@ const translations: Record<Language, Translations> = {
       inquiries: "des requêtes",
       pricingTitle: "Un Investissement Transparent",
       pricingSubtitle: "Choisissez l'offre adaptée à vos besoins en intelligence juridique.",
+      maosSubtitle: "Intelligence Juridique Marocaine • Encyclopédie du Droit 2026",
+      maosRevisionMode: "Mode Révision",
     },
     chat: {
       newConsultation: "Nouvelle Consultation",
@@ -228,6 +318,33 @@ const translations: Record<Language, Translations> = {
       typeMessage: "Posez votre question juridique...",
       sendMessage: "Envoyer",
       deleteConfirm: "Êtes-vous sûr de vouloir supprimer cette consultation ?",
+      maosExpertTitle: "🇲🇦 MAOS Legal — Expert Droit Marocain",
+      maosExpertDesc: "DOC · Code Pénal · Moudawwana · CPC · CPP · Droit Commercial · Droit du Travail · Droit Administratif · Tous Tribunaux · Préparation Concours Avocat / Procureur",
+      fileFormatError: "Format non supporté",
+      fileSizeError: "Fichier trop volumineux",
+      fileFormatDesc: "Formats acceptés : JPG, PNG, WebP, GIF, PDF",
+      fileSizeDesc: "La taille maximum est 15 Mo",
+      defaultAnalysisRequest: "Analyse juridique demandée",
+      analyzeDocBadge: "Analyse de documents activée",
+      readyMaosTitle: "🇲🇦 MAOS Legal — Prêt",
+      readyDefaultTitle: "Consultation prête",
+      maosReadyDesc: "Votre expert MAOS Legal est prêt. Posez votre question ou soumettez un document pour analyse.",
+      defaultReadyDesc: "Votre expert en intelligence juridique est prêt. Posez une question ou téléchargez un document pour analyse.",
+      photosImages: "Photos & images",
+      pdfDocuments: "Documents PDF",
+      takePhotoLabel: "Photo directe",
+      analyzingDoc: "Analyse du document en cours...",
+      analyzingLegal: "Analyse des précédents juridiques...",
+      fileTypePdf: "Document PDF",
+      fileTypeImage: "Image",
+      docQuestionPlaceholder: "Posez votre question sur ce document (optionnel)...",
+      attachFileLabel: "Joindre un document ou une image",
+      attachCameraLabel: "Prendre une photo",
+      fileHint: "JPG · PNG · PDF · 15 Mo max",
+      analyzeButton: "Analyser",
+      submitButton: "Soumettre",
+      legalDisclaimer: "Les réponses sont générées par IA et ne constituent pas un conseil juridique formel. Vérifiez toujours les citations et consultez un avocat qualifié.",
+      lexaiPartnerLabel: "LexAI Partner",
     },
     jurisdictions: {
       EU: "Union Européenne (UE)",
@@ -249,6 +366,21 @@ const translations: Record<Language, Translations> = {
       recommended: "Recommandé",
       questionsPerMonth: "questions / mois",
       unlimitedQuestions: "Questions illimitées",
+      premiumOnly: "Accès Premium Uniquement",
+      sslBadge: "SSL 256 bits",
+      jurisdictionsBadge: "4 Juridictions",
+      citationsBadge: "Citations Légales Réelles",
+      responseBadge: "Réponse Instantanée",
+      encryptionNote: "Tous les abonnements incluent un chiffrement de niveau entreprise. Prix en USD.",
+      activePlan: "Abonnement Actif",
+      renewsOn: "Renouvellement le",
+      goToChat: "Accéder au Chat",
+      currentPlanLabel: "Votre abonnement actuel",
+      subscribeNow: "S'abonner maintenant",
+      getStartedNow: "Commencer maintenant",
+      mostPopular: "Le Plus Populaire",
+      cardRequired: "Carte bancaire requise • Sans essai gratuit",
+      month: "mois",
     },
   },
 
@@ -286,6 +418,8 @@ const translations: Record<Language, Translations> = {
       inquiries: "من الاستفسارات",
       pricingTitle: "استثمر في الذكاء",
       pricingSubtitle: "اختر المستوى المناسب لاحتياجاتك من الذكاء القانوني.",
+      maosSubtitle: "الذكاء القانوني المغربي • موسوعة القانون 2026",
+      maosRevisionMode: "وضع المراجعة",
     },
     chat: {
       newConsultation: "استشارة جديدة",
@@ -311,6 +445,33 @@ const translations: Record<Language, Translations> = {
       typeMessage: "اطرح سؤالك القانوني...",
       sendMessage: "إرسال",
       deleteConfirm: "هل أنت متأكد من حذف هذه الاستشارة؟",
+      maosExpertTitle: "🇲🇦 MAOS Legal — خبير القانون المغربي",
+      maosExpertDesc: "ق.ل.ع · القانون الجنائي · مدونة الأسرة · ق.م.م · ق.م.ج · القانون التجاري · قانون الشغل · القانون الإداري · جميع المحاكم · التحضير لمباراة المحاماة / النيابة",
+      fileFormatError: "تنسيق غير مدعوم",
+      fileSizeError: "الملف كبير جداً",
+      fileFormatDesc: "الصيغ المقبولة: JPG، PNG، WebP، GIF، PDF",
+      fileSizeDesc: "الحجم الأقصى هو 15 ميغابايت",
+      defaultAnalysisRequest: "تحليل قانوني مطلوب",
+      analyzeDocBadge: "تحليل المستندات مُفعَّل",
+      readyMaosTitle: "🇲🇦 MAOS Legal — جاهز",
+      readyDefaultTitle: "الاستشارة جاهزة",
+      maosReadyDesc: "خبير MAOS Legal جاهز. اطرح سؤالك أو أرسل مستنداً للتحليل.",
+      defaultReadyDesc: "خبيرك في الذكاء القانوني جاهز. اطرح سؤالاً أو أرسل مستنداً للتحليل.",
+      photosImages: "صور وصور",
+      pdfDocuments: "وثائق PDF",
+      takePhotoLabel: "التقاط صورة",
+      analyzingDoc: "جارٍ تحليل المستند...",
+      analyzingLegal: "جارٍ البحث في السوابق القانونية...",
+      fileTypePdf: "وثيقة PDF",
+      fileTypeImage: "صورة",
+      docQuestionPlaceholder: "اطرح سؤالك حول هذا المستند (اختياري)...",
+      attachFileLabel: "إرفاق مستند أو صورة",
+      attachCameraLabel: "التقاط صورة",
+      fileHint: "JPG · PNG · PDF · 15 ميغابايت كحد أقصى",
+      analyzeButton: "تحليل",
+      submitButton: "إرسال",
+      legalDisclaimer: "الردود مُولَّدة بالذكاء الاصطناعي ولا تُشكّل استشارة قانونية رسمية. تحقق دائماً من الاستشهادات واستشر محامياً مؤهلاً.",
+      lexaiPartnerLabel: "شريك LexAI",
     },
     jurisdictions: {
       EU: "الاتحاد الأوروبي",
@@ -332,6 +493,21 @@ const translations: Record<Language, Translations> = {
       recommended: "موصى به",
       questionsPerMonth: "سؤال / شهر",
       unlimitedQuestions: "أسئلة غير محدودة",
+      premiumOnly: "وصول مدفوع فقط",
+      sslBadge: "SSL 256 بت",
+      jurisdictionsBadge: "4 ولايات قضائية",
+      citationsBadge: "استشهادات قانونية حقيقية",
+      responseBadge: "استجابة فورية",
+      encryptionNote: "جميع الاشتراكات تتضمن تشفيرًا من الدرجة المؤسسية. الأسعار بالدولار الأمريكي.",
+      activePlan: "الاشتراك النشط",
+      renewsOn: "يتجدد في",
+      goToChat: "الذهاب إلى المحادثة",
+      currentPlanLabel: "اشتراكك الحالي",
+      subscribeNow: "اشترك الآن",
+      getStartedNow: "ابدأ الآن",
+      mostPopular: "الأكثر شعبية",
+      cardRequired: "بطاقة بنكية مطلوبة • بدون تجربة مجانية",
+      month: "شهر",
     },
   },
 };
