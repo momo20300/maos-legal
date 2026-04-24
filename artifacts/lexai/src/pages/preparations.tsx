@@ -377,15 +377,15 @@ export default function PreparationsPage() {
     );
   }
 
-  /* ── DESKTOP: horizontal split — form TOP, exercise BOTTOM ── */
+  /* ── DESKTOP: left = form panel, right = exercise content ── */
   return (
     <Layout>
-      <div className="flex flex-col flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="flex flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
-        {/* TOP: compact selection form */}
-        <div className="shrink-0 bg-card border-b border-border">
+        {/* LEFT: form panel */}
+        <div className="w-[400px] shrink-0 flex flex-col border-r border-border bg-card overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center gap-3 px-6 pt-4 pb-3">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-border shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c9a227] to-[#a07c1e] flex items-center justify-center shrink-0">
               <GraduationCap className="w-4 h-4 text-[#0d1b2e]" />
             </div>
@@ -393,24 +393,18 @@ export default function PreparationsPage() {
               <p className="text-sm font-bold text-foreground leading-none">{isRTL ? "التحضير والتدريب" : "Préparation & Entraînement"}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">{isRTL ? "اختر المادة والمستوى ثم ولّد تمريناً" : "Choisissez la matière, le niveau et générez un exercice"}</p>
             </div>
-            {phase !== "select" && (
-              <Button variant="ghost" size="sm" onClick={reset} className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
-                <RotateCcw className="w-3.5 h-3.5" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}
-              </Button>
-            )}
           </div>
 
-          {/* Controls row */}
-          <div className="flex items-start gap-4 px-6 pb-4 flex-wrap lg:flex-nowrap">
+          <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
             {/* Domain pills */}
-            <div className="flex-1 min-w-0">
+            <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المادة" : "Matière"}</p>
               <div className="flex flex-wrap gap-1.5">
                 {domains.map((d) => (
                   <button
                     key={d}
                     onClick={() => setSelectedDomain(d)}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all whitespace-nowrap ${
                       selectedDomain === d ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227]" : "border-border bg-background hover:bg-muted text-foreground"
                     }`}
                   >
@@ -421,14 +415,14 @@ export default function PreparationsPage() {
             </div>
 
             {/* Difficulty pills */}
-            <div className="shrink-0">
+            <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المستوى" : "Niveau"}</p>
-              <div className="flex gap-1.5">
+              <div className="flex flex-wrap gap-1.5">
                 {difficulties.map((d, i) => (
                   <button
                     key={d}
                     onClick={() => setSelectedDifficulty(d)}
-                    className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all whitespace-nowrap ${
                       selectedDifficulty === d ? DIFF_COLORS[i] : "border-border bg-background hover:bg-muted text-muted-foreground"
                     }`}
                   >
@@ -439,24 +433,25 @@ export default function PreparationsPage() {
             </div>
 
             {/* Generate button */}
-            <div className="shrink-0 flex items-end">
-              <div>
-                <div className="h-[22px]" />
-                <Button
-                  onClick={generateExercise}
-                  disabled={!selectedDomain || !selectedDifficulty || phase === "generating"}
-                  className="h-9 px-5 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm gap-1.5"
-                >
-                  {phase === "generating"
-                    ? <><Loader2 className="w-4 h-4 animate-spin" />{isRTL ? "جارٍ..." : "Génération..."}</>
-                    : <><Zap className="w-4 h-4" />{isRTL ? "توليد تمرين" : "Générer"}</>}
-                </Button>
-              </div>
-            </div>
+            <Button
+              onClick={generateExercise}
+              disabled={!selectedDomain || !selectedDifficulty || phase === "generating"}
+              className="w-full h-11 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm gap-2 mt-1"
+            >
+              {phase === "generating"
+                ? <><Loader2 className="w-4 h-4 animate-spin" />{isRTL ? "جارٍ..." : "Génération..."}</>
+                : <><Zap className="w-4 h-4" />{isRTL ? "توليد تمرين" : "Générer"}</>}
+            </Button>
+
+            {phase !== "select" && (
+              <Button variant="ghost" size="sm" onClick={reset} className="gap-1.5 text-xs text-muted-foreground hover:text-foreground w-full">
+                <RotateCcw className="w-3.5 h-3.5" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* BOTTOM: exercise content */}
+        {/* RIGHT: exercise content */}
         <div className="flex-1 overflow-y-auto bg-background">
           <div className="max-w-3xl mx-auto px-6 py-6 space-y-5">
 
