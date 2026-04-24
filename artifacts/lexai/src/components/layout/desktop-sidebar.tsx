@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Home, Scale, GraduationCap, MessageSquare, User, ChevronDown,
-  Plus, BookOpen, FolderOpen, CreditCard, Loader2, Trash2,
+  Plus, Loader2, Trash2,
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -13,6 +13,27 @@ import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { format } from "date-fns";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function useLocalStorageState<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
+  const [state, setState] = useState<T>(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? (JSON.parse(item) as T) : initialValue;
+    } catch {
+      return initialValue;
+    }
+  });
+
+  const setAndPersist = useCallback((value: T | ((prev: T) => T)) => {
+    setState(prev => {
+      const next = typeof value === "function" ? (value as (prev: T) => T)(prev) : value;
+      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, [key]);
+
+  return [state, setAndPersist];
+}
 
 type Module = {
   id: string;
@@ -30,10 +51,10 @@ export function DesktopSidebar() {
   const queryClient = useQueryClient();
   const isRTL = language === "ar";
 
-  const [openModules, setOpenModules] = useState<Record<string, boolean>>({
-    consulter: true,
-    dossiers: true,
-  });
+  const [openModules, setOpenModules] = useLocalStorageState<Record<string, boolean>>(
+    "sidebar-open-modules",
+    { consulter: true, preparer: false, dossiers: true, compte: false }
+  );
 
   const { data: conversations, isLoading: loadingConvs } = useListAnthropicConversations({
     query: { queryKey: getListAnthropicConversationsQueryKey(), enabled: isSignedIn }
