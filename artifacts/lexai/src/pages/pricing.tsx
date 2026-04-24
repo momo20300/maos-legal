@@ -55,7 +55,7 @@ export default function PricingPage() {
         </div>
 
         {/* Active Subscription Banner */}
-        {isSignedIn && !isLoadingStatus && status?.hasActiveSubscription && (
+        {isSignedIn && !isLoadingStatus && status?.isActive && (
           <div className="mb-12">
             <Card className="bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800">
               <CardContent className="p-6 flex items-center justify-between gap-4">

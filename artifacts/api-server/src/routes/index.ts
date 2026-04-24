@@ -5,6 +5,7 @@ import anthropicRouter from "./anthropic";
 import subscriptionsRouter from "./subscriptions";
 import legalDomainsRouter from "./legal-domains";
 import adminRouter from "./admin";
+import voiceRouter from "./voice";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(anthropicRouter);
 router.use(subscriptionsRouter);
 router.use(legalDomainsRouter);
 router.use(adminRouter);
+router.use(voiceRouter);
 
 export default router;

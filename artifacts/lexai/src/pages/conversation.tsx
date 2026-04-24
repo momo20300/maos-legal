@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch } from "lucide-react";
+import { VoiceCallButton } from "@/components/chat/voice-call-button";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/language-context";
@@ -221,9 +222,12 @@ export default function ConversationPage() {
               <div>Conversation not found</div>
             )}
 
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
-              <ScanSearch className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden sm:inline">{t.chat.analyzeDocBadge}</span>
+            <div className="flex items-center gap-2">
+              <VoiceCallButton />
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
+                <ScanSearch className="w-3.5 h-3.5 text-accent" />
+                <span className="hidden sm:inline">{t.chat.analyzeDocBadge}</span>
+              </div>
             </div>
           </header>
 
