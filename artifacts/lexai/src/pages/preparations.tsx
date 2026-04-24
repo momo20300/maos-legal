@@ -164,11 +164,11 @@ export default function PreparationsPage() {
       .split("\n")
       .map((line, i) => {
         if (line.startsWith("## ")) return <h3 key={i} className="text-[#c9a227] font-bold text-base mt-4 mb-2">{line.slice(3)}</h3>;
-        if (line.startsWith("# ")) return <h2 key={i} className="text-white font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>;
-        if (line.startsWith("**") && line.endsWith("**")) return <strong key={i} className="text-white font-semibold block">{line.slice(2, -2)}</strong>;
-        if (line.startsWith("- ") || line.startsWith("• ")) return <li key={i} className="text-white/80 text-sm ml-4 list-disc">{line.slice(2)}</li>;
+        if (line.startsWith("# ")) return <h2 key={i} className="text-foreground font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>;
+        if (line.startsWith("**") && line.endsWith("**")) return <strong key={i} className="text-foreground font-semibold block">{line.slice(2, -2)}</strong>;
+        if (line.startsWith("- ") || line.startsWith("• ")) return <li key={i} className="text-foreground/80 text-sm ml-4 list-disc">{line.slice(2)}</li>;
         if (line.trim() === "") return <div key={i} className="h-2" />;
-        return <p key={i} className="text-white/80 text-sm leading-relaxed">{line}</p>;
+        return <p key={i} className="text-foreground/80 text-sm leading-relaxed">{line}</p>;
       });
 
   if (!isLoaded) {
@@ -183,7 +183,7 @@ export default function PreparationsPage() {
 
   return (
     <Layout>
-      <div className="dark min-h-screen bg-[#0d1b2e] pb-24" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="min-h-screen bg-background pb-24" dir={isRTL ? "rtl" : "ltr"}>
 
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[#0d1b2e]/95 backdrop-blur border-b border-white/10">
@@ -200,7 +200,7 @@ export default function PreparationsPage() {
                   {isRTL ? "التحضير والتدريب" : "Préparations"}
                 </h1>
                 {selectedDomain && (
-                  <p className="text-white/40 text-[10px] leading-none mt-0.5">{selectedDomain} · {selectedDifficulty}</p>
+                  <p className="text-muted-foreground text-[10px] leading-none mt-0.5">{selectedDomain} · {selectedDifficulty}</p>
                 )}
               </div>
             </div>
@@ -237,17 +237,17 @@ export default function PreparationsPage() {
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center mx-auto mb-3">
                   <BookOpen className="w-7 h-7 text-[#c9a227]" />
                 </div>
-                <h2 className="text-white font-bold text-lg">
+                <h2 className="text-foreground font-bold text-lg">
                   {isRTL ? "اختر مادتك" : "Choisissez votre exercice"}
                 </h2>
-                <p className="text-white/40 text-xs mt-1">
+                <p className="text-muted-foreground text-xs mt-1">
                   {isRTL ? "مرن ذاكرتك القانونية وتعلم من التصحيح" : "Entraînez-vous et apprenez de la correction IA"}
                 </p>
               </div>
 
               {/* Domain selection */}
               <div className="space-y-2">
-                <p className="text-white/60 text-xs font-semibold uppercase tracking-wider px-1">
+                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
                   {isRTL ? "المادة القانونية" : "Matière"}
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -258,7 +258,7 @@ export default function PreparationsPage() {
                       className={`text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all border ${
                         selectedDomain === d
                           ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]"
-                          : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
+                          : "bg-muted/50 border-border text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
                       {d}
@@ -269,13 +269,13 @@ export default function PreparationsPage() {
 
               {/* Difficulty selection */}
               <div className="space-y-2">
-                <p className="text-white/60 text-xs font-semibold uppercase tracking-wider px-1">
+                <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
                   {isRTL ? "المستوى" : "Niveau"}
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {difficulties.map((d, i) => {
-                    const colors = ["text-green-400 border-green-400/40 bg-green-400/10", "text-blue-400 border-blue-400/40 bg-blue-400/10", "text-orange-400 border-orange-400/40 bg-orange-400/10", "text-red-400 border-red-400/40 bg-red-400/10"];
-                    const selectedColors = ["bg-green-400/25 border-green-400/70", "bg-blue-400/25 border-blue-400/70", "bg-orange-400/25 border-orange-400/70", "bg-red-400/25 border-red-400/70"];
+                    const colors = ["text-green-500 border-green-500/40 bg-green-500/10", "text-blue-500 border-blue-500/40 bg-blue-500/10", "text-orange-500 border-orange-500/40 bg-orange-500/10", "text-red-500 border-red-500/40 bg-red-500/10"];
+                    const selectedColors = ["bg-green-500/20 border-green-500/60", "bg-blue-500/20 border-blue-500/60", "bg-orange-500/20 border-orange-500/60", "bg-red-500/20 border-red-500/60"];
                     return (
                       <button
                         key={d}
@@ -283,7 +283,7 @@ export default function PreparationsPage() {
                         className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
                           selectedDifficulty === d
                             ? selectedColors[i]
-                            : "bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10"
+                            : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                         } ${selectedDifficulty === d ? colors[i] : ""}`}
                       >
                         {d}
@@ -314,7 +314,7 @@ export default function PreparationsPage() {
                 </span>
               </div>
               {streamBuffer && (
-                <div className="bg-white/5 rounded-2xl border border-white/10 p-5 space-y-1">
+                <div className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">
                   {formatText(streamBuffer)}
                   <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
                 </div>
@@ -326,13 +326,13 @@ export default function PreparationsPage() {
           {(phase === "exercise" || phase === "answering") && (
             <div ref={exerciseRef} className="space-y-4">
               {/* Exercise card */}
-              <div className="bg-white/5 rounded-2xl border border-[#c9a227]/30 overflow-hidden">
+              <div className="bg-muted/30 rounded-2xl border border-[#c9a227]/30 overflow-hidden">
                 <div className="px-4 py-3 bg-[#c9a227]/10 border-b border-[#c9a227]/20 flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-[#c9a227]" />
                   <span className="text-[#c9a227] font-bold text-sm">
                     {isRTL ? "التمرين" : "Exercice"}
                   </span>
-                  <span className="ml-auto text-white/30 text-xs">{selectedDomain} · {selectedDifficulty}</span>
+                  <span className="ml-auto text-muted-foreground text-xs">{selectedDomain} · {selectedDifficulty}</span>
                 </div>
                 <div className="p-5 space-y-1">
                   {formatText(exercise)}
@@ -343,7 +343,7 @@ export default function PreparationsPage() {
               {phase === "exercise" && (
                 <Button
                   onClick={() => setPhase("answering")}
-                  className="w-full h-11 bg-white/10 hover:bg-white/15 text-white border border-white/20 font-medium text-sm"
+                  className="w-full h-11 bg-muted hover:bg-muted/80 text-foreground border border-border font-medium text-sm"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}
@@ -352,21 +352,21 @@ export default function PreparationsPage() {
 
               {phase === "answering" && (
                 <div className="space-y-3">
-                  <p className="text-white/60 text-xs font-semibold uppercase tracking-wider">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
                     {isRTL ? "إجابتك" : "Votre réponse"}
                   </p>
                   <Textarea
                     value={answer}
                     onChange={e => setAnswer(e.target.value)}
                     placeholder={isRTL ? "اكتب إجابتك القانونية المفصلة هنا..." : "Rédigez votre réponse juridique ici... (minimum 20 caractères)"}
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm resize-none focus:border-[#c9a227]/60 min-h-[180px]"
+                    className="bg-background border-border text-foreground placeholder:text-muted-foreground text-sm resize-none focus:border-[#c9a227]/60 min-h-[180px]"
                     dir={isRTL ? "rtl" : "ltr"}
                   />
                   <div className="flex gap-2">
                     <Button
                       onClick={() => setPhase("exercise")}
                       variant="ghost"
-                      className="flex-1 h-11 text-white/50 hover:text-white hover:bg-white/5 text-sm"
+                      className="flex-1 h-11 text-muted-foreground hover:text-foreground text-sm"
                     >
                       <ChevronLeft className={`w-4 h-4 mr-1 ${isRTL ? "rotate-180" : ""}`} />
                       {isRTL ? "رجوع" : "Retour"}
@@ -389,7 +389,7 @@ export default function PreparationsPage() {
           {phase === "correcting" && (
             <div className="space-y-4">
               {/* Show exercise mini */}
-              <div className="bg-white/3 rounded-xl border border-white/8 p-3 text-white/40 text-xs leading-relaxed line-clamp-3">
+              <div className="bg-muted/30 rounded-xl border border-border p-3 text-muted-foreground text-xs leading-relaxed line-clamp-3">
                 {exercise.slice(0, 200)}...
               </div>
               <div className="flex items-center gap-2 text-[#c9a227]">
@@ -399,7 +399,7 @@ export default function PreparationsPage() {
                 </span>
               </div>
               {streamBuffer && (
-                <div ref={correctionRef} className="bg-white/5 rounded-2xl border border-white/10 p-5 space-y-1">
+                <div ref={correctionRef} className="bg-muted/50 rounded-2xl border border-border p-5 space-y-1">
                   {formatText(streamBuffer)}
                   <span className="inline-block w-2 h-4 bg-[#c9a227] animate-pulse rounded-sm ml-1" />
                 </div>
@@ -411,10 +411,10 @@ export default function PreparationsPage() {
           {phase === "result" && (
             <div className="space-y-4">
               {/* Correction card */}
-              <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-                <div className="px-4 py-3 bg-gradient-to-r from-green-500/10 to-[#c9a227]/10 border-b border-white/10 flex items-center gap-2">
+              <div className="bg-muted/30 rounded-2xl border border-border overflow-hidden">
+                <div className="px-4 py-3 bg-gradient-to-r from-green-500/10 to-[#c9a227]/10 border-b border-border flex items-center gap-2">
                   <Award className="w-4 h-4 text-[#c9a227]" />
-                  <span className="text-white font-bold text-sm">
+                  <span className="text-foreground font-bold text-sm">
                     {isRTL ? "التصحيح النموذجي" : "Correction détaillée"}
                   </span>
                 </div>
@@ -424,11 +424,11 @@ export default function PreparationsPage() {
               </div>
 
               {/* Your answer reminder */}
-              <div className="bg-white/3 rounded-xl border border-white/8 overflow-hidden">
-                <div className="px-4 py-2.5 border-b border-white/8 flex items-center gap-2">
-                  <span className="text-white/40 text-xs font-semibold">{isRTL ? "إجابتك" : "Votre réponse"}</span>
+              <div className="bg-muted/30 rounded-xl border border-border overflow-hidden">
+                <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
+                  <span className="text-muted-foreground text-xs font-semibold">{isRTL ? "إجابتك" : "Votre réponse"}</span>
                 </div>
-                <div className="p-4 text-white/50 text-sm leading-relaxed whitespace-pre-wrap">{answer}</div>
+                <div className="p-4 text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{answer}</div>
               </div>
 
               {/* Actions */}
@@ -436,7 +436,7 @@ export default function PreparationsPage() {
                 <Button
                   onClick={reset}
                   variant="outline"
-                  className="flex-1 h-11 border-white/20 text-white/70 hover:bg-white/10 hover:text-white text-sm font-medium"
+                  className="flex-1 h-11 border-border text-muted-foreground hover:bg-muted hover:text-foreground text-sm font-medium"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   {isRTL ? "تمرين جديد" : "Nouvel exercice"}
