@@ -1,40 +1,30 @@
 import { Router, type IRouter } from "express";
+import { getAuth } from "@clerk/express";
+import { db } from "@workspace/db";
+import { users } from "@workspace/db";
+import { sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
 const PLANS = [
   {
-    id: "free",
-    name: "Free",
-    price: 0,
-    currency: "USD",
-    interval: "month",
-    features: [
-      "5 legal questions per month",
-      "EU, US, and Arabic law coverage",
-      "Basic legal explanations",
-      "Chat interface",
-    ],
-    questionsPerMonth: 5,
-    highlighted: false,
-  },
-  {
     id: "professional",
-    name: "Professional",
+    name: "Professionnel",
     price: 49,
     currency: "USD",
     interval: "month",
     features: [
-      "100 legal questions per month",
-      "EU, US, and Arabic law coverage",
-      "Detailed analysis with citations",
-      "Law article numbers and jurisprudence",
-      "Audio responses",
-      "Priority response time",
-      "All legal domains",
+      "100 consultations juridiques / mois",
+      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+      "Citations d'articles de loi précises",
+      "Jurisprudence et références législatives",
+      "Tous les domaines juridiques",
+      "Préparation concours Avocat / Procureur",
+      "Réponses prioritaires",
     ],
     questionsPerMonth: 100,
-    highlighted: true,
+    highlighted: false,
   },
   {
     id: "expert",
@@ -43,18 +33,18 @@ const PLANS = [
     currency: "USD",
     interval: "month",
     features: [
-      "Unlimited legal questions",
-      "EU, US, and Arabic law coverage",
-      "Deep legal research with full citations",
-      "Complete jurisprudence database access",
-      "Audio responses",
-      "Dedicated AI legal panel",
-      "All legal domains",
-      "Custom jurisdiction profiles",
-      "Document analysis",
+      "Consultations illimitées",
+      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+      "Recherche juridique approfondie",
+      "Accès complet à la jurisprudence",
+      "Tous les domaines juridiques",
+      "Préparation concours Avocat / Procureur",
+      "Panel d'experts IA dédié",
+      "Analyse de documents",
+      "Profils de juridiction personnalisés",
     ],
     questionsPerMonth: null,
-    highlighted: false,
+    highlighted: true,
   },
 ];
 
@@ -62,14 +52,74 @@ router.get("/subscriptions/plans", async (_req, res): Promise<void> => {
   res.json(PLANS);
 });
 
-router.get("/subscriptions/status", async (_req, res): Promise<void> => {
-  res.json({
-    plan: "free",
-    questionsUsed: 2,
-    questionsLimit: 5,
-    renewsAt: null,
-    isActive: true,
-  });
+router.get("/subscriptions/status", async (req, res): Promise<void> => {
+  const auth = getAuth(req);
+  const userId = auth?.userId;
+
+  if (!userId) {
+    res.json({
+      hasActiveSubscription: false,
+      plan: null,
+      questionsUsed: 0,
+      questionsLimit: 0,
+      renewsAt: null,
+      isActive: false,
+    });
+    return;
+  }
+
+  try {
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+    if (!user?.stripeSubscriptionId) {
+      res.json({
+        hasActiveSubscription: false,
+        plan: null,
+        questionsUsed: 0,
+        questionsLimit: 0,
+        renewsAt: null,
+        isActive: false,
+      });
+      return;
+    }
+
+    const subResult = await db.execute(
+      sql`SELECT * FROM stripe.subscriptions WHERE id = ${user.stripeSubscriptionId} LIMIT 1`
+    );
+    const sub = subResult.rows[0] as any;
+
+    if (!sub || sub.status !== "active") {
+      res.json({
+        hasActiveSubscription: false,
+        plan: sub?.status || "inactive",
+        questionsUsed: 0,
+        questionsLimit: 0,
+        renewsAt: sub?.current_period_end || null,
+        isActive: false,
+      });
+      return;
+    }
+
+    const plan = PLANS.find((p) => p.id === (sub.metadata?.planId || "professional")) || PLANS[0];
+
+    res.json({
+      hasActiveSubscription: true,
+      plan: plan!.name,
+      questionsUsed: 0,
+      questionsLimit: plan!.questionsPerMonth,
+      renewsAt: sub.current_period_end,
+      isActive: true,
+    });
+  } catch {
+    res.json({
+      hasActiveSubscription: false,
+      plan: null,
+      questionsUsed: 0,
+      questionsLimit: 0,
+      renewsAt: null,
+      isActive: false,
+    });
+  }
 });
 
 export default router;

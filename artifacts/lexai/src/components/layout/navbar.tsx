@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Scale, MessageSquare, CreditCard, Menu, X, Moon, Sun, Globe } from "lucide-react";
+import { Scale, MessageSquare, CreditCard, Menu, X, Moon, Sun, Globe, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserButton, useAuth } from "@clerk/react";
 
 const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
@@ -17,11 +18,14 @@ const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇬🇧" },
 ];
 
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export function Navbar() {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const { isSignedIn } = useAuth();
 
   const navLinks = [
     { href: "/chat", label: t.nav.chat, icon: <MessageSquare className="w-4 h-4 mr-2" /> },
@@ -84,11 +88,38 @@ export function Navbar() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            <Link href="/chat" data-testid="link-nav-cta">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {t.nav.newCase}
-              </Button>
-            </Link>
+
+            {isSignedIn ? (
+              <UserButton
+                appearance={{
+                  variables: {
+                    colorPrimary: "#c9a227",
+                  },
+                  elements: {
+                    userButtonAvatarBox: "w-8 h-8 ring-2 ring-accent/40 hover:ring-accent transition-all",
+                    userButtonPopoverCard: "border border-border shadow-xl",
+                    userButtonPopoverActionButton: "hover:bg-muted",
+                    userButtonPopoverActionButtonText: "text-foreground",
+                    userButtonPopoverFooter: "hidden",
+                  },
+                }}
+                afterSignOutUrl={`${basePath}/`}
+              />
+            ) : (
+              <>
+                <Link href="/sign-in" data-testid="link-sign-in">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <LogIn className="w-4 h-4" />
+                    {t.nav.signIn || "Connexion"}
+                  </Button>
+                </Link>
+                <Link href="/chat" data-testid="link-nav-cta">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    {t.nav.newCase}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -116,6 +147,17 @@ export function Navbar() {
           <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle-mobile">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
+          {isSignedIn && (
+            <UserButton
+              appearance={{
+                variables: { colorPrimary: "#c9a227" },
+                elements: {
+                  userButtonAvatarBox: "w-8 h-8",
+                },
+              }}
+              afterSignOutUrl={`${basePath}/`}
+            />
+          )}
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="button-mobile-menu">
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
@@ -136,6 +178,14 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!isSignedIn && (
+            <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="outline" className="w-full gap-2">
+                <LogIn className="w-4 h-4" />
+                {t.nav.signIn || "Connexion"}
+              </Button>
+            </Link>
+          )}
           <Link href="/chat" onClick={() => setMobileMenuOpen(false)}>
             <Button className="w-full mt-2">{t.nav.newCase}</Button>
           </Link>

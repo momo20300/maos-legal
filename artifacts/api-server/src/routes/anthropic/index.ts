@@ -10,6 +10,7 @@ import {
   SendAnthropicMessageParams,
   SendAnthropicMessageBody,
 } from "@workspace/api-zod";
+import { requireAuth } from "../../middlewares/requireAuth";
 
 const router: IRouter = Router();
 
@@ -166,7 +167,8 @@ const getSystemPrompt = (jurisdiction: string): string => {
   return LEGAL_EXPERT_SYSTEM_PROMPTS[jurisdiction] ?? LEGAL_EXPERT_SYSTEM_PROMPTS["EU"]!;
 };
 
-router.get("/anthropic/conversations", async (req, res): Promise<void> => {
+router.get("/anthropic/conversations", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const convs = await db
     .select({
       id: conversations.id,
@@ -177,12 +179,14 @@ router.get("/anthropic/conversations", async (req, res): Promise<void> => {
       messageCount: sql<number>`(SELECT COUNT(*) FROM messages WHERE messages.conversation_id = ${conversations.id})::int`,
     })
     .from(conversations)
+    .where(eq(conversations.userId, userId))
     .orderBy(conversations.createdAt);
 
   res.json(convs);
 });
 
-router.post("/anthropic/conversations", async (req, res): Promise<void> => {
+router.post("/anthropic/conversations", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const parsed = CreateAnthropicConversationBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -192,6 +196,7 @@ router.post("/anthropic/conversations", async (req, res): Promise<void> => {
   const [conv] = await db
     .insert(conversations)
     .values({
+      userId,
       title: parsed.data.title,
       jurisdiction: parsed.data.jurisdiction,
       legalDomain: parsed.data.legalDomain,
@@ -204,7 +209,7 @@ router.post("/anthropic/conversations", async (req, res): Promise<void> => {
   });
 });
 
-router.get("/anthropic/conversations/:id", async (req, res): Promise<void> => {
+router.get("/anthropic/conversations/:id", requireAuth, async (req, res): Promise<void> => {
   const params = GetAnthropicConversationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -234,7 +239,7 @@ router.get("/anthropic/conversations/:id", async (req, res): Promise<void> => {
   });
 });
 
-router.delete("/anthropic/conversations/:id", async (req, res): Promise<void> => {
+router.delete("/anthropic/conversations/:id", requireAuth, async (req, res): Promise<void> => {
   const params = DeleteAnthropicConversationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -254,7 +259,7 @@ router.delete("/anthropic/conversations/:id", async (req, res): Promise<void> =>
   res.sendStatus(204);
 });
 
-router.get("/anthropic/conversations/:id/messages", async (req, res): Promise<void> => {
+router.get("/anthropic/conversations/:id/messages", requireAuth, async (req, res): Promise<void> => {
   const params = ListAnthropicMessagesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -270,7 +275,7 @@ router.get("/anthropic/conversations/:id/messages", async (req, res): Promise<vo
   res.json(msgs);
 });
 
-router.post("/anthropic/conversations/:id/messages", async (req, res): Promise<void> => {
+router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, res): Promise<void> => {
   const params = SendAnthropicMessageParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

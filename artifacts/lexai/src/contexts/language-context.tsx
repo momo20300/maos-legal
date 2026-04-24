@@ -7,6 +7,7 @@ export interface Translations {
     chat: string;
     pricing: string;
     newCase: string;
+    signIn: string;
   };
   landing: {
     badge: string;
@@ -90,6 +91,7 @@ const translations: Record<Language, Translations> = {
       chat: "Chat",
       pricing: "Pricing",
       newCase: "New Case",
+      signIn: "Sign In",
     },
     landing: {
       badge: "The Future of Legal Intelligence",
@@ -172,6 +174,7 @@ const translations: Record<Language, Translations> = {
       chat: "Consultation",
       pricing: "Tarifs",
       newCase: "Nouveau Dossier",
+      signIn: "Connexion",
     },
     landing: {
       badge: "L'Avenir de l'Intelligence Juridique",
@@ -254,6 +257,7 @@ const translations: Record<Language, Translations> = {
       chat: "استشارة",
       pricing: "الأسعار",
       newCase: "قضية جديدة",
+      signIn: "تسجيل الدخول",
     },
     landing: {
       badge: "مستقبل الذكاء القانوني",
