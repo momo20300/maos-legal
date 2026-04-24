@@ -196,10 +196,78 @@ export default function AdminPage() {
           </Card>
         </div>
 
+        {/* Subscribers Management */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="font-serif text-xl flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-accent" />
+              Gestion des abonnés
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="w-6 h-6 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <>
+                {/* Subscriber stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                  {[
+                    { label: "Actifs", value: users.filter(u => u.subscriptionStatus === "active").length, color: "text-green-500" },
+                    { label: "Inactifs", value: users.filter(u => u.subscriptionStatus !== "active").length, color: "text-muted-foreground" },
+                    { label: "Plan Pro", value: users.filter(u => u.plan === "professional" && u.subscriptionStatus === "active").length, color: "text-accent" },
+                    { label: "Plan Expert", value: users.filter(u => u.plan === "expert" && u.subscriptionStatus === "active").length, color: "text-purple-500" },
+                  ].map(s => (
+                    <div key={s.label} className="bg-muted/30 rounded-xl p-4 text-center border border-border">
+                      <div className={`text-2xl font-serif font-bold ${s.color}`}>{s.value}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Active subscriber list */}
+                {users.filter(u => u.subscriptionStatus === "active" && u.plan).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8 text-sm">Aucun abonné actif pour l'instant.</p>
+                ) : (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground mb-3">Abonnés actifs</h3>
+                    {users.filter(u => u.subscriptionStatus === "active" && u.plan).map(sub => (
+                      <div key={sub.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                            sub.plan === "expert" ? "bg-purple-500" : "bg-accent"
+                          }`}>
+                            {(sub.email?.[0] || "?").toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{sub.email || "—"}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Expire : {sub.subscriptionExpiresAt ? new Date(sub.subscriptionExpiresAt).toLocaleDateString("fr-FR") : "—"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className={`text-xs ${sub.plan === "expert" ? "border-purple-500/40 text-purple-500" : "border-accent/40 text-accent"}`}>
+                            {sub.plan === "expert" ? "Expert — 199€" : "Pro — 49€"}
+                          </Badge>
+                          <Button size="sm" variant="outline" onClick={() => startEdit(sub)} className="text-xs h-7">
+                            Modifier
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="font-serif text-xl">Liste des utilisateurs</CardTitle>
+            <CardTitle className="font-serif text-xl">Liste complète des utilisateurs</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (

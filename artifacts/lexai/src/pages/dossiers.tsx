@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout/layout";
-import { ChatSidebar } from "@/components/chat/sidebar";
 import { useListAnthropicConversations, getListAnthropicConversationsQueryKey, useDeleteAnthropicConversation } from "@workspace/api-client-react";
 import { useLocation, Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,20 +43,15 @@ export default function DossiersPage() {
   return (
     <Layout>
       <div className="flex flex-1 overflow-hidden">
-        {/* Desktop: show real sidebar */}
-        <div className="hidden md:block">
-          <ChatSidebar />
-        </div>
-
-        {/* Mobile: full-screen dossiers list */}
-        <main className="flex-1 md:hidden flex flex-col bg-background overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
+        {/* Full dossiers list — mobile + desktop */}
+        <main className="flex-1 flex flex-col bg-background overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
           {/* Header */}
-          <div className="sticky top-0 z-10 bg-[#0d1b2e] px-4 py-3 flex items-center justify-between border-b border-white/10">
+          <div className="sticky top-0 z-10 bg-card px-4 md:px-8 py-3 flex items-center justify-between border-b border-border">
             <div className="flex items-center gap-2">
-              <FolderOpen className="w-5 h-5 text-[#c9a227]" />
-              <h1 className="text-base font-bold text-white">{labelDossiers}</h1>
+              <FolderOpen className="w-5 h-5 text-accent" />
+              <h1 className="text-base font-bold text-foreground">{labelDossiers}</h1>
               {conversations && conversations.length > 0 && (
-                <span className="text-xs bg-[#c9a227] text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
+                <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
                   {conversations.length}
                 </span>
               )}
@@ -71,7 +65,7 @@ export default function DossiersPage() {
           </div>
 
           {/* List */}
-          <div className="flex-1 p-4 space-y-3">
+          <div className="flex-1 p-4 md:p-8 max-w-3xl mx-auto w-full space-y-3">
             {isLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map(i => (
@@ -136,14 +130,6 @@ export default function DossiersPage() {
                 </Link>
               ))
             )}
-          </div>
-        </main>
-
-        {/* Desktop: show placeholder if no conversation selected */}
-        <main className="hidden md:flex flex-1 items-center justify-center bg-background text-muted-foreground">
-          <div className="text-center">
-            <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">{isRTL ? "اختر ملفاً من القائمة" : "Sélectionnez un dossier dans la liste"}</p>
           </div>
         </main>
       </div>

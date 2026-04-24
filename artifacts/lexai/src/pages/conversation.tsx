@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout/layout";
-import { ChatSidebar } from "@/components/chat/sidebar";
 import { MessageBubble } from "@/components/chat/message-bubble";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { useGetAnthropicConversation, getGetAnthropicConversationQueryKey, useListAnthropicMessages, getListAnthropicMessagesQueryKey, AnthropicMessage } from "@workspace/api-client-react";
@@ -196,11 +195,6 @@ export default function ConversationPage() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar — desktop only */}
-        <div className="hidden md:flex">
-          <ChatSidebar />
-        </div>
-
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
           {/* Mobile header (top bar replacing sidebar) */}
           <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
