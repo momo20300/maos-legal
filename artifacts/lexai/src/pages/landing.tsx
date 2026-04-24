@@ -68,7 +68,7 @@ export default function LandingPage() {
               <span className="text-accent font-serif font-bold text-base tracking-[0.25em] uppercase">
                 Legal
               </span>
-              <span className="text-muted-foreground text-[11px] font-medium tracking-[0.2em] uppercase">
+              <span className="text-muted-foreground text-[13px] font-medium tracking-[0.2em] uppercase">
                 {t.auth.intelligenceJuridiquePremium}
               </span>
             </div>
