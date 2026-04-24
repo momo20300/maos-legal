@@ -2,7 +2,7 @@
 
 ## Overview
 
-LexAI is a premium AI-powered legal intelligence platform that provides expert legal guidance across EU, US, and Arabic jurisdictions. Users can ask questions about law, receive detailed answers with real law article numbers and jurisprudence citations, and manage consultations through a subscription model.
+LexAI is a premium AI-powered legal intelligence platform that provides expert legal guidance across EU, US, Arabic, and Moroccan (MAOS Legal) jurisdictions. Users can ask questions about law, receive detailed answers with real law article numbers and jurisprudence citations, draft printable legal documents (mise en demeure, letters, contracts, etc.), and manage consultations through a subscription model.
 
 ## Stack
 
@@ -61,6 +61,23 @@ LexAI is a premium AI-powered legal intelligence platform that provides expert l
 - `GET /api/subscriptions/status` — Get current subscription status
 - `GET /api/legal-domains` — List all legal domains
 - `GET /api/legal-domains/stats` — Get platform stats
+
+## Printable Legal Document Feature
+
+When the AI drafts a formal document (mise en demeure, letter, contract, etc.), it wraps the content in `<<<DOCUMENT_START>>>` and `<<<DOCUMENT_END>>>` markers.
+
+**Frontend handling** (`message-bubble.tsx` + `document-card.tsx`):
+- `parseMessage()` extracts pre-text, document content, and post-text from the message
+- If both markers present → renders `DocumentCard` (complete document)
+- If only start marker (still streaming) → renders spinner: "Rédaction du document en cours…"
+- `DocumentCard` renders a letter-paper simulation:
+  - Header bar with "Document Juridique" label, gold "Imprimer" button, "Copier" button
+  - A dashed "letterhead" area at top (blank — user prints on own paper)
+  - White paper body with serif font and proper letter formatting
+  - Print button opens a new window with clean A4 print-ready HTML (top margin 8cm for letterhead, no branding)
+- Arabic documents: auto-detected via character frequency → RTL layout + Arabic letter fonts
+
+**AI instructions**: All 4 system prompts (EU/US/Arabic/Morocco) now include explicit instructions to use `<<<DOCUMENT_START>>>` / `<<<DOCUMENT_END>>>` markers for any formal document and to NOT include letterhead.
 
 ## Legal Disclaimer
 
