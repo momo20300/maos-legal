@@ -236,7 +236,7 @@ export default function PreparationsPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-background pb-24" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="bg-background pb-20 md:pb-24 md:min-h-screen" dir={isRTL ? "rtl" : "ltr"}>
 
         {/* Header */}
         <div className="sticky top-0 z-20 bg-[#0d1b2e]/95 backdrop-blur border-b border-white/10">
@@ -273,34 +273,34 @@ export default function PreparationsPage() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
+        <div className="max-w-2xl mx-auto px-4 py-2 md:py-5 space-y-3 md:space-y-5">
 
           {/* PHASE: SELECT */}
           {phase === "select" && (
-            <div className="space-y-5">
-              <div className="text-center py-2">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center mx-auto mb-3">
+            <div className="space-y-3 md:space-y-5">
+              <div className="text-center py-1 md:py-2">
+                <div className="hidden md:flex w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 items-center justify-center mx-auto mb-3">
                   <BookOpen className="w-7 h-7 text-[#c9a227]" />
                 </div>
-                <h2 className="text-foreground font-bold text-lg">
+                <h2 className="text-foreground font-bold text-base md:text-lg">
                   {isRTL ? "اختر مادتك" : "Choisissez votre exercice"}
                 </h2>
-                <p className="text-muted-foreground text-xs mt-1">
+                <p className="text-muted-foreground text-xs mt-0.5 md:mt-1">
                   {isRTL ? "مرن ذاكرتك القانونية وتعلم من التصحيح" : "Entraînez-vous et apprenez de la correction IA"}
                 </p>
               </div>
 
               {/* Domain selection */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 md:space-y-2">
                 <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
                   {isRTL ? "المادة القانونية" : "Matière"}
                 </p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                   {domains.map((d) => (
                     <button
                       key={d}
                       onClick={() => setSelectedDomain(d)}
-                      className={`text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                      className={`text-left px-2.5 py-1.5 md:px-3 md:py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all border ${
                         selectedDomain === d
                           ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]"
                           : "bg-muted/50 border-border text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -313,11 +313,11 @@ export default function PreparationsPage() {
               </div>
 
               {/* Difficulty selection */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 md:space-y-2">
                 <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">
                   {isRTL ? "المستوى" : "Niveau"}
                 </p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5 md:gap-2">
                   {difficulties.map((d, i) => {
                     const colors = ["text-green-500 border-green-500/40 bg-green-500/10", "text-blue-500 border-blue-500/40 bg-blue-500/10", "text-orange-500 border-orange-500/40 bg-orange-500/10", "text-red-500 border-red-500/40 bg-red-500/10"];
                     const selectedColors = ["bg-green-500/20 border-green-500/60", "bg-blue-500/20 border-blue-500/60", "bg-orange-500/20 border-orange-500/60", "bg-red-500/20 border-red-500/60"];
@@ -325,7 +325,7 @@ export default function PreparationsPage() {
                       <button
                         key={d}
                         onClick={() => setSelectedDifficulty(d)}
-                        className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border ${
+                        className={`px-2.5 py-1.5 md:px-3 md:py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all border ${
                           selectedDifficulty === d
                             ? selectedColors[i]
                             : "bg-muted/50 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -341,7 +341,7 @@ export default function PreparationsPage() {
               <Button
                 onClick={generateExercise}
                 disabled={!selectedDomain || !selectedDifficulty}
-                className="w-full h-12 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm shadow-lg shadow-[#c9a227]/20 disabled:opacity-30"
+                className="w-full h-10 md:h-12 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm shadow-lg shadow-[#c9a227]/20 disabled:opacity-30"
               >
                 <Zap className="w-4 h-4 mr-2" />
                 {isRTL ? "توليد تمرين" : "Générer un exercice"}
