@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Scale, Globe, BookOpen, CheckCircle2, ArrowRight, Star, GraduationCap, LogIn, CreditCard } from "lucide-react";
+import { VoiceCallInlineButton } from "@/components/chat/voice-call-button";
 import { useHealthCheck, useGetLegalDomainStats, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuthContext } from "@/contexts/auth-context";
@@ -81,12 +82,15 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               {isSignedIn ? (
-                <Link href="/chat">
-                  <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl">
-                    {t.landing.startConsultation}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link href="/chat">
+                    <Button size="lg" className="h-14 px-8 text-base font-medium shadow-xl">
+                      {t.landing.startConsultation}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <VoiceCallInlineButton />
+                </div>
               ) : (
                 <>
                   <Link href="/sign-in">

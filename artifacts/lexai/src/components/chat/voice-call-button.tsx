@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Phone, PhoneOff, Mic, MicOff } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,24 +22,15 @@ const LANG_OPTIONS: { code: CallLanguage; flag: string; label: string; sublabel:
   { code: "ar", flag: "🇸🇦", label: "وكيل عربي", sublabel: "القانون العربي والمغربي" },
 ];
 
-// Pages where the FAB should be hidden
-const HIDDEN_PATHS = ["/profile", "/dossiers", "/preparations"];
+// Pages where the FAB should be hidden (landing page handled inline)
+const HIDDEN_PATHS = ["/", "/profile", "/dossiers", "/preparations"];
 
-export function VoiceCallFAB() {
-  const { isSignedIn } = useAuthContext();
-  const { language: uiLanguage } = useLanguage();
-  const [location] = useLocation();
+function useVoiceCall() {
   const [callState, setCallState] = useState<CallState>("idle");
   const [language, setLanguage] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
   const clientRef = useRef<RetellWebClient | null>(null);
   const { toast } = useToast();
-
-  // Always right-6, never RTL-aware
-  const sideClass = "right-6";
-
-  // Hide on profile, dossiers list, preparations — but show on /conversations/:id
-  const isHidden = HIDDEN_PATHS.some(p => location === p);
 
   const startCall = useCallback(async (lang: CallLanguage) => {
     setLanguage(lang);
@@ -108,13 +99,111 @@ export function VoiceCallFAB() {
     setIsMuted(!isMuted);
   }, [isMuted]);
 
+  return { callState, language, isMuted, startCall, endCall, toggleMute };
+}
+
+function VoiceCallDropdown({ onSelect, trigger }: { onSelect: (lang: CallLanguage) => void; trigger: React.ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent side="top" align="end" className="mb-2 min-w-[210px]">
+        <div className="px-2 py-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">
+          Choisir un agent vocal
+        </div>
+        {LANG_OPTIONS.map((opt) => (
+          <DropdownMenuItem
+            key={opt.code}
+            onClick={() => onSelect(opt.code)}
+            className="gap-3 cursor-pointer py-3"
+          >
+            <span className="text-xl leading-none">{opt.flag}</span>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold">{opt.label}</span>
+              <span className="text-xs text-muted-foreground">{opt.sublabel}</span>
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function VoiceCallInlineButton() {
+  const { isSignedIn } = useAuthContext();
+  const { callState, isMuted, startCall, endCall, toggleMute } = useVoiceCall();
+
+  if (!isSignedIn) return null;
+
+  if (callState === "active") {
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleMute}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all border ${
+            isMuted
+              ? "bg-red-500 border-red-600 text-white"
+              : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+          title={isMuted ? "Réactiver le micro" : "Couper le micro"}
+        >
+          {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+        </button>
+        <div className="relative">
+          <button
+            onClick={endCall}
+            className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xl transition-all active:scale-95"
+            title="Raccrocher"
+          >
+            <PhoneOff className="w-6 h-6" />
+          </button>
+          <span className="absolute inset-0 rounded-full bg-red-400 opacity-30 animate-ping pointer-events-none" />
+        </div>
+      </div>
+    );
+  }
+
+  if (callState === "connecting") {
+    return (
+      <div className="relative w-14 h-14">
+        <div className="w-14 h-14 rounded-full bg-[#c9a227] flex items-center justify-center shadow-xl">
+          <Phone className="w-6 h-6 text-[#0d1b2e] animate-pulse" />
+        </div>
+        <span className="absolute inset-0 rounded-full bg-[#c9a227] opacity-40 animate-ping pointer-events-none" />
+      </div>
+    );
+  }
+
+  return (
+    <VoiceCallDropdown
+      onSelect={startCall}
+      trigger={
+        <button
+          className="w-14 h-14 rounded-full bg-[#c9a227] hover:bg-[#b8911f] text-[#0d1b2e] flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95 focus:outline-none"
+          title="Appeler un agent vocal MAOS Legal"
+        >
+          <Phone className="w-6 h-6" />
+        </button>
+      }
+    />
+  );
+}
+
+export function VoiceCallFAB() {
+  const { isSignedIn } = useAuthContext();
+  const { language: uiLanguage } = useLanguage();
+  const [location] = useLocation();
+  const { callState, language, isMuted, startCall, endCall, toggleMute } = useVoiceCall();
+
+  void uiLanguage;
+
+  const sideClass = "right-6";
+  const isHidden = HIDDEN_PATHS.some(p => location === p);
+
   if (!isSignedIn || isHidden) return null;
 
-  // ACTIVE CALL — show controls instead of main FAB
   if (callState === "active") {
     return (
       <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50 flex flex-col items-end gap-2`}>
-        {/* Mute button */}
         <button
           onClick={toggleMute}
           className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all border ${
@@ -126,8 +215,6 @@ export function VoiceCallFAB() {
         >
           {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
         </button>
-
-        {/* Hang up FAB */}
         <button
           onClick={endCall}
           className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xl transition-all active:scale-95"
@@ -135,14 +222,11 @@ export function VoiceCallFAB() {
         >
           <PhoneOff className="w-6 h-6" />
         </button>
-
-        {/* Pulsing ring */}
         <span className="absolute bottom-0 right-0 w-14 h-14 rounded-full bg-red-400 opacity-30 animate-ping pointer-events-none" />
       </div>
     );
   }
 
-  // CONNECTING
   if (callState === "connecting") {
     return (
       <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50`}>
@@ -154,41 +238,21 @@ export function VoiceCallFAB() {
     );
   }
 
-  // IDLE — dropdown to pick language
+  void language;
+
   return (
     <div className={`fixed bottom-36 md:bottom-6 ${sideClass} z-50`}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      <VoiceCallDropdown
+        onSelect={startCall}
+        trigger={
           <button
             className="w-14 h-14 rounded-full bg-[#c9a227] hover:bg-[#b8911f] text-[#0d1b2e] flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95 focus:outline-none"
             title="Appeler un agent vocal MAOS Legal"
           >
             <Phone className="w-6 h-6" />
           </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          side="top"
-          align="end"
-          className="mb-2 min-w-[210px]"
-        >
-          <div className="px-2 py-1.5 text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">
-            Choisir un agent vocal
-          </div>
-          {LANG_OPTIONS.map((opt) => (
-            <DropdownMenuItem
-              key={opt.code}
-              onClick={() => startCall(opt.code)}
-              className="gap-3 cursor-pointer py-3"
-            >
-              <span className="text-xl leading-none">{opt.flag}</span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-semibold">{opt.label}</span>
-                <span className="text-xs text-muted-foreground">{opt.sublabel}</span>
-              </div>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        }
+      />
     </div>
   );
 }
