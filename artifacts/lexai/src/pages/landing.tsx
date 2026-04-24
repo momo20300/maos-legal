@@ -7,6 +7,7 @@ import { Scale, Globe, BookOpen, CheckCircle2, ArrowRight, Star, GraduationCap, 
 import { useHealthCheck, useGetLegalDomainStats, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@clerk/react";
+import { useTheme } from "@/hooks/use-theme";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -20,6 +21,7 @@ export default function LandingPage() {
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
   const { t } = useLanguage();
   const { isSignedIn } = useAuth();
+  const { theme } = useTheme();
 
   const plans = PLAN_META.map((meta) => ({
     ...meta,
@@ -57,9 +59,20 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
         <div className="container px-4 mx-auto relative z-10">
           <div className="max-w-3xl mx-auto text-center space-y-8">
-            <Badge variant="outline" className="px-3 py-1 font-serif tracking-wide border-accent/30 text-accent bg-accent/5">
-              {t.landing.badge}
-            </Badge>
+            {/* Branding block */}
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+              <img
+                src={theme === "dark" ? `${basePath}/logo-dark.png` : `${basePath}/logo-light.png`}
+                alt="MAOS Legal"
+                className="h-auto w-[200px] object-contain"
+              />
+              <span className="text-accent font-serif font-bold text-base tracking-[0.25em] uppercase">
+                Legal
+              </span>
+              <span className="text-muted-foreground text-[11px] font-medium tracking-[0.2em] uppercase">
+                {t.auth.intelligenceJuridiquePremium}
+              </span>
+            </div>
             <h1 className="text-5xl lg:text-7xl font-serif font-bold tracking-tight text-foreground leading-[1.1]">
               {t.landing.headline1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent/60">{t.landing.headline2}</span>
