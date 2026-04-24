@@ -79,17 +79,15 @@ export function VoiceCallFAB() {
         toast({ title: lang === "ar" ? "انتهى الاتصال" : "Appel terminé" });
       });
 
-      client.on("error", (err) => {
-        console.error("Retell error:", err);
+      client.on("error", () => {
         setCallState("idle");
-        toast({ title: "Erreur d'appel", description: String(err), variant: "destructive" });
+        toast({ title: "Erreur d'appel", description: "La connexion a été interrompue. Veuillez réessayer.", variant: "destructive" });
       });
 
       await client.startCall({ accessToken, sampleRate: 24000 });
-    } catch (err: any) {
-      console.error("Voice call error:", err);
+    } catch {
       setCallState("idle");
-      toast({ title: "Impossible de démarrer l'appel", description: err.message, variant: "destructive" });
+      toast({ title: "Impossible de démarrer l'appel", description: "Vérifiez votre connexion et réessayez.", variant: "destructive" });
     }
   }, [toast]);
 
