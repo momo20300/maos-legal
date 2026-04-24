@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
-  User, Mail, Briefcase, Lock, Phone, ChevronLeft,
+  User, Mail, Briefcase, Lock, Phone,
   Save, Eye, EyeOff, LogOut, CheckCircle2, Clock,
   CreditCard, Shield, Zap, Star, Check,
 } from "lucide-react";
@@ -198,18 +198,6 @@ export default function ProfilePage() {
     <Layout>
       <div className="flex-1 overflow-y-auto bg-background" dir={isRTL ? "rtl" : "ltr"}>
 
-        {/* Mobile header */}
-        <div className="md:hidden sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border flex items-center gap-3 px-4 py-3">
-          <button onClick={() => navigate(`${BASE_URL}/`)} className="text-muted-foreground hover:text-foreground">
-            <ChevronLeft className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
-          </button>
-          <h1 className="text-foreground font-semibold text-base flex-1">
-            {isRTL ? "حسابي" : "Mon Compte"}
-          </h1>
-          <button onClick={handleLogout} className="text-red-500 hover:text-red-600 text-xs font-medium">
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
 
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
