@@ -140,6 +140,15 @@ function buildPrintHtml(content: string, isRTL: boolean): string {
 </html>`;
 }
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/^#{1,3} /gm, "")
+    .replace(/^[\-\*] /gm, "• ")
+    .trim();
+}
+
 export function DocumentCard({ content }: DocumentCardProps) {
   const [copied, setCopied] = useState(false);
   const { language } = useLanguage();
@@ -161,17 +170,31 @@ export function DocumentCard({ content }: DocumentCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    const cleanContent = stripMarkdown(content);
+    const blob = new Blob([cleanContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `document-juridique-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const printLabel = isRTL ? "طباعة" : language === "en" ? "Print" : "Imprimer";
   const copyLabel = isRTL ? "نسخ" : language === "en" ? "Copy" : "Copier";
+  const downloadLabel = isRTL ? "تحميل" : language === "en" ? "Download" : "Télécharger";
   const documentLabel = isRTL ? "وثيقة قانونية" : language === "en" ? "Legal Document" : "Document Juridique";
   const readyLabel = isRTL ? "جاهز للطباعة على ورقك المكتبي" : language === "en" ? "Print-ready — use your own letterhead" : "Prêt à imprimer sur votre papier à en-tête";
 
   return (
     <div className="w-full max-w-2xl my-2">
       {/* Document Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-primary/5 border border-border rounded-t-xl border-b-0">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-primary/5 border border-border rounded-t-xl border-b-0 flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-accent/15 rounded-lg flex items-center justify-center border border-accent/25">
+          <div className="w-8 h-8 bg-accent/15 rounded-lg flex items-center justify-center border border-accent/25 shrink-0">
             <FileText className="w-4 h-4 text-accent" />
           </div>
           <div>
@@ -179,7 +202,7 @@ export function DocumentCard({ content }: DocumentCardProps) {
             <p className="text-[10px] text-muted-foreground">{readyLabel}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <Button
             variant="ghost"
             size="sm"
@@ -187,7 +210,16 @@ export function DocumentCard({ content }: DocumentCardProps) {
             onClick={handleCopy}
           >
             {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? (isRTL ? "تم النسخ" : "Copié !") : copyLabel}
+            <span className="hidden sm:inline">{copied ? (isRTL ? "تم النسخ" : "Copié !") : copyLabel}</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={handleDownload}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{downloadLabel}</span>
           </Button>
           <Button
             size="sm"
@@ -211,7 +243,7 @@ export function DocumentCard({ content }: DocumentCardProps) {
         {/* Letterhead area — blank/dashed to suggest user's own paper */}
         <div className="h-10 border-b border-dashed border-gray-200 bg-gray-50/60 flex items-center justify-center">
           <span className="text-[9px] text-gray-300 uppercase tracking-widest select-none">
-            {isRTL ? "← ورقتك المكتبية الخاصة" : language === "en" ? "← Your own letterhead paper" : "← Espace pour votre en-tête"}
+            {isRTL ? "← ورقتك المكتبية الخاصة" : language === "en" ? "← Your own letterhead paper" : "← Espace pour votre en-tête professionnel"}
           </span>
         </div>
 
@@ -222,10 +254,14 @@ export function DocumentCard({ content }: DocumentCardProps) {
 
         {/* Bottom print hint */}
         <div className="px-10 py-3 border-t border-dashed border-gray-200 bg-gray-50/60 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-300">
-            <Download className="w-3 h-3" />
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+            <Printer className="w-3 h-3" />
             <span className="select-none">
-              {isRTL ? "انقر طباعة لفتح نافذة الطباعة" : language === "en" ? "Click Print to open print dialog" : "Cliquez Imprimer pour ouvrir la boîte de dialogue"}
+              {isRTL
+                ? "انقر طباعة — سيُفتح مباشرة على ورقتك المكتبية"
+                : language === "en"
+                  ? "Click Print — opens directly on your letterhead paper"
+                  : "Cliquer Imprimer — s'ouvre directement sur votre papier à en-tête"}
             </span>
           </div>
         </div>

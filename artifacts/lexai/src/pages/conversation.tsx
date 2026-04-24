@@ -29,8 +29,11 @@ export default function ConversationPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const streamingBubbleRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const chatAreaRef = useRef<HTMLDivElement>(null);
+  const isStreamingRef = useRef(false);
 
   const { data: conversation, isLoading: isLoadingConv } = useGetAnthropicConversation(id, {
     query: { enabled: !!id, queryKey: getGetAnthropicConversationQueryKey(id) }
@@ -40,13 +43,28 @@ export default function ConversationPage() {
     query: { enabled: !!id, queryKey: getListAnthropicMessagesQueryKey(id) }
   });
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
+
+  const scrollToStreamingTop = useCallback(() => {
+    if (streamingBubbleRef.current && chatAreaRef.current) {
+      const bubbleTop = streamingBubbleRef.current.offsetTop;
+      chatAreaRef.current.scrollTo({ top: bubbleTop - 16, behavior: "smooth" });
+    }
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, streamedContent]);
+    if (!isStreamingRef.current) {
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    if (isStreamingRef.current && streamedContent) {
+      scrollToStreamingTop();
+    }
+  }, [streamedContent.length < 200 ? streamedContent : null, scrollToStreamingTop]);
 
   const handleFileChange = useCallback((file: File | null) => {
     if (!file) return;
@@ -82,6 +100,7 @@ export default function ConversationPage() {
     const userContent = input;
     setInput("");
     setIsStreaming(true);
+    isStreamingRef.current = true;
     setStreamedContent("");
 
     const isFileMessage = !!attachedFile;
@@ -144,11 +163,16 @@ export default function ConversationPage() {
 
       if (reader) {
         let fullResponse = "";
+        let lineBuffer = "";
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n");
+
+          lineBuffer += decoder.decode(value, { stream: true });
+          const lines = lineBuffer.split("\n");
+          lineBuffer = lines.pop() ?? "";
+
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               try {
@@ -163,6 +187,9 @@ export default function ConversationPage() {
         }
       }
 
+      setStreamedContent("");
+      isStreamingRef.current = false;
+
       await queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
       await queryClient.refetchQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
 
@@ -171,6 +198,7 @@ export default function ConversationPage() {
       toast({ title: t.chat.fileFormatError, description: error?.message || "Impossible d'envoyer le message", variant: "destructive" });
     } finally {
       setIsStreaming(false);
+      isStreamingRef.current = false;
       setStreamedContent("");
     }
   };
@@ -204,9 +232,9 @@ export default function ConversationPage() {
 
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
-          {/* Mobile header (top bar replacing sidebar) */}
+          {/* Mobile header */}
           <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
-            <Link href="/dossiers">
+            <Link href="/chat">
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -261,7 +289,7 @@ export default function ConversationPage() {
           </header>
 
           {/* Chat Area */}
-          <div className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
+          <div ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
             <div className="max-w-4xl mx-auto flex flex-col">
 
               {messages?.length === 0 && !isStreaming && (
@@ -281,18 +309,30 @@ export default function ConversationPage() {
                         : t.chat.defaultReadyDesc}
                     </p>
                     <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
+                      >
                         <FileImage className="w-4 h-4 text-accent" />
                         <span>{t.chat.photosImages}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
+                      >
                         <FileText className="w-4 h-4 text-accent" />
                         <span>{t.chat.pdfDocuments}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
+                      >
                         <Camera className="w-4 h-4 text-accent" />
                         <span>{t.chat.takePhotoLabel}</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -310,7 +350,9 @@ export default function ConversationPage() {
               )}
 
               {isStreaming && streamedContent && (
-                <MessageBubble message={{ role: "assistant", content: streamedContent }} />
+                <div ref={streamingBubbleRef}>
+                  <MessageBubble message={{ role: "assistant", content: streamedContent, attachmentData: null }} />
+                </div>
               )}
 
               {isStreaming && !streamedContent && (
@@ -326,7 +368,7 @@ export default function ConversationPage() {
             </div>
           </div>
 
-          {/* Input Area — always visible */}
+          {/* Input Area */}
           <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
             <div className="max-w-4xl mx-auto space-y-2">
 
