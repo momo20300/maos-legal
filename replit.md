@@ -31,11 +31,12 @@ LexAI is a premium AI-powered legal intelligence platform that provides expert l
 ## Key Features
 
 - **AI Legal Chat**: Powered by Claude Sonnet 4.6 with specialized system prompts per jurisdiction
-- **3 Jurisdiction Experts**: EU law expert (CJEU, TFEU, GDPR), US law expert (SCOTUS, USC), Arabic law expert (Sharia, GCC, national codes)
+- **4 Jurisdiction Experts**: EU law, US law, Arabic/GCC, Morocco MAOS Legal
+- **Document & Image Analysis**: Upload PDFs (text extracted via pdf-parse) or images (Claude vision) for legal inspection
 - **Real-time Streaming**: SSE streaming of AI responses with live typing effect
 - **Legal Citations**: AI responses formatted with law article numbers and jurisprudence references
-- **Subscription Tiers**: Free (5/mo), Professional ($49/mo, 100/mo), Expert ($199/mo, unlimited)
-- **Multi-domain Coverage**: 14 legal domains across 3 jurisdictions
+- **Subscription Tiers**: Professional ($49/mo), Expert ($199/mo) — paid-only, no free plan
+- **Multi-domain Coverage**: 14 legal domains across 4 jurisdictions
 - **Dark/Light Mode**: Professional navy + gold design theme
 
 ## Key Commands
@@ -55,6 +56,7 @@ LexAI is a premium AI-powered legal intelligence platform that provides expert l
 - `DELETE /api/anthropic/conversations/:id` — Delete conversation
 - `GET /api/anthropic/conversations/:id/messages` — List messages
 - `POST /api/anthropic/conversations/:id/messages` — Send message (SSE streaming response)
+- `POST /api/anthropic/conversations/:id/analyze` — Upload + analyze document/image (multipart/form-data: file + content)
 - `GET /api/subscriptions/plans` — List subscription plans
 - `GET /api/subscriptions/status` — Get current subscription status
 - `GET /api/legal-domains` — List all legal domains
@@ -70,3 +72,5 @@ LexAI provides AI-assisted legal information, not legal advice. Users should con
 - After modifying DB schema, run `pnpm --filter @workspace/db run push`
 - The `lib/api-zod/src/index.ts` must only export `./generated/api` (orval regenerates this file incorrectly with duplicate types — it must be patched after codegen)
 - AI_INTEGRATIONS_ANTHROPIC_BASE_URL and AI_INTEGRATIONS_ANTHROPIC_API_KEY are auto-configured via Replit AI Integrations
+- `pdf-parse` is marked as external in `build.mjs` because its ESM version lacks a default export; it's loaded at runtime via globalThis.require (CJS)
+- **Stripe**: User dismissed the Replit Stripe OAuth connector. Stripe integration is NOT connected. Subscription checkout (`/api/subscriptions/checkout`) is a placeholder. To reconnect, user must authorize the Stripe connector in Replit Integrations OR provide STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET as environment secrets.

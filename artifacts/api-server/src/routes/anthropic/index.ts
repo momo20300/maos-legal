@@ -11,8 +11,28 @@ import {
   SendAnthropicMessageBody,
 } from "@workspace/api-zod";
 import { requireAuth } from "../../middlewares/requireAuth";
+import multer from "multer";
+
+// pdf-parse uses CJS exports; use globalThis.require (set by esbuild banner) to load the CJS version
+type PdfParseResult = { text: string; numpages: number };
+const pdfParse: (buffer: Buffer) => Promise<PdfParseResult> =
+  typeof globalThis.require === "function"
+    ? (globalThis as any).require("pdf-parse")
+    : /* runtime fallback: dynamic import handled below */ (async (buf: Buffer) => {
+        const mod = await import("pdf-parse" as string);
+        return (mod.default ?? mod)(buf);
+      });
 
 const router: IRouter = Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
 
 const LEGAL_EXPERT_SYSTEM_PROMPTS: Record<string, string> = {
   EU: `You are an elite EU legal expert with 25+ years of experience in European Union law. You have deep expertise in:
@@ -350,5 +370,144 @@ router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, re
     res.end();
   }
 });
+
+// Document / image analysis endpoint
+router.post(
+  "/anthropic/conversations/:id/analyze",
+  requireAuth,
+  upload.single("file"),
+  async (req, res): Promise<void> => {
+    const params = SendAnthropicMessageParams.safeParse(req.params);
+    if (!params.success) {
+      res.status(400).json({ error: params.error.message });
+      return;
+    }
+
+    const file = (req as any).file as Express.Multer.File | undefined;
+    const userText: string = (req.body?.content as string) || "";
+
+    if (!file) {
+      res.status(400).json({ error: "No file provided" });
+      return;
+    }
+
+    const [conv] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, params.data.id));
+
+    if (!conv) {
+      res.status(404).json({ error: "Conversation not found" });
+      return;
+    }
+
+    // Build user message content for Claude
+    type ContentBlock =
+      | { type: "text"; text: string }
+      | { type: "image"; source: { type: "base64"; media_type: "image/jpeg" | "image/png" | "image/webp" | "image/gif"; data: string } };
+
+    let claudeContent: ContentBlock[] = [];
+    let storedContent = "";
+
+    if (file.mimetype === "application/pdf") {
+      try {
+        const parsed = await pdfParse(file.buffer);
+        const extractedText = parsed.text.trim();
+        const prompt = userText
+          ? `${userText}\n\n--- Contenu du document PDF (${file.originalname}) ---\n${extractedText}`
+          : `Analysez ce document juridique et fournissez une analyse détaillée avec les dispositions légales applicables :\n\n--- ${file.originalname} ---\n${extractedText}`;
+
+        claudeContent = [{ type: "text", text: prompt }];
+        storedContent = userText
+          ? `📄 [PDF: ${file.originalname}]\n\n${userText}`
+          : `📄 [PDF: ${file.originalname}]\n\nAnalyse juridique demandée`;
+      } catch {
+        res.status(400).json({ error: "Failed to parse PDF" });
+        return;
+      }
+    } else {
+      // Image file
+      const mimeToType: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/gif"> = {
+        "image/jpeg": "image/jpeg",
+        "image/png": "image/png",
+        "image/webp": "image/webp",
+        "image/gif": "image/gif",
+      };
+      const mediaType = mimeToType[file.mimetype] ?? "image/jpeg";
+      const base64Data = file.buffer.toString("base64");
+
+      const promptText = userText
+        ? userText
+        : "Analysez ce document/cette image sous l'angle juridique. Identifiez les clauses importantes, les risques légaux potentiels, et fournissez vos conseils.";
+
+      claudeContent = [
+        {
+          type: "image",
+          source: { type: "base64", media_type: mediaType, data: base64Data },
+        },
+        { type: "text", text: promptText },
+      ];
+      storedContent = userText
+        ? `🖼️ [Image: ${file.originalname}]\n\n${userText}`
+        : `🖼️ [Image: ${file.originalname}]\n\nAnalyse juridique demandée`;
+    }
+
+    // Save user message to DB
+    await db.insert(messages).values({
+      conversationId: conv.id,
+      role: "user",
+      content: storedContent,
+    });
+
+    // Retrieve conversation history (text only, for context)
+    const conversationHistory = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conv.id))
+      .orderBy(messages.createdAt);
+
+    // Build messages array: past messages as text + new message with file
+    const chatMessages: Array<{ role: "user" | "assistant"; content: string | ContentBlock[] }> = [];
+    for (const m of conversationHistory.slice(0, -1)) {
+      chatMessages.push({ role: m.role as "user" | "assistant", content: m.content });
+    }
+    chatMessages.push({ role: "user", content: claudeContent });
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    let fullResponse = "";
+
+    try {
+      const stream = anthropic.messages.stream({
+        model: "claude-sonnet-4-6",
+        max_tokens: 8192,
+        system: getSystemPrompt(conv.jurisdiction),
+        messages: chatMessages as Parameters<typeof anthropic.messages.stream>[0]["messages"],
+      });
+
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          fullResponse += event.delta.text;
+          res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+        }
+      }
+
+      await db.insert(messages).values({
+        conversationId: conv.id,
+        role: "assistant",
+        content: fullResponse,
+      });
+
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (err) {
+      req.log.error({ err }, "Error analyzing document");
+      res.write(`data: ${JSON.stringify({ error: "AI service error" })}\n\n`);
+      res.end();
+    }
+  }
+);
 
 export default router;
