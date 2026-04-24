@@ -22,3 +22,4 @@ export * from "./messages";
 export * from "./users";
 export * from "./call-logs";
 export * from "./dossiers";
+export * from "./billing";

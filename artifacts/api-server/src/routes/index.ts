@@ -8,6 +8,7 @@ import adminRouter from "./admin";
 import voiceRouter from "./voice";
 import prepRouter from "./prep";
 import dossiersRouter from "./dossiers";
+import billingRouter from "./billing";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(adminRouter);
 router.use(voiceRouter);
 router.use(prepRouter);
 router.use(dossiersRouter);
+router.use(billingRouter);
 
 export default router;
