@@ -131,12 +131,19 @@ export default function LandingPage() {
                 </Badge>
               ))}
             </div>
-            <Link href={isSignedIn ? "/preparations" : "/sign-in"}>
-              <Button variant="outline" className="border-[#C1272D] text-[#C1272D] hover:bg-[#C1272D]/5 whitespace-nowrap">
-                <GraduationCap className="w-4 h-4 mr-2" />
+            {isSignedIn ? (
+              <Link href="/preparations">
+                <Button variant="outline" className="border-[#C1272D] text-[#C1272D] hover:bg-[#C1272D]/5 whitespace-nowrap">
+                  <GraduationCap className="w-4 h-4 mr-2" />
+                  {t.landing.maosRevisionMode}
+                </Button>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-md border border-[#C1272D]/30 text-[#C1272D]/40 text-sm font-medium whitespace-nowrap cursor-default select-none">
+                <GraduationCap className="w-4 h-4" />
                 {t.landing.maosRevisionMode}
-              </Button>
-            </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
