@@ -23,7 +23,7 @@ export default function LandingPage() {
   const { t, language } = useLanguage();
   const { isSignedIn } = useAuthContext();
   const { theme } = useTheme();
-  const logoSrc = `${basePath}/${theme === "light" ? "logo-dark.png" : "logo-light.png"}`;
+  const logoSrc = `${basePath}/${theme === "light" ? "logo-light.png" : "logo-dark.png"}`;
 
   const plans = PLAN_META.map((meta) => ({
     ...meta,

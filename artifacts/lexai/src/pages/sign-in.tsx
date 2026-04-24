@@ -13,7 +13,7 @@ export default function SignInPage() {
   const { login } = useAuthContext();
   const [, navigate] = useLocation();
   const { theme } = useTheme();
-  const logoSrc = `${basePath}/${theme === "light" ? "logo-dark.png" : "logo-light.png"}`;
+  const logoSrc = `${basePath}/${theme === "light" ? "logo-light.png" : "logo-dark.png"}`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
