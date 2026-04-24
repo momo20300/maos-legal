@@ -13,6 +13,7 @@ MAOS Legal is a premium AI-powered legal intelligence platform that provides exp
 - **Frontend**: React + Vite (shadcn/ui, Tailwind CSS, framer-motion, wouter)
 - **API framework**: Express 5
 - **Database**: PostgreSQL + Drizzle ORM
+- **Auth**: Custom session-based email+password (bcryptjs + express-session + connect-pg-simple). Sessions stored in `user_sessions` PostgreSQL table. No Clerk.
 - **AI**: Anthropic Claude (via Replit AI Integrations — no user API key required)
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
@@ -47,9 +48,22 @@ MAOS Legal is a premium AI-powered legal intelligence platform that provides exp
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
+## Authentication
+
+- Custom session-based auth stored in PostgreSQL (`user_sessions` table via `connect-pg-simple`)
+- `SESSION_SECRET` env var required for cookie signing
+- Frontend: `AuthProvider` in `artifacts/lexai/src/contexts/auth-context.tsx` — provides `user`, `isSignedIn`, `login`, `register`, `logout`
+- Backend: `requireAuth` middleware reads `req.session.userId`
+- Admin access: hardcoded to `elasri.mounsef@gmail.com`, verified via `req.session.email`
+- Cookie: `httpOnly`, 30-day expiry, `sameSite: lax` (dev) / `none` (prod with secure)
+
 ## API Routes
 
 - `GET /api/healthz` — Health check
+- `POST /api/auth/register` — Register (email, password, firstName?, lastName?)
+- `POST /api/auth/login` — Login (email, password)
+- `POST /api/auth/logout` — Logout (destroys session)
+- `GET /api/auth/me` — Get current user (requires session)
 - `GET /api/anthropic/conversations` — List all conversations
 - `POST /api/anthropic/conversations` — Create conversation (title, jurisdiction, legalDomain)
 - `GET /api/anthropic/conversations/:id` — Get conversation with messages

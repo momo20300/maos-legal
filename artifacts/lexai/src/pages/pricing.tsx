@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ShieldCheck, CreditCard, Zap, Lock } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
-import { useAuth } from "@clerk/react";
+import { useAuthContext } from "@/contexts/auth-context";
 import { Link } from "wouter";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -17,7 +17,7 @@ const PLAN_META = [
 export default function PricingPage() {
   const { data: status, isLoading: isLoadingStatus } = useGetSubscriptionStatus({ query: { queryKey: getGetSubscriptionStatusQueryKey() } });
   const { t } = useLanguage();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn } = useAuthContext();
 
   const handleSubscribe = (planId: string) => {
     window.location.href = `${basePath}/api/subscriptions/checkout?planId=${planId}`;

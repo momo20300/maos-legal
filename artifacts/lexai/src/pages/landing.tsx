@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Scale, Globe, BookOpen, CheckCircle2, ArrowRight, Star, GraduationCap, LogIn, CreditCard } from "lucide-react";
 import { useHealthCheck, useGetLegalDomainStats, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
-import { useAuth } from "@clerk/react";
+import { useAuthContext } from "@/contexts/auth-context";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -19,7 +19,7 @@ export default function LandingPage() {
   const { data: health } = useHealthCheck({ query: { queryKey: getHealthCheckQueryKey() } });
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
   const { t, language } = useLanguage();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn } = useAuthContext();
 
   const plans = PLAN_META.map((meta) => ({
     ...meta,

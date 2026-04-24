@@ -1,8 +1,6 @@
 import { Router, type IRouter } from "express";
-import { getAuth } from "@clerk/express";
 import { db } from "@workspace/db";
 import { users } from "@workspace/db";
-import { sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
@@ -53,8 +51,7 @@ router.get("/subscriptions/plans", async (_req, res): Promise<void> => {
 });
 
 router.get("/subscriptions/status", async (req, res): Promise<void> => {
-  const auth = getAuth(req);
-  const userId = auth?.userId;
+  const userId = (req.session as any)?.userId;
 
   if (!userId) {
     res.json({
@@ -71,44 +68,21 @@ router.get("/subscriptions/status", async (req, res): Promise<void> => {
   try {
     const [user] = await db.select().from(users).where(eq(users.id, userId));
 
-    if (!user?.stripeSubscriptionId) {
-      res.json({
-        hasActiveSubscription: false,
-        plan: null,
-        questionsUsed: 0,
-        questionsLimit: 0,
-        renewsAt: null,
-        isActive: false,
-      });
+    if (!user) {
+      res.json({ hasActiveSubscription: false, plan: null, isActive: false });
       return;
     }
 
-    const subResult = await db.execute(
-      sql`SELECT * FROM stripe.subscriptions WHERE id = ${user.stripeSubscriptionId} LIMIT 1`
-    );
-    const sub = subResult.rows[0] as any;
-
-    if (!sub || sub.status !== "active") {
-      res.json({
-        hasActiveSubscription: false,
-        plan: sub?.status || "inactive",
-        questionsUsed: 0,
-        questionsLimit: 0,
-        renewsAt: sub?.current_period_end || null,
-        isActive: false,
-      });
-      return;
-    }
-
-    const plan = PLANS.find((p) => p.id === (sub.metadata?.planId || "professional")) || PLANS[0];
+    const isActive = user.subscriptionStatus === "active" &&
+      (!user.subscriptionExpiresAt || user.subscriptionExpiresAt > new Date());
 
     res.json({
-      hasActiveSubscription: true,
-      plan: plan!.name,
+      hasActiveSubscription: isActive,
+      plan: user.plan || null,
       questionsUsed: 0,
-      questionsLimit: plan!.questionsPerMonth,
-      renewsAt: sub.current_period_end,
-      isActive: true,
+      questionsLimit: user.plan === "professional" ? 100 : null,
+      renewsAt: user.subscriptionExpiresAt || null,
+      isActive,
     });
   } catch {
     res.json({

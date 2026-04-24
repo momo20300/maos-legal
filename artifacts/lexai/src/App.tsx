@@ -1,10 +1,10 @@
-import { ClerkProvider, useAuth, RedirectToSignIn } from "@clerk/react";
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { LanguageProvider } from "@/contexts/language-context";
+import { AuthProvider, useAuthContext } from "@/contexts/auth-context";
 
 import LandingPage from "@/pages/landing";
 import PricingPage from "@/pages/pricing";
@@ -26,7 +26,8 @@ const queryClient = new QueryClient({
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useAuthContext();
+  const [, navigate] = useLocation();
 
   if (!isLoaded) {
     return (
@@ -37,7 +38,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isSignedIn) {
-    return <RedirectToSignIn />;
+    navigate(`${basePath}/sign-in`);
+    return null;
   }
 
   return <>{children}</>;
@@ -48,15 +50,15 @@ function Router() {
     <Switch>
       <Route path="/" component={LandingPage} />
       <Route path="/pricing" component={PricingPage} />
-      <Route path="/sign-in/*?" component={SignInPage} />
-      <Route path="/sign-up/*?" component={SignUpPage} />
+      <Route path="/sign-in" component={SignInPage} />
+      <Route path="/sign-up" component={SignUpPage} />
       <Route path="/chat">
         <ProtectedRoute>
           <ChatPage />
         </ProtectedRoute>
       </Route>
       <Route path="/conversations/:id">
-        {(params) => (
+        {() => (
           <ProtectedRoute>
             <ConversationPage />
           </ProtectedRoute>
@@ -74,14 +76,8 @@ function Router() {
 
 function App() {
   return (
-    <ClerkProvider
-      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-      signInUrl={`${basePath}/sign-in`}
-      signUpUrl={`${basePath}/sign-up`}
-      signInFallbackRedirectUrl={`${basePath}/chat`}
-      signUpFallbackRedirectUrl={`${basePath}/pricing`}
-    >
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <LanguageProvider>
           <TooltipProvider>
             <WouterRouter base={basePath}>
@@ -90,8 +86,8 @@ function App() {
             <Toaster />
           </TooltipProvider>
         </LanguageProvider>
-      </QueryClientProvider>
-    </ClerkProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

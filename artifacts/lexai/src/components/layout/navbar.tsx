@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { MessageSquare, CreditCard, Menu, X, Moon, Sun, Globe, LogIn } from "lucide-react";
+import { MessageSquare, CreditCard, Menu, X, Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserButton, useAuth } from "@clerk/react";
+import { useAuthContext } from "@/contexts/auth-context";
 
 const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
@@ -25,7 +25,7 @@ export function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, user, logout } = useAuthContext();
 
   const navLinks = [
     ...(isSignedIn ? [{ href: "/chat", label: t.nav.chat, icon: <MessageSquare className="w-4 h-4 mr-2" /> }] : []),
@@ -33,6 +33,12 @@ export function Navbar() {
   ];
 
   const currentLang = LANGUAGES.find((l) => l.code === language);
+  const displayName = user?.firstName || user?.email?.split("@")[0] || "Mon compte";
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = `${basePath}/`;
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]">
@@ -91,21 +97,23 @@ export function Navbar() {
             </Button>
 
             {isSignedIn ? (
-              <UserButton
-                appearance={{
-                  variables: {
-                    colorPrimary: "#c9a227",
-                  },
-                  elements: {
-                    userButtonAvatarBox: "w-8 h-8 ring-2 ring-accent/40 hover:ring-accent transition-all",
-                    userButtonPopoverCard: "border border-border shadow-xl",
-                    userButtonPopoverActionButton: "hover:bg-muted",
-                    userButtonPopoverActionButtonText: "text-foreground",
-                    userButtonPopoverFooter: "hidden",
-                  },
-                }}
-                afterSignOutUrl={`${basePath}/`}
-              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
+                    <User className="w-4 h-4" />
+                    <span className="text-xs max-w-[100px] truncate">{displayName}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[160px]">
+                  <DropdownMenuItem className="text-xs text-muted-foreground cursor-default">
+                    {user?.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="gap-2 cursor-pointer text-red-500 hover:text-red-600">
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Link href="/sign-in" data-testid="link-sign-in">
                 <Button size="sm" className="gap-2">
@@ -141,17 +149,6 @@ export function Navbar() {
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
-          {isSignedIn && (
-            <UserButton
-              appearance={{
-                variables: { colorPrimary: "#c9a227" },
-                elements: {
-                  userButtonAvatarBox: "w-8 h-8",
-                },
-              }}
-              afterSignOutUrl={`${basePath}/`}
-            />
-          )}
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-mobile-menu">
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
@@ -172,7 +169,15 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          {!isSignedIn && (
+          {isSignedIn ? (
+            <button
+              onClick={handleLogout}
+              className="text-sm font-medium p-2 rounded-md text-red-400 hover:bg-white/10 flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Se déconnecter
+            </button>
+          ) : (
             <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
               <Button className="w-full gap-2">
                 <LogIn className="w-4 h-4" />

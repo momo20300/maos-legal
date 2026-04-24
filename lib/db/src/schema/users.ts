@@ -5,6 +5,9 @@ import { z } from "zod/v4";
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   email: text("email"),
+  passwordHash: text("password_hash"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   plan: text("plan"),

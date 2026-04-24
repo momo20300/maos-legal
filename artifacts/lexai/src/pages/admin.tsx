@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import { useAuth } from "@clerk/react";
+import { useAuthContext } from "@/contexts/auth-context";
 import { Layout } from "@/components/layout/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Users, CreditCard, TrendingUp, Trash2, RefreshCw, ShieldAlert } from "l
 import { useToast } from "@/hooks/use-toast";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-const API = import.meta.env.VITE_API_URL || "";
+const API = `${basePath}`;
 
 type Stats = {
   totalUsers: number;
@@ -32,7 +32,7 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const { getToken, isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useAuthContext();
   const [stats, setStats] = useState<Stats | null>(null);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,18 +43,12 @@ export default function AdminPage() {
   const [editExpiry, setEditExpiry] = useState<string>("");
   const { toast } = useToast();
 
-  async function authHeaders() {
-    const token = await getToken();
-    return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-  }
-
   async function loadData() {
     setLoading(true);
     try {
-      const headers = await authHeaders();
       const [statsRes, usersRes] = await Promise.all([
-        fetch(`${API}/api/admin/stats`, { headers }),
-        fetch(`${API}/api/admin/users`, { headers }),
+        fetch(`${API}/api/admin/stats`, { credentials: "include" }),
+        fetch(`${API}/api/admin/users`, { credentials: "include" }),
       ]);
       if (statsRes.status === 403 || usersRes.status === 403) {
         setForbidden(true);
@@ -74,10 +68,10 @@ export default function AdminPage() {
   }, [isLoaded, isSignedIn]);
 
   async function saveSubscription(userId: string) {
-    const headers = await authHeaders();
     const res = await fetch(`${API}/api/admin/users/${userId}/subscription`, {
       method: "PATCH",
-      headers,
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         plan: editPlan || null,
         subscriptionStatus: editStatus,
@@ -95,8 +89,7 @@ export default function AdminPage() {
 
   async function deleteUser(userId: string, email: string | null) {
     if (!confirm(`Supprimer ${email || userId} ? Cette action est irréversible.`)) return;
-    const headers = await authHeaders();
-    const res = await fetch(`${API}/api/admin/users/${userId}`, { method: "DELETE", headers });
+    const res = await fetch(`${API}/api/admin/users/${userId}`, { method: "DELETE", credentials: "include" });
     if (res.ok) {
       toast({ title: "Utilisateur supprimé" });
       loadData();
