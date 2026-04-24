@@ -39,26 +39,102 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]"
-      style={{ paddingTop: "env(safe-area-inset-top)" }}>
-      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
+    <nav
+      className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
+      {/* ── MOBILE HEADER: 3-column layout ── */}
+      <div className="md:hidden flex items-center h-14 px-3 relative" dir="ltr">
+
+        {/* LEFT: QUIT (when signed in) */}
+        <div className="flex-none">
+          {isSignedIn ? (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
+              title="Se déconnecter"
+            >
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Quit</span>
+            </button>
+          ) : (
+            <div className="w-14" /> /* spacer to keep logo truly centered */
+          )}
+        </div>
+
+        {/* CENTER: Logo — absolutely centered */}
+        <Link
+          href="/"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center"
+          data-testid="link-home-mobile"
+        >
+          <img
+            src={`${basePath}/logo-dark.png`}
+            alt="MAOS Legal"
+            className="h-auto w-[130px] object-contain"
+          />
+        </Link>
+
+        {/* RIGHT: theme + language */}
+        <div className="flex-none ml-auto flex items-center gap-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10"
+            data-testid="button-theme-toggle-mobile"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10"
+                data-testid="button-language-switcher-mobile"
+              >
+                <span className="text-sm leading-none">{currentLang?.flag}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {LANGUAGES.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code)}
+                  className={`gap-2 cursor-pointer ${language === lang.code ? "font-semibold text-primary" : ""}`}
+                >
+                  <span>{lang.flag}</span>
+                  <span>{lang.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* ── DESKTOP HEADER ── */}
+      <div className="hidden md:flex container mx-auto px-4 h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-1.5 transition-opacity hover:opacity-80" data-testid="link-home">
           <img
             src={`${basePath}/logo-dark.png`}
             alt="MAOS Legal"
-            className="h-auto w-[140px] md:w-[170px] object-contain"
+            className="h-auto w-[170px] object-contain"
           />
         </Link>
 
-        {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center gap-6">
+        {/* Nav links + controls */}
+        <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors flex items-center ${location.startsWith(link.href) ? "text-accent" : "text-white/70 hover:text-white"}`}
+                className={`text-sm font-medium transition-colors flex items-center ${
+                  location.startsWith(link.href) ? "text-accent" : "text-white/70 hover:text-white"
+                }`}
                 data-testid={`link-nav-${link.href.replace("/", "")}`}
               >
                 {link.icon}
@@ -122,48 +198,6 @@ export function Navbar() {
               </Link>
             )}
           </div>
-        </div>
-
-        {/* Mobile controls — always LTR so QUIT is physically left */}
-        <div className="md:hidden flex items-center gap-0.5" dir="ltr">
-          {/* QUIT — always first = always leftmost */}
-          {isSignedIn && (
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
-              title="Se déconnecter"
-            >
-              <LogOut className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Quit</span>
-            </button>
-          )}
-
-          {/* Separator */}
-          {isSignedIn && <span className="w-px h-4 bg-white/10 mx-0.5" />}
-
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">
-                <span className="text-sm leading-none">{currentLang?.flag}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {LANGUAGES.map((lang) => (
-                <DropdownMenuItem
-                  key={lang.code}
-                  onClick={() => setLanguage(lang.code)}
-                  className={`gap-2 cursor-pointer ${language === lang.code ? "font-semibold text-primary" : ""}`}
-                >
-                  <span>{lang.flag}</span>
-                  <span>{lang.label}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </nav>
