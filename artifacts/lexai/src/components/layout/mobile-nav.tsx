@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { Home, Scale, MessageSquare, User } from "lucide-react";
+import { Home, Scale, MessageSquare, User, GraduationCap } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,27 +26,34 @@ export function MobileNav() {
   const navItems: NavItem[] = [
     {
       href: "/",
-      icon: <Home className="w-5 h-5" />,
+      icon: <Home className="w-[18px] h-[18px]" />,
       label: isRTL ? "الرئيسية" : "Accueil",
       activePattern: /^\/$/,
     },
     {
       href: "/chat",
-      icon: <Scale className="w-5 h-5" />,
+      icon: <Scale className="w-[18px] h-[18px]" />,
       label: isRTL ? "استشارة" : "Consulter",
       activePattern: /^\/chat$/,
       auth: true,
     },
     {
+      href: "/preparations",
+      icon: <GraduationCap className="w-[18px] h-[18px]" />,
+      label: isRTL ? "تحضير" : "Préparer",
+      activePattern: /^\/preparations$/,
+      auth: true,
+    },
+    {
       href: "/dossiers",
-      icon: <MessageSquare className="w-5 h-5" />,
+      icon: <MessageSquare className="w-[18px] h-[18px]" />,
       label: isRTL ? "الملفات" : "Dossiers",
       activePattern: /^\/dossiers|^\/conversations/,
       auth: true,
     },
     {
       href: isSignedIn ? "/profile" : "/sign-in",
-      icon: <User className="w-5 h-5" />,
+      icon: <User className="w-[18px] h-[18px]" />,
       label: isRTL ? "حسابي" : "Compte",
       activePattern: /^\/profile$/,
     },
@@ -60,7 +67,7 @@ export function MobileNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="flex items-stretch h-16">
+      <div className="flex items-stretch h-14">
         {visibleItems.map((item) => {
           const isActive = item.activePattern.test(location);
           return (
@@ -73,13 +80,13 @@ export function MobileNav() {
                   : "text-white/50 hover:text-white/80"
               }`}
             >
-              <span className={isActive ? "scale-110 transition-transform" : ""}>
-                {item.icon}
-              </span>
-              <span className="text-[10px] font-medium leading-none">{item.label}</span>
               {isActive && (
                 <span className="absolute top-0 inset-x-1/4 h-0.5 rounded-full bg-[#c9a227]" />
               )}
+              <span className={isActive ? "scale-110 transition-transform" : ""}>
+                {item.icon}
+              </span>
+              <span className="text-[9px] font-medium leading-none">{item.label}</span>
             </Link>
           );
         })}
