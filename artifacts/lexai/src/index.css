@@ -2,6 +2,15 @@
 
 @layer theme, base, clerk, components, utilities;
 
+::selection {
+  background-color: #c9a227;
+  color: #0d1b2e;
+}
+::-moz-selection {
+  background-color: #c9a227;
+  color: #0d1b2e;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
