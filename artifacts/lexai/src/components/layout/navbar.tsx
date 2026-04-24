@@ -55,7 +55,7 @@ export function Navbar() {
               title="Se déconnecter"
             >
               <LogOut className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Quit</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Déc</span>
             </button>
           ) : (
             <div className="w-14" /> /* spacer to keep logo truly centered */
