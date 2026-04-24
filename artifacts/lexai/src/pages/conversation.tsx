@@ -405,9 +405,6 @@ export default function ConversationPage() {
                 </div>
               </div>
 
-              <div className="text-center text-[10px] text-muted-foreground">
-                {t.chat.legalDisclaimer}
-              </div>
             </div>
           </div>
         </main>
