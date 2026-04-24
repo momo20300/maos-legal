@@ -122,16 +122,16 @@ export default function ChatPage() {
                 <div className="space-y-3">
                   {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
                 </div>
-              ) : conversations?.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
-                    <Scale className="w-7 h-7 text-muted-foreground" />
+              ) : !conversations?.length ? (
+                <div className="flex flex-col items-center justify-center flex-1 py-16 gap-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
+                    <Scale className="w-7 h-7 text-[#c9a227]" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{labelEmpty}</p>
                     <p className="text-sm text-muted-foreground mt-1">{labelEmptyDesc}</p>
                   </div>
-                  <Button className="gap-2 mt-2" onClick={() => setShowForm(true)}>
+                  <Button className="gap-2 mt-2 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold" onClick={() => setShowForm(true)}>
                     <Plus className="w-4 h-4" />
                     {labelNew}
                   </Button>
