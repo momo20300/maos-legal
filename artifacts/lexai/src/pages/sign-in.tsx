@@ -1,5 +1,4 @@
 import { SignIn } from "@clerk/react";
-import { Scale } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
 
@@ -23,6 +22,16 @@ export default function SignInPage() {
         path={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
         fallbackRedirectUrl={`${basePath}/chat`}
+        localization={{
+          signIn: {
+            start: {
+              title: "Connexion à MAOS Legal",
+              subtitle: "Bienvenue ! Connectez-vous pour continuer.",
+              actionText: "Pas encore de compte ?",
+              actionLink: "Créer un compte",
+            },
+          },
+        }}
         appearance={{
           variables: {
             colorPrimary: "#c9a227",

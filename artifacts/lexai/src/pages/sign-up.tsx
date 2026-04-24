@@ -1,5 +1,4 @@
 import { SignUp } from "@clerk/react";
-import { Scale } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
 
@@ -23,6 +22,16 @@ export default function SignUpPage() {
         path={`${basePath}/sign-up`}
         signInUrl={`${basePath}/sign-in`}
         fallbackRedirectUrl={`${basePath}/pricing`}
+        localization={{
+          signUp: {
+            start: {
+              title: "Créer votre compte MAOS Legal",
+              subtitle: "Accédez à l'intelligence juridique premium.",
+              actionText: "Déjà un compte ?",
+              actionLink: "Se connecter",
+            },
+          },
+        }}
         appearance={{
           variables: {
             colorPrimary: "#c9a227",
