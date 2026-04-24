@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { LanguageProvider } from "@/contexts/language-context";
 import { AuthProvider, useAuthContext } from "@/contexts/auth-context";
+import { useEffect } from "react";
 
 import LandingPage from "@/pages/landing";
 import PricingPage from "@/pages/pricing";
@@ -29,6 +30,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useAuthContext();
   const [, navigate] = useLocation();
 
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      navigate(`${basePath}/sign-in`);
+    }
+  }, [isLoaded, isSignedIn, navigate]);
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -37,10 +44,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isSignedIn) {
-    navigate(`${basePath}/sign-in`);
-    return null;
-  }
+  if (!isSignedIn) return null;
 
   return <>{children}</>;
 }
