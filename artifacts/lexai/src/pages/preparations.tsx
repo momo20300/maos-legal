@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/layout";
 import { useAuthContext } from "@/contexts/auth-context";
@@ -159,17 +159,70 @@ export default function PreparationsPage() {
 
   const exit = () => navigate(`${BASE_URL}/`);
 
-  const formatText = (text: string) =>
-    text
-      .split("\n")
-      .map((line, i) => {
-        if (line.startsWith("## ")) return <h3 key={i} className="text-[#c9a227] font-bold text-base mt-4 mb-2">{line.slice(3)}</h3>;
-        if (line.startsWith("# ")) return <h2 key={i} className="text-foreground font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>;
-        if (line.startsWith("**") && line.endsWith("**")) return <strong key={i} className="text-foreground font-semibold block">{line.slice(2, -2)}</strong>;
-        if (line.startsWith("- ") || line.startsWith("• ")) return <li key={i} className="text-foreground/80 text-sm ml-4 list-disc">{line.slice(2)}</li>;
-        if (line.trim() === "") return <div key={i} className="h-2" />;
-        return <p key={i} className="text-foreground/80 text-sm leading-relaxed">{line}</p>;
-      });
+  const formatText = (text: string) => {
+    const lines = text.split("\n");
+    const elements: React.ReactNode[] = [];
+    let tableLines: string[] = [];
+
+    const flushTable = (key: string) => {
+      if (tableLines.length === 0) return;
+      elements.push(
+        <div key={key} className="overflow-x-auto w-full my-2 rounded-lg border border-border">
+          <table className="min-w-full text-xs border-collapse">
+            <tbody>
+              {tableLines.map((row, ri) => {
+                const isSep = /^\|?\s*[-:]+[\s|:–-]+$/.test(row);
+                if (isSep) return null;
+                const cells = row.replace(/^\|/, "").replace(/\|$/, "").split("|");
+                return (
+                  <tr key={ri} className={ri === 0 ? "bg-muted/50 font-semibold" : "border-t border-border"}>
+                    {cells.map((cell, ci) => (
+                      <td key={ci} className="px-3 py-2 text-foreground/80 whitespace-nowrap border-r border-border last:border-r-0">
+                        {cell.trim().replace(/\*\*/g, "")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+      tableLines = [];
+    };
+
+    lines.forEach((line, i) => {
+      const isTableRow = /^\|/.test(line.trim()) || (line.includes("|") && line.trim().startsWith("|"));
+      if (isTableRow) {
+        tableLines.push(line);
+        return;
+      } else {
+        flushTable(`table-${i}`);
+      }
+
+      if (line.startsWith("### ")) {
+        elements.push(<h4 key={i} className="text-[#c9a227] font-bold text-sm mt-3 mb-1">{line.slice(4)}</h4>);
+      } else if (line.startsWith("## ")) {
+        elements.push(<h3 key={i} className="text-[#c9a227] font-bold text-base mt-4 mb-2">{line.slice(3)}</h3>);
+      } else if (line.startsWith("# ")) {
+        elements.push(<h2 key={i} className="text-foreground font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>);
+      } else if (line.startsWith("- ") || line.startsWith("• ")) {
+        elements.push(<li key={i} className="text-foreground/80 text-sm ml-4 list-disc">{line.slice(2)}</li>);
+      } else if (line.trim() === "") {
+        elements.push(<div key={i} className="h-2" />);
+      } else {
+        const formatted = line
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        elements.push(
+          <p key={i} className="text-foreground/80 text-sm leading-relaxed break-words"
+            dangerouslySetInnerHTML={{ __html: formatted }} />
+        );
+      }
+    });
+    flushTable("table-end");
+    return elements;
+  };
 
   if (!isLoaded) {
     return (
