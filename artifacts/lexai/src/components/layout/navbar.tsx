@@ -11,6 +11,49 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/contexts/auth-context";
 
+function JusticeScaleSVG({ size = 28, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f0c94a" />
+          <stop offset="50%" stopColor="#c9a227" />
+          <stop offset="100%" stopColor="#a07c1e" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="0.6" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      {/* Vertical pillar */}
+      <rect x="22.5" y="6" width="3" height="32" rx="1.5" fill="url(#goldGrad)" filter="url(#glow)" />
+      {/* Base / plinth */}
+      <rect x="13" y="38" width="22" height="3.5" rx="1.75" fill="url(#goldGrad)" />
+      <rect x="10" y="41.5" width="28" height="2.5" rx="1.25" fill="url(#goldGrad)" opacity="0.7" />
+      {/* Crossbeam */}
+      <rect x="8" y="13.5" width="32" height="2.5" rx="1.25" fill="url(#goldGrad)" filter="url(#glow)" />
+      {/* Left chain */}
+      <line x1="12" y1="16" x2="12" y2="24" stroke="url(#goldGrad)" strokeWidth="1.6" strokeLinecap="round" />
+      {/* Right chain */}
+      <line x1="36" y1="16" x2="36" y2="24" stroke="url(#goldGrad)" strokeWidth="1.6" strokeLinecap="round" />
+      {/* Left pan */}
+      <path d="M6 24 Q12 27 18 24" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" fill="none" filter="url(#glow)" />
+      {/* Right pan */}
+      <path d="M30 24 Q36 27 42 24" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" fill="none" filter="url(#glow)" />
+      {/* Center gem / ornament */}
+      <circle cx="24" cy="8.5" r="2.8" fill="url(#goldGrad)" filter="url(#glow)" />
+    </svg>
+  );
+}
+
 const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
   { code: "ar", label: "العربية", flag: "🇲🇦" },
@@ -47,19 +90,20 @@ export function Navbar() {
       {/* ── MOBILE HEADER: 3-column layout ── */}
       <div className="md:hidden flex items-center h-14 px-3 relative" dir="ltr">
 
-        {/* LEFT: QUIT (when signed in) */}
-        <div className="flex-none">
-          {isSignedIn ? (
+        {/* LEFT: Balance de la justice + logout */}
+        <div className="flex-none flex items-center gap-1">
+          <div className="flex items-center justify-center w-9 h-9">
+            <JusticeScaleSVG size={26} />
+          </div>
+          {isSignedIn && (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
+              className="flex items-center gap-0.5 px-1.5 py-1 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
               title="Se déconnecter"
             >
-              <LogOut className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Déc</span>
+              <LogOut className="w-3 h-3 shrink-0" />
+              <span className="text-[9px] font-bold uppercase tracking-widest leading-none">Déc</span>
             </button>
-          ) : (
-            <div className="w-14" /> /* spacer to keep logo truly centered */
           )}
         </div>
 
@@ -117,8 +161,9 @@ export function Navbar() {
 
       {/* ── DESKTOP HEADER ── */}
       <div className="hidden md:flex container mx-auto px-4 h-16 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 transition-opacity hover:opacity-80" data-testid="link-home">
+        {/* Logo + scale */}
+        <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80" data-testid="link-home">
+          <JusticeScaleSVG size={32} />
           <img
             src={`${basePath}/logo-dark.png`}
             alt="MAOS Legal"
