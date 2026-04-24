@@ -41,7 +41,7 @@ export function Navbar() {
           <img
             src={theme === "dark" ? `${basePath}/logo-dark.png` : `${basePath}/logo-light.png`}
             alt="MAOS Legal"
-            className="h-8 w-auto object-contain"
+            className="h-auto w-[170px] object-contain"
           />
           <span className="font-serif font-semibold text-base tracking-wider text-accent border-l border-border pl-2 ml-1">Legal</span>
         </Link>
