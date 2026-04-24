@@ -9,6 +9,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { RetellWebClient } from "retell-client-js-sdk";
 import { useAuthContext } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -22,11 +23,14 @@ const LANG_OPTIONS: { code: CallLanguage; flag: string; label: string; sublabel:
 
 export function VoiceCallFAB() {
   const { isSignedIn } = useAuthContext();
+  const { language: uiLanguage } = useLanguage();
+  const isRTL = uiLanguage === "ar";
   const [callState, setCallState] = useState<CallState>("idle");
   const [language, setLanguage] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
   const clientRef = useRef<RetellWebClient | null>(null);
   const { toast } = useToast();
+  const sideClass = isRTL ? "left-6" : "right-6";
 
   const startCall = useCallback(async (lang: CallLanguage) => {
     setLanguage(lang);
@@ -102,7 +106,7 @@ export function VoiceCallFAB() {
   // ACTIVE CALL — show controls instead of main FAB
   if (callState === "active") {
     return (
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50 flex flex-col items-end gap-2`}>
         {/* Mute button */}
         <button
           onClick={toggleMute}
@@ -134,7 +138,7 @@ export function VoiceCallFAB() {
   // CONNECTING
   if (callState === "connecting") {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50`}>
         <div className="w-14 h-14 rounded-full bg-accent flex items-center justify-center shadow-xl">
           <Phone className="w-6 h-6 text-[#0d1b2e] animate-pulse" />
         </div>
@@ -145,7 +149,7 @@ export function VoiceCallFAB() {
 
   // IDLE — dropdown to pick language
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={`fixed bottom-20 md:bottom-6 ${sideClass} z-50`}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

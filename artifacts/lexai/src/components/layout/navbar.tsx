@@ -1,8 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { MessageSquare, CreditCard, Menu, X, Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
+import { MessageSquare, CreditCard, Moon, Sun, Globe, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
-import { useState } from "react";
 import { useLanguage, type Language } from "@/contexts/language-context";
 import {
   DropdownMenu,
@@ -23,7 +22,6 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 export function Navbar() {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { isSignedIn, user, logout } = useAuthContext();
 
@@ -41,17 +39,19 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}>
+      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-1.5 transition-opacity hover:opacity-80" data-testid="link-home">
           <img
             src={`${basePath}/logo-dark.png`}
             alt="MAOS Legal"
-            className="h-auto w-[170px] object-contain"
+            className="h-auto w-[140px] md:w-[170px] object-contain"
           />
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center gap-6">
           <div className="flex items-center gap-4">
             {navLinks.map((link) => (
@@ -68,7 +68,6 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 border-l border-white/10 pl-6">
-            {/* Language switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2 font-medium text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher">
@@ -125,12 +124,12 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Toggle */}
-        <div className="md:hidden flex items-center gap-2">
+        {/* Mobile: language + theme only (nav links are in bottom bar) */}
+        <div className="md:hidden flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">
-                <Globe className="w-4 h-4" />
+                <span className="text-base">{currentLang?.flag}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -146,47 +145,12 @@ export function Navbar() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-mobile-menu">
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
         </div>
       </div>
-
-      {/* Mobile Nav */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b border-white/10 bg-[#0d1b2e] p-4 flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm font-medium p-2 rounded-md transition-colors flex items-center ${location.startsWith(link.href) ? "bg-white/10 text-accent" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.icon}
-              {link.label}
-            </Link>
-          ))}
-          {isSignedIn ? (
-            <button
-              onClick={handleLogout}
-              className="text-sm font-medium p-2 rounded-md text-red-400 hover:bg-white/10 flex items-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Se déconnecter
-            </button>
-          ) : (
-            <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-              <Button className="w-full gap-2">
-                <LogIn className="w-4 h-4" />
-                {t.nav.signIn || "Connexion"}
-              </Button>
-            </Link>
-          )}
-        </div>
-      )}
     </nav>
   );
 }
