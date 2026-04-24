@@ -3,7 +3,6 @@ import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
 import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
-import { Eye, EyeOff } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -12,36 +11,49 @@ export default function SignUpPage() {
   const { signUp, setActive, isLoaded } = useSignUp();
   const [, navigate] = useLocation();
 
+  const [step, setStep] = useState<"form" | "code">("form");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
     setError("");
     setLoading(true);
     try {
-      const result = await signUp.create({
+      await signUp.create({
         emailAddress: email,
-        password,
         firstName: firstName || undefined,
         lastName: lastName || undefined,
       });
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setStep("code");
+    } catch (err: any) {
+      const clerkError = err?.errors?.[0];
+      setError(clerkError?.longMessage ?? clerkError?.message ?? "Erreur lors de l'inscription.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return;
+    setError("");
+    setLoading(true);
+    try {
+      const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         navigate(`${basePath}/pricing`);
-      } else {
-        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-        navigate(`${basePath}/sign-up/verify-email-address`);
       }
     } catch (err: any) {
-      const msg = err?.errors?.[0]?.message ?? "Erreur lors de l'inscription.";
-      setError(msg);
+      const clerkError = err?.errors?.[0];
+      setError(clerkError?.longMessage ?? clerkError?.message ?? "Code invalide.");
     } finally {
       setLoading(false);
     }
@@ -67,91 +79,99 @@ export default function SignUpPage() {
           </Link>
 
           <h1 className="text-xl font-bold text-foreground mb-0.5">{t.auth.signUpTitle}</h1>
-          <p className="text-muted-foreground text-xs mb-4 text-center">{t.auth.signUpSubtitle}</p>
+          <p className="text-muted-foreground text-xs mb-4 text-center">
+            {step === "form" ? t.auth.signUpSubtitle : `Code envoyé à ${email}`}
+          </p>
 
-          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
-            {/* Name row */}
-            <div className="flex gap-2">
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-xs font-medium text-foreground">{t.auth.firstNameLabel}</label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Jean"
-                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
-                />
+          {step === "form" ? (
+            <form onSubmit={handleFormSubmit} className="w-full flex flex-col gap-3">
+              <div className="flex gap-2">
+                <div className="flex flex-col gap-1 flex-1">
+                  <label className="text-xs font-medium text-foreground">{t.auth.firstNameLabel}</label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Jean"
+                    className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 flex-1">
+                  <label className="text-xs font-medium text-foreground">{t.auth.lastNameLabel}</label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Dupont"
+                    className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-xs font-medium text-foreground">{t.auth.lastNameLabel}</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Dupont"
-                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
-                />
-              </div>
-            </div>
 
-            {/* Email */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-foreground">{t.auth.emailLabel}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.auth.emailPlaceholder}
-                required
-                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-foreground">{t.auth.passwordLabel}</label>
-              <div className="relative">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-foreground">{t.auth.emailLabel}</label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t.auth.emailPlaceholder}
                   required
-                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm pr-10"
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
-            </div>
 
-            {error && (
-              <p className="text-red-500 text-xs text-center -mt-1">{error}</p>
-            )}
+              {error && <p className="text-red-500 text-xs text-center -mt-1">{error}</p>}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-accent text-[#0d1b2e] font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-60"
-            >
-              {loading ? "..." : `${t.auth.signUpButton} →`}
-            </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-lg bg-accent text-[#0d1b2e] font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-60"
+              >
+                {loading ? "..." : `${t.auth.signUpButton} →`}
+              </button>
 
-            {/* Home */}
-            <Link href={`${basePath}/`}>
+              <Link href={`${basePath}/`}>
+                <button type="button" className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition-colors">
+                  {t.auth.homeButton}
+                </button>
+              </Link>
+            </form>
+          ) : (
+            <form onSubmit={handleCodeSubmit} className="w-full flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-foreground">Code de vérification</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000"
+                  required
+                  autoFocus
+                  maxLength={6}
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent text-sm text-center tracking-[0.4em] text-lg font-mono"
+                />
+              </div>
+
+              {error && <p className="text-red-500 text-xs text-center -mt-1">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading || code.length < 6}
+                className="w-full py-2.5 rounded-lg bg-accent text-[#0d1b2e] font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-60"
+              >
+                {loading ? "..." : "Vérifier →"}
+              </button>
+
               <button
                 type="button"
-                className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition-colors"
+                onClick={() => { setStep("form"); setCode(""); setError(""); }}
+                className="w-full py-2.5 rounded-lg border border-border text-foreground text-sm hover:bg-secondary transition-colors"
               >
-                {t.auth.homeButton}
+                ← Modifier l'email
               </button>
-            </Link>
-          </form>
+            </form>
+          )}
 
           <p className="mt-4 text-xs text-muted-foreground text-center">
             {t.auth.alreadyAccount}{" "}
