@@ -75,6 +75,8 @@ export interface SubscriptionStatus {
 export interface LegalDomain {
   id: string;
   name: string;
+  nameFr?: string;
+  nameAr?: string;
   jurisdiction: string;
   description: string;
   icon: string;

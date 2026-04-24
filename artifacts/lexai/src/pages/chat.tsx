@@ -31,8 +31,12 @@ const JURISDICTIONS = [
 export default function ChatPage() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isMobile = useIsMobile();
+
+  // Pick domain display name by UI language
+  const domainLabel = (d: { name: string; nameFr?: string; nameAr?: string }) =>
+    language === "ar" ? (d.nameAr ?? d.name) : language === "fr" ? (d.nameFr ?? d.name) : d.name;
 
   const { data: domains } = useListLegalDomains({
     query: { queryKey: getListLegalDomainsQueryKey() }
@@ -154,7 +158,7 @@ export default function ChatPage() {
                       </FormControl>
                       <SelectContent>
                         {filteredDomains?.map((domain) => (
-                          <SelectItem key={domain.id} value={domain.name}>{domain.name}</SelectItem>
+                          <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -268,7 +272,7 @@ export default function ChatPage() {
                             </FormControl>
                             <SelectContent>
                               {filteredDomains?.map((domain) => (
-                                <SelectItem key={domain.id} value={domain.name}>{domain.name}</SelectItem>
+                                <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>

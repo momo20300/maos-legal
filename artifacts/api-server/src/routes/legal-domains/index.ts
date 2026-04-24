@@ -8,6 +8,8 @@ const LEGAL_DOMAINS = [
   {
     id: "contract",
     name: "Contract Law",
+    nameFr: "Droit des Contrats",
+    nameAr: "قانون العقود",
     jurisdiction: "EU",
     description: "Commercial contracts, consumer agreements, breach of contract",
     icon: "FileText",
@@ -16,6 +18,8 @@ const LEGAL_DOMAINS = [
   {
     id: "gdpr",
     name: "Data Protection & GDPR",
+    nameFr: "Protection des Données & RGPD",
+    nameAr: "حماية البيانات",
     jurisdiction: "EU",
     description: "GDPR compliance, data rights, privacy regulations",
     icon: "Shield",
@@ -24,6 +28,8 @@ const LEGAL_DOMAINS = [
   {
     id: "labor-eu",
     name: "Employment Law",
+    nameFr: "Droit du Travail",
+    nameAr: "قانون العمل",
     jurisdiction: "EU",
     description: "Workers' rights, dismissal, discrimination, EU working time directive",
     icon: "Briefcase",
@@ -32,6 +38,8 @@ const LEGAL_DOMAINS = [
   {
     id: "competition",
     name: "Competition Law",
+    nameFr: "Droit de la Concurrence",
+    nameAr: "قانون المنافسة",
     jurisdiction: "EU",
     description: "Antitrust, state aid, market dominance, mergers",
     icon: "Scale",
@@ -40,6 +48,8 @@ const LEGAL_DOMAINS = [
   {
     id: "immigration-eu",
     name: "EU Immigration",
+    nameFr: "Immigration UE",
+    nameAr: "هجرة الاتحاد الأوروبي",
     jurisdiction: "EU",
     description: "Freedom of movement, residence rights, asylum",
     icon: "Globe",
@@ -48,6 +58,8 @@ const LEGAL_DOMAINS = [
   {
     id: "constitutional",
     name: "Constitutional Law",
+    nameFr: "Droit Constitutionnel",
+    nameAr: "القانون الدستوري",
     jurisdiction: "US",
     description: "Bill of Rights, civil liberties, federal powers",
     icon: "Landmark",
@@ -56,6 +68,8 @@ const LEGAL_DOMAINS = [
   {
     id: "criminal-us",
     name: "Criminal Law",
+    nameFr: "Droit Pénal",
+    nameAr: "القانون الجنائي",
     jurisdiction: "US",
     description: "Federal and state criminal codes, rights of the accused",
     icon: "Gavel",
@@ -64,6 +78,8 @@ const LEGAL_DOMAINS = [
   {
     id: "employment-us",
     name: "Employment Law",
+    nameFr: "Droit du Travail",
+    nameAr: "قانون العمل",
     jurisdiction: "US",
     description: "FLSA, Title VII, ADA, wrongful termination",
     icon: "Briefcase",
@@ -72,6 +88,8 @@ const LEGAL_DOMAINS = [
   {
     id: "ip",
     name: "Intellectual Property",
+    nameFr: "Propriété Intellectuelle",
+    nameAr: "الملكية الفكرية",
     jurisdiction: "US",
     description: "Patents, trademarks, copyright, trade secrets",
     icon: "Lightbulb",
@@ -80,6 +98,8 @@ const LEGAL_DOMAINS = [
   {
     id: "immigration-us",
     name: "US Immigration",
+    nameFr: "Immigration Américaine",
+    nameAr: "الهجرة الأمريكية",
     jurisdiction: "US",
     description: "Visas, green cards, citizenship, deportation",
     icon: "Globe",
@@ -88,6 +108,8 @@ const LEGAL_DOMAINS = [
   {
     id: "family-arabic",
     name: "Family Law (Sharia)",
+    nameFr: "Droit de la Famille (Charia)",
+    nameAr: "قانون الأسرة (الشريعة)",
     jurisdiction: "Arabic",
     description: "Marriage, divorce, custody under Islamic law",
     icon: "Heart",
@@ -96,6 +118,8 @@ const LEGAL_DOMAINS = [
   {
     id: "commercial-arabic",
     name: "Commercial Law",
+    nameFr: "Droit Commercial",
+    nameAr: "القانون التجاري",
     jurisdiction: "Arabic",
     description: "Business contracts, trade law, banking under GCC regulations",
     icon: "TrendingUp",
@@ -104,6 +128,8 @@ const LEGAL_DOMAINS = [
   {
     id: "labor-arabic",
     name: "Labour Law",
+    nameFr: "Droit du Travail",
+    nameAr: "قانون العمل",
     jurisdiction: "Arabic",
     description: "Worker rights, Kafala system, labour disputes across Arab states",
     icon: "Briefcase",
@@ -112,6 +138,8 @@ const LEGAL_DOMAINS = [
   {
     id: "property-arabic",
     name: "Property Law",
+    nameFr: "Droit Immobilier",
+    nameAr: "قانون الملكية",
     jurisdiction: "Arabic",
     description: "Real estate, ownership rights, waqf, inheritance",
     icon: "Home",
@@ -121,6 +149,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-civil-maroc",
     name: "Droit Civil (DOC)",
+    nameFr: "Droit Civil (DOC)",
+    nameAr: "القانون المدني",
     jurisdiction: "Morocco",
     description: "Obligations, contrats, responsabilité civile — Dahir des Obligations et Contrats 1913",
     icon: "FileText",
@@ -129,6 +159,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-penal-maroc",
     name: "Droit Pénal",
+    nameFr: "Droit Pénal",
+    nameAr: "القانون الجنائي",
     jurisdiction: "Morocco",
     description: "Infractions, peines, responsabilité pénale — Code Pénal marocain",
     icon: "Gavel",
@@ -137,6 +169,8 @@ const LEGAL_DOMAINS = [
   {
     id: "procedure-civile-maroc",
     name: "Procédure Civile (CPC)",
+    nameFr: "Procédure Civile (CPC)",
+    nameAr: "المسطرة المدنية",
     jurisdiction: "Morocco",
     description: "Saisine des tribunaux, référé, voies d'exécution — Code de Procédure Civile",
     icon: "Scale",
@@ -145,6 +179,8 @@ const LEGAL_DOMAINS = [
   {
     id: "procedure-penale-maroc",
     name: "Procédure Pénale (CPP)",
+    nameFr: "Procédure Pénale (CPP)",
+    nameAr: "المسطرة الجنائية",
     jurisdiction: "Morocco",
     description: "Enquête, garde à vue, instruction, jugement, voies de recours — Code de Procédure Pénale",
     icon: "Shield",
@@ -153,6 +189,8 @@ const LEGAL_DOMAINS = [
   {
     id: "moudawwana",
     name: "Moudawwana — Code de la Famille",
+    nameFr: "Moudawwana — Code de la Famille",
+    nameAr: "مدونة الأسرة",
     jurisdiction: "Morocco",
     description: "Mariage, divorce, garde des enfants, pension alimentaire, héritage — Loi 70-03",
     icon: "Heart",
@@ -161,6 +199,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-commercial-maroc",
     name: "Droit Commercial",
+    nameFr: "Droit Commercial",
+    nameAr: "القانون التجاري",
     jurisdiction: "Morocco",
     description: "Sociétés (SA, SARL), contrats commerciaux, faillites — Code de Commerce Loi 15-95",
     icon: "TrendingUp",
@@ -169,6 +209,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-travail-maroc",
     name: "Droit du Travail",
+    nameFr: "Droit du Travail",
+    nameAr: "قانون الشغل",
     jurisdiction: "Morocco",
     description: "Contrat de travail, licenciement, CNSS, conventions collectives — Code du Travail Loi 65-99",
     icon: "Briefcase",
@@ -177,6 +219,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-administratif-maroc",
     name: "Droit Administratif",
+    nameFr: "Droit Administratif",
+    nameAr: "القانون الإداري",
     jurisdiction: "Morocco",
     description: "Recours contre l'Administration, marchés publics, responsabilité de l'État",
     icon: "Landmark",
@@ -185,6 +229,8 @@ const LEGAL_DOMAINS = [
   {
     id: "droit-immobilier-maroc",
     name: "Droit Immobilier & Foncier",
+    nameFr: "Droit Immobilier & Foncier",
+    nameAr: "قانون العقار",
     jurisdiction: "Morocco",
     description: "Titre foncier, copropriété, hypothèque, bail, expropriation",
     icon: "Home",
@@ -193,6 +239,8 @@ const LEGAL_DOMAINS = [
   {
     id: "concours-juridiques-maroc",
     name: "Préparation Concours — Avocat / Procureur",
+    nameFr: "Préparation Concours — Avocat / Procureur",
+    nameAr: "التحضير للمباريات — محامي / قاضي",
     jurisdiction: "Morocco",
     description: "Révision structurée pour le concours CNAOF (avocat) et INPJ (procureur), fiches de cours, questions-type",
     icon: "GraduationCap",
