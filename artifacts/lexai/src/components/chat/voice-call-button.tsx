@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { RetellWebClient } from "retell-client-js-sdk";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
+import { useLocation } from "wouter";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -21,16 +22,24 @@ const LANG_OPTIONS: { code: CallLanguage; flag: string; label: string; sublabel:
   { code: "ar", flag: "🇸🇦", label: "وكيل عربي", sublabel: "القانون العربي والمغربي" },
 ];
 
+// Pages where the FAB should be hidden
+const HIDDEN_PATHS = ["/profile", "/dossiers", "/preparations"];
+
 export function VoiceCallFAB() {
   const { isSignedIn } = useAuthContext();
   const { language: uiLanguage } = useLanguage();
-  const isRTL = uiLanguage === "ar";
+  const [location] = useLocation();
   const [callState, setCallState] = useState<CallState>("idle");
   const [language, setLanguage] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
   const clientRef = useRef<RetellWebClient | null>(null);
   const { toast } = useToast();
-  const sideClass = isRTL ? "left-6" : "right-6";
+
+  // Always right-6, never RTL-aware
+  const sideClass = "right-6";
+
+  // Hide on profile, dossiers list, preparations — but show on /conversations/:id
+  const isHidden = HIDDEN_PATHS.some(p => location === p);
 
   const startCall = useCallback(async (lang: CallLanguage) => {
     setLanguage(lang);
@@ -101,7 +110,7 @@ export function VoiceCallFAB() {
     setIsMuted(!isMuted);
   }, [isMuted]);
 
-  if (!isSignedIn) return null;
+  if (!isSignedIn || isHidden) return null;
 
   // ACTIVE CALL — show controls instead of main FAB
   if (callState === "active") {
