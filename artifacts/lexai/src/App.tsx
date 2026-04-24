@@ -14,6 +14,7 @@ import ConversationPage from "@/pages/conversation";
 import SignInPage from "@/pages/sign-in";
 import SignUpPage from "@/pages/sign-up";
 import AdminPage from "@/pages/admin";
+import DossiersPage from "@/pages/dossiers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,11 @@ function Router() {
             <ConversationPage />
           </ProtectedRoute>
         )}
+      </Route>
+      <Route path="/dossiers">
+        <ProtectedRoute>
+          <DossiersPage />
+        </ProtectedRoute>
       </Route>
       <Route path="/admin">
         <ProtectedRoute>

@@ -52,10 +52,10 @@ export function MobileNav() {
       auth: true,
     },
     {
-      href: "/chat",
+      href: "/dossiers",
       icon: <MessageSquare className="w-5 h-5" />,
       label: isRTL ? "الملفات" : "Dossiers",
-      activePattern: /^\/conversations/,
+      activePattern: /^\/dossiers|^\/conversations/,
       auth: true,
     },
     {
