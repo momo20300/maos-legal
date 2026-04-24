@@ -14,7 +14,12 @@ import { useAuthContext } from "@/contexts/auth-context";
 const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
   { code: "ar", label: "العربية", flag: "🇲🇦" },
-  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "no", label: "Norsk", flag: "🇳🇴" },
+  { code: "pl", label: "Polski", flag: "🇵🇱" },
 ];
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
