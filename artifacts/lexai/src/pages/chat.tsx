@@ -25,7 +25,7 @@ const JURISDICTIONS = [
   { key: "Morocco", flag: "🇲🇦", short: "Maroc", color: "#C1272D" },
   { key: "EU",      flag: "🇪🇺", short: "EU",    color: "#003399" },
   { key: "US",      flag: "🇺🇸", short: "US",    color: "#B22234" },
-  { key: "Arabic",  flag: "🌙",   short: "Arabe", color: "#006233" },
+  { key: "Arabic",  flag: "🌙",   short: "Moyen Orient", color: "#006233" },
 ];
 
 export default function ChatPage() {
