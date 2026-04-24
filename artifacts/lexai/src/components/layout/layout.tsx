@@ -7,10 +7,7 @@ import { VoiceCallFAB } from "@/components/chat/voice-call-button";
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
-      {/* Top navbar — mobile only */}
-      <div className="md:hidden">
-        <Navbar />
-      </div>
+      <Navbar />
 
       <div className="flex flex-1 overflow-hidden">
         <DesktopSidebar />

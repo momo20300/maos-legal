@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Home, Scale, GraduationCap, MessageSquare, User, ChevronDown,
-  Plus, Loader2, Trash2,
+  Plus, Loader2, Trash2, ShieldCheck,
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -46,8 +46,9 @@ type Module = {
 
 export function DesktopSidebar() {
   const [location, setLocation] = useLocation();
-  const { isSignedIn } = useAuthContext();
+  const { isSignedIn, user } = useAuthContext();
   const { language } = useLanguage();
+  const isAdmin = user?.email === "elasri.mounsef@gmail.com";
   const queryClient = useQueryClient();
   const isRTL = language === "ar";
 
@@ -142,13 +143,21 @@ export function DesktopSidebar() {
         },
       ],
     },
+    ...(isAdmin ? [{
+      id: "admin",
+      icon: <ShieldCheck className="w-4 h-4" />,
+      label: isRTL ? "الإدارة" : "Administration",
+      href: "/admin",
+      activePattern: /^\/admin/,
+    }] : []),
   ];
 
   if (!isSignedIn) return null;
 
   return (
     <aside
-      className="hidden md:flex flex-col w-60 shrink-0 border-r border-border bg-sidebar text-sidebar-foreground h-full overflow-y-auto"
+      className="hidden md:flex flex-col w-72 shrink-0 border-r border-border bg-sidebar text-sidebar-foreground overflow-y-auto"
+      style={{ height: "calc(100dvh - 4rem)" }}
       dir={isRTL ? "rtl" : "ltr"}
     >
       {/* New Consultation CTA */}
@@ -177,12 +186,20 @@ export function DesktopSidebar() {
                 <Link
                   href={mod.href}
                   className={`flex-1 flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    mod.id === "admin"
+                      ? isActive
+                        ? "bg-amber-500/15 text-amber-500"
+                        : "text-amber-600/80 hover:bg-amber-500/10 hover:text-amber-500"
+                      : isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   }`}
                 >
-                  <span className={isActive ? "text-accent" : "text-sidebar-foreground/50"}>
+                  <span className={
+                    mod.id === "admin"
+                      ? "text-amber-500"
+                      : isActive ? "text-accent" : "text-sidebar-foreground/50"
+                  }>
                     {mod.icon}
                   </span>
                   {mod.label}
