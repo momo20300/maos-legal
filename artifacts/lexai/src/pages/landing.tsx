@@ -61,7 +61,7 @@ export default function LandingPage() {
             {/* Branding block */}
             <div className="flex flex-col items-center gap-1.5 mb-2">
               <img
-                src={`${basePath}/logo-light.png`}
+                src={`${basePath}/logo-dark.png`}
                 alt="MAOS Legal"
                 className="h-auto w-[200px] object-contain"
               />
