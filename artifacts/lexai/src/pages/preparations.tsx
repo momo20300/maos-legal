@@ -396,15 +396,15 @@ export default function PreparationsPage() {
           </div>
 
           <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
-            {/* Domain pills */}
+            {/* Domain pills — 2-col grid */}
             <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المادة" : "Matière"}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {domains.map((d) => (
                   <button
                     key={d}
                     onClick={() => setSelectedDomain(d)}
-                    className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`px-2.5 py-2 rounded-lg border text-xs font-medium transition-all text-left truncate ${
                       selectedDomain === d ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227]" : "border-border bg-background hover:bg-muted text-foreground"
                     }`}
                   >
@@ -414,15 +414,15 @@ export default function PreparationsPage() {
               </div>
             </div>
 
-            {/* Difficulty pills */}
+            {/* Difficulty pills — 2-col grid */}
             <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{isRTL ? "المستوى" : "Niveau"}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {difficulties.map((d, i) => (
                   <button
                     key={d}
                     onClick={() => setSelectedDifficulty(d)}
-                    className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all whitespace-nowrap ${
+                    className={`px-2.5 py-2 rounded-lg border text-xs font-semibold transition-all text-center ${
                       selectedDifficulty === d ? DIFF_COLORS[i] : "border-border bg-background hover:bg-muted text-muted-foreground"
                     }`}
                   >
