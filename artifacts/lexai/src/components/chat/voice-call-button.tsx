@@ -20,7 +20,7 @@ interface LangOption {
 
 const LANG_OPTIONS: LangOption[] = [
   { code: "fr", flag: "🇫🇷", label: "Agent Français",       sublabel: "Droit FR / EU / Maroc" },
-  { code: "ar", flag: "🇸🇦", label: "وكيل عربي",            sublabel: "القانون العربي والمغربي" },
+  { code: "ar", flag: "🇲🇦", label: "وكيل عربي",            sublabel: "القانون العربي والمغربي" },
   { code: "en", flag: "🇺🇸", label: "English Agent",        sublabel: "US / EU / International" },
   { code: "es", flag: "🇪🇸", label: "Agente Español",       sublabel: "Derecho ES / EU / Internacional" },
   { code: "de", flag: "🇩🇪", label: "Deutschsprachiger Agent", sublabel: "Recht DE / EU / International" },
