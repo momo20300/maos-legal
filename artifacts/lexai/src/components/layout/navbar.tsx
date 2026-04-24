@@ -35,15 +35,14 @@ export function Navbar() {
   const currentLang = LANGUAGES.find((l) => l.code === language);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0d1b2e]">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-1.5 transition-opacity hover:opacity-80" data-testid="link-home">
           <img
-            src={theme === "dark" ? `${basePath}/logo-dark.png` : `${basePath}/logo-light.png`}
+            src={`${basePath}/logo-dark.png`}
             alt="MAOS Legal"
             className="h-auto w-[170px] object-contain"
           />
-          <span className="font-serif font-semibold text-base tracking-wider text-accent border-l border-border pl-2 ml-1">Legal</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -53,7 +52,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary flex items-center ${location.startsWith(link.href) ? "text-primary" : "text-muted-foreground"}`}
+                className={`text-sm font-medium transition-colors flex items-center ${location.startsWith(link.href) ? "text-accent" : "text-white/70 hover:text-white"}`}
                 data-testid={`link-nav-${link.href.replace("/", "")}`}
               >
                 {link.icon}
@@ -62,11 +61,11 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="flex items-center gap-3 border-l border-border pl-6">
+          <div className="flex items-center gap-3 border-l border-white/10 pl-6">
             {/* Language switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 font-medium" data-testid="button-language-switcher">
+                <Button variant="ghost" size="sm" className="gap-2 font-medium text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher">
                   <Globe className="w-4 h-4" />
                   <span>{currentLang?.flag}</span>
                   <span className="text-xs hidden lg:inline">{currentLang?.label}</span>
@@ -87,7 +86,7 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
 
@@ -122,7 +121,7 @@ export function Navbar() {
         <div className="md:hidden flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" data-testid="button-language-switcher-mobile">
+              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">
                 <Globe className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -139,7 +138,7 @@ export function Navbar() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="ghost" size="icon" onClick={toggleTheme} data-testid="button-theme-toggle-mobile">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
           {isSignedIn && (
@@ -153,7 +152,7 @@ export function Navbar() {
               afterSignOutUrl={`${basePath}/`}
             />
           )}
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} data-testid="button-mobile-menu">
+          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-mobile-menu">
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
@@ -161,12 +160,12 @@ export function Navbar() {
 
       {/* Mobile Nav */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-border bg-background p-4 flex flex-col gap-4">
+        <div className="md:hidden border-b border-white/10 bg-[#0d1b2e] p-4 flex flex-col gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium p-2 rounded-md transition-colors hover:bg-muted flex items-center ${location.startsWith(link.href) ? "bg-muted text-primary" : "text-muted-foreground"}`}
+              className={`text-sm font-medium p-2 rounded-md transition-colors flex items-center ${location.startsWith(link.href) ? "bg-white/10 text-accent" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               {link.icon}
