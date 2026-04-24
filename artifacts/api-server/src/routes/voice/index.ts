@@ -7,27 +7,48 @@ import crypto from "crypto";
 
 const router: IRouter = Router();
 
-const AGENT_IDS = {
-  fr: "agent_6e28c85d0fc67cdda9e45cf177",
-  ar: "agent_6eddf4f9cdcf80f7f2ba8d32e6",
+type SupportedLang = "fr" | "ar" | "en" | "es" | "de" | "it" | "no" | "pl";
+
+const AGENT_IDS: Record<SupportedLang, string> = {
+  fr: process.env.RETELL_AGENT_FR || "agent_6e28c85d0fc67cdda9e45cf177",
+  ar: process.env.RETELL_AGENT_AR || "agent_6eddf4f9cdcf80f7f2ba8d32e6",
+  en: process.env.RETELL_AGENT_EN || "agent_6e28c85d0fc67cdda9e45cf177",
+  es: process.env.RETELL_AGENT_ES || "agent_6e28c85d0fc67cdda9e45cf177",
+  de: process.env.RETELL_AGENT_DE || "agent_6e28c85d0fc67cdda9e45cf177",
+  it: process.env.RETELL_AGENT_IT || "agent_6e28c85d0fc67cdda9e45cf177",
+  no: process.env.RETELL_AGENT_NO || "agent_6e28c85d0fc67cdda9e45cf177",
+  pl: process.env.RETELL_AGENT_PL || "agent_6e28c85d0fc67cdda9e45cf177",
 };
+
+const SUPPORTED_LANGS: SupportedLang[] = ["fr", "ar", "en", "es", "de", "it", "no", "pl"];
 
 const retell = new Retell({ apiKey: process.env.RETELL_API_KEY || "" });
 
+router.get("/voice/agents", async (_req, res): Promise<void> => {
+  res.json(
+    SUPPORTED_LANGS.map(lang => ({
+      lang,
+      agentId: AGENT_IDS[lang],
+      hasCustomAgent: !!process.env[`RETELL_AGENT_${lang.toUpperCase()}`],
+    }))
+  );
+});
+
 router.post("/voice/create-call", requireAuth, async (req, res): Promise<void> => {
   const userId = (req as any).userId as string;
-  const { language = "fr" } = req.body as { language?: "fr" | "ar" };
-  const agentId = AGENT_IDS[language] || AGENT_IDS.fr;
+  const { language = "fr" } = req.body as { language?: SupportedLang };
+
+  const lang: SupportedLang = SUPPORTED_LANGS.includes(language) ? language : "fr";
+  const agentId = AGENT_IDS[lang];
 
   try {
     const webCall = await retell.call.createWebCall({ agent_id: agentId });
 
-    // Log the call
     await db.insert(callLogs).values({
       id: crypto.randomUUID(),
       userId,
       callId: webCall.call_id,
-      language,
+      language: lang,
       agentId,
       status: "initiated",
     });
@@ -39,7 +60,6 @@ router.post("/voice/create-call", requireAuth, async (req, res): Promise<void> =
   }
 });
 
-// Get call history for current user
 router.get("/voice/calls", requireAuth, async (req, res): Promise<void> => {
   const userId = (req as any).userId as string;
   try {
