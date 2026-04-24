@@ -105,16 +105,6 @@ export default function LandingPage() {
               )}
             </div>
 
-            <div className="pt-8 flex items-center justify-center gap-8 text-sm font-medium text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${health?.status === 'ok' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                {health?.status === 'ok' ? t.landing.systemsOk : t.landing.systemsDegraded}
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent" />
-                {stats?.totalQuestions ? stats.totalQuestions.toLocaleString() : '10,000+'} {t.landing.consultations}
-              </div>
-            </div>
           </div>
         </div>
       </section>
