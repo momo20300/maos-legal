@@ -76,8 +76,8 @@ export default function LandingPage() {
               {t.landing.headline1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent/60">{t.landing.headline2}</span>
             </h1>
-            <p className={`${language === 'ar' ? 'text-[16px] lg:text-[18px]' : 'text-[11px] lg:text-[13px]'} text-muted-foreground font-light leading-loose max-w-xl mx-auto whitespace-pre-line`}>
-              {t.landing.subtitle}
+            <p className={`${language === 'ar' ? 'text-[16px] lg:text-[18px]' : 'text-[11px] lg:text-[13px]'} text-muted-foreground font-light leading-loose max-w-xl mx-auto`}>
+              {t.landing.subtitle.replace(/\n/g, " · ")}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
