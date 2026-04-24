@@ -8,6 +8,7 @@ export const conversations = pgTable("conversations", {
   title: text("title").notNull(),
   jurisdiction: text("jurisdiction").notNull().default("EU"),
   legalDomain: text("legal_domain").notNull().default("general"),
+  source: text("source").notNull().default("chat"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

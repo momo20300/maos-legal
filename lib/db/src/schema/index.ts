@@ -23,3 +23,4 @@ export * from "./users";
 export * from "./call-logs";
 export * from "./dossiers";
 export * from "./billing";
+export * from "./documents";

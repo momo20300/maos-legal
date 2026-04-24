@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, conversations, messages } from "@workspace/db";
+import { eq, max } from "drizzle-orm";
+import { db, conversations, messages, documentArchive } from "@workspace/db";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import {
   CreateAnthropicConversationBody,
@@ -497,6 +497,31 @@ router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, re
       role: "assistant",
       content: fullResponse,
     });
+
+    // Auto-archive any documents generated in this response
+    const DOC_REGEX = /<<<DOCUMENT_START>>>([\s\S]*?)<<<DOCUMENT_END>>>/g;
+    const userId = (req as any).userId as string;
+    let docMatch: RegExpExecArray | null;
+    while ((docMatch = DOC_REGEX.exec(fullResponse)) !== null) {
+      const docContent = docMatch[1].trim();
+      if (!docContent) continue;
+      try {
+        const [{ currentMax }] = await db
+          .select({ currentMax: max(documentArchive.docNumber) })
+          .from(documentArchive)
+          .where(eq(documentArchive.userId, userId));
+        const nextNum = (currentMax ?? 0) + 1;
+        await db.insert(documentArchive).values({
+          userId,
+          conversationId: conv.id,
+          docNumber: nextNum,
+          title: conv.title,
+          content: docContent,
+        });
+      } catch (docErr) {
+        console.error("Document archive error:", docErr);
+      }
+    }
 
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
     res.end();

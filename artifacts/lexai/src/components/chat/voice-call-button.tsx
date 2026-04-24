@@ -47,7 +47,34 @@ function useVoiceCall() {
   const [activeLang, setActiveLang] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
   const clientRef = useRef<RetellWebClient | null>(null);
+  const callIdRef = useRef<string | null>(null);
   const { toast } = useToast();
+
+  const archiveCall = useCallback(async (callId: string, lang: CallLanguage) => {
+    try {
+      await fetch(`${BASE_URL}/api/billing/charge-call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ callId }),
+      });
+    } catch { /* billing errors are non-blocking */ }
+
+    // Fire archive in background — transcript takes a few seconds to process
+    fetch(`${BASE_URL}/api/voice/archive-call`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ callId, language: lang }),
+    }).then(r => r.json()).then(data => {
+      if (data.conversationId) {
+        toast({
+          title: lang === "ar" ? "تم أرشفة المكالمة" : "Appel archivé",
+          description: lang === "ar" ? "التسجيل محفوظ في استشاراتك" : "La transcription est sauvegardée dans vos consultations",
+        });
+      }
+    }).catch(() => {});
+  }, [toast]);
 
   const startCall = useCallback(async (lang: CallLanguage) => {
     setActiveLang(lang);
@@ -67,7 +94,8 @@ function useVoiceCall() {
         throw new Error(err.error || "Erreur serveur");
       }
 
-      const { accessToken } = await res.json();
+      const { accessToken, callId } = await res.json();
+      callIdRef.current = callId;
       const client = new RetellWebClient();
       clientRef.current = client;
 
@@ -77,10 +105,13 @@ function useVoiceCall() {
       });
 
       client.on("call_ended", () => {
+        const finishedCallId = callIdRef.current;
         setCallState("idle");
         setIsMuted(false);
         clientRef.current = null;
+        callIdRef.current = null;
         toast({ title: labels.ended });
+        if (finishedCallId) archiveCall(finishedCallId, lang);
       });
 
       client.on("error", () => {
@@ -93,7 +124,7 @@ function useVoiceCall() {
       setCallState("idle");
       toast({ title: "Impossible de démarrer l'appel", description: "Vérifiez votre connexion et réessayez.", variant: "destructive" });
     }
-  }, [toast]);
+  }, [toast, archiveCall]);
 
   const endCall = useCallback(() => {
     clientRef.current?.stopCall();

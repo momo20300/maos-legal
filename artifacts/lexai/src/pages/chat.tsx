@@ -12,14 +12,39 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "wouter";
-import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft } from "lucide-react";
+import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft, Phone, FileText } from "lucide-react";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { format } from "date-fns";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+
+const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+type ArchivedDoc = {
+  id: number;
+  docNumber: number;
+  title: string;
+  content: string;
+  conversationId: number | null;
+  createdAt: string;
+};
+
+function useArchivedDocs() {
+  const [docs, setDocs] = useState<ArchivedDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const refresh = () => {
+    setLoading(true);
+    fetch(`${BASE_URL}/api/documents`, { credentials: "include" })
+      .then(r => r.json())
+      .then(d => { setDocs(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+  useEffect(() => { refresh(); }, []);
+  return { docs, loading, refresh };
+}
 
 const JURISDICTIONS = [
   { key: "Morocco", flag: "🇲🇦", short: "Maroc", color: "#C1272D" },
@@ -99,6 +124,8 @@ export default function ChatPage() {
   const watchJurisdiction = form.watch("jurisdiction");
   const filteredDomains = domains?.filter((d) => d.jurisdiction === watchJurisdiction);
   const onSubmit = (values: FormValues) => createMutation.mutate({ data: values });
+
+  const { docs: archivedDocs, loading: docsLoading } = useArchivedDocs();
 
   /* ── MOBILE: list view or form ── */
   if (isMobile) {
@@ -422,66 +449,117 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* RIGHT: Conversations list */}
+        {/* RIGHT: Conversations + archived documents */}
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
           <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card shrink-0">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-accent" />
               <h2 className="text-sm font-bold text-foreground">
-                {isRTL ? "استشاراتي" : "Consultations récentes"}
+                {isRTL ? "استشاراتي ومراسلاتي" : "Consultations & Courriers"}
               </h2>
-              {conversations && conversations.length > 0 && (
+              {(conversations?.length ?? 0) + archivedDocs.length > 0 && (
                 <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
-                  {conversations.length}
+                  {(conversations?.length ?? 0) + archivedDocs.length}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
-            {convsLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
-              </div>
-            ) : !conversations?.length ? (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
-                  <MessageSquare className="w-7 h-7 text-[#c9a227]" />
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* ── Conversations ── */}
+            <div>
+              {convsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {isRTL ? "لا توجد استشارات بعد" : "Aucune consultation pour l'instant"}
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                {conversations.map((conv) => (
-                  <Link key={conv.id} href={`/conversations/${conv.id}`}>
-                    <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer">
-                      <button
-                        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
-                        onClick={(e) => handleDelete(e, conv.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      <div className="flex items-start gap-2.5 pr-8">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <MessageSquare className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-foreground line-clamp-1">{conv.title}</p>
-                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <JurisdictionBadge jurisdiction={conv.jurisdiction} className="text-[10px] h-4 py-0 px-1.5" />
-                            <span className="text-[10px] text-muted-foreground">{format(new Date(conv.createdAt), "d MMM yyyy")}</span>
+              ) : !conversations?.length ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-[#c9a227]" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isRTL ? "لا توجد استشارات بعد" : "Aucune consultation pour l'instant"}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                  {conversations.map((conv) => {
+                    const isVoice = (conv as any).source === "voice";
+                    return (
+                      <Link key={conv.id} href={`/conversations/${conv.id}`}>
+                        <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer">
+                          <button
+                            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                            onClick={(e) => handleDelete(e, conv.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="flex items-start gap-2.5 pr-8">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isVoice ? "bg-[#c9a227]/15" : "bg-primary/10"}`}>
+                              {isVoice
+                                ? <Phone className="w-4 h-4 text-[#c9a227]" />
+                                : <MessageSquare className="w-4 h-4 text-primary" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground line-clamp-1">{conv.title}</p>
+                              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                <JurisdictionBadge jurisdiction={conv.jurisdiction} className="text-[10px] h-4 py-0 px-1.5" />
+                                <span className="text-[10px] text-muted-foreground">{format(new Date(conv.createdAt), "d MMM yyyy")}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground font-medium">
+                                <Shield className="w-3 h-3 shrink-0" />
+                                <span className="truncate">{conv.legalDomain}</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground font-medium">
-                            <Shield className="w-3 h-3 shrink-0" />
-                            <span className="truncate">{conv.legalDomain}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Archived Documents ── */}
+            {(docsLoading || archivedDocs.length > 0) && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-4 h-4 text-[#c9a227]" />
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                    {isRTL ? "المراسلات والوثائق القانونية" : "Courriers & Documents archivés"}
+                  </h3>
+                  {archivedDocs.length > 0 && (
+                    <span className="text-[10px] bg-[#c9a227]/20 text-[#c9a227] rounded-full px-1.5 py-0.5 font-bold">
+                      {archivedDocs.length}
+                    </span>
+                  )}
+                </div>
+                {docsLoading ? (
+                  <div className="space-y-2">
+                    {[1, 2].map(i => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                    {archivedDocs.map((doc) => (
+                      <Link key={doc.id} href={doc.conversationId ? `/conversations/${doc.conversationId}` : "/chat"}>
+                        <div className="group bg-card border border-[#c9a227]/30 rounded-xl p-4 hover:border-[#c9a227]/70 transition-all cursor-pointer">
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0 mt-0.5">
+                              <FileText className="w-4 h-4 text-[#c9a227]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-xs text-[#c9a227] leading-none mb-1">
+                                {isRTL ? `وثيقة رقم ${doc.docNumber}` : `Courrier n°${doc.docNumber}`}
+                              </p>
+                              <p className="font-semibold text-sm text-foreground line-clamp-1">{doc.title}</p>
+                              <span className="text-[10px] text-muted-foreground">{format(new Date(doc.createdAt), "d MMM yyyy")}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

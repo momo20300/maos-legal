@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import Retell from "retell-sdk";
-import { db, callLogs } from "@workspace/db";
+import { db, callLogs, conversations, messages } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../../middlewares/requireAuth";
 import crypto from "crypto";
@@ -72,6 +72,79 @@ router.get("/voice/calls", requireAuth, async (req, res): Promise<void> => {
     res.json(calls);
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la récupération des appels." });
+  }
+});
+
+// Archive a finished call as a consultation with its transcript
+router.post("/voice/archive-call", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
+  const { callId, language = "fr" } = req.body as { callId: string; language?: SupportedLang };
+
+  if (!callId) {
+    res.status(400).json({ error: "callId requis" });
+    return;
+  }
+
+  try {
+    // Retry fetching the transcript up to 5 times (Retell processes async)
+    let callData: any = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      callData = await retell.call.retrieve(callId);
+      if (callData?.transcript && callData.transcript.trim().length > 10) break;
+      await new Promise(r => setTimeout(r, 2000));
+    }
+
+    const rawTranscript: string = callData?.transcript ?? "";
+    const transcriptObj: Array<{ role: string; content: string }> = callData?.transcript_object ?? [];
+
+    const lang: SupportedLang = SUPPORTED_LANGS.includes(language) ? language : "fr";
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(lang === "ar" ? "ar" : "fr-MA", {
+      day: "numeric", month: "long", year: "numeric"
+    });
+
+    const jurisdiction = lang === "ar" ? "Arabic" : lang === "en" ? "US" : "Morocco";
+
+    const [conv] = await db.insert(conversations).values({
+      userId,
+      title: lang === "ar" ? `مكالمة صوتية — ${dateStr}` : `Appel vocal — ${dateStr}`,
+      jurisdiction,
+      legalDomain: lang === "ar" ? "استشارة صوتية" : "Consultation vocale",
+      source: "voice",
+    }).returning();
+
+    // Build transcript content
+    let content: string;
+    if (transcriptObj.length > 0) {
+      const lines = transcriptObj.map((t) => {
+        const who = t.role === "agent"
+          ? (lang === "ar" ? "**المستشار القانوني**" : "**Expert MAOS Legal**")
+          : (lang === "ar" ? "**أنت**" : "**Vous**");
+        return `${who} : ${t.content}`;
+      });
+      content = lines.join("\n\n");
+    } else if (rawTranscript.trim()) {
+      content = rawTranscript;
+    } else {
+      content = lang === "ar"
+        ? "لم تتوفر نسخة النص بعد. يُرجى التحقق لاحقاً."
+        : "La transcription n'est pas encore disponible. Veuillez vérifier ultérieurement.";
+    }
+
+    const header = lang === "ar"
+      ? `# 📞 نسخة المكالمة الصوتية\n**التاريخ :** ${dateStr}\n\n---\n\n`
+      : `# 📞 Transcription de l'appel vocal\n**Date :** ${dateStr}\n\n---\n\n`;
+
+    await db.insert(messages).values({
+      conversationId: conv.id,
+      role: "assistant",
+      content: header + content,
+    });
+
+    res.json({ conversationId: conv.id });
+  } catch (err: any) {
+    console.error("archive-call error:", err);
+    res.status(500).json({ error: "Erreur lors de l'archivage de l'appel." });
   }
 });
 

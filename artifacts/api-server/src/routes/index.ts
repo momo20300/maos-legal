@@ -9,6 +9,7 @@ import voiceRouter from "./voice";
 import prepRouter from "./prep";
 import dossiersRouter from "./dossiers";
 import billingRouter from "./billing";
+import documentsRouter from "./documents";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(voiceRouter);
 router.use(prepRouter);
 router.use(dossiersRouter);
 router.use(billingRouter);
+router.use(documentsRouter);
 
 export default router;
