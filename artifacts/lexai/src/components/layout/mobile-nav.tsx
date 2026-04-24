@@ -67,10 +67,6 @@ export function MobileNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       dir={isRTL ? "rtl" : "ltr"}
     >
-      {/* Disclaimer tucked inside fixed nav — no space stolen from content */}
-      <p className="text-center text-[8px] text-white/20 leading-none py-0.5 px-4 truncate">
-        MAOS ne remplace pas l'avis d'un professionnel qualifié. © 2026 MAOS Software Ltd
-      </p>
       <div className="flex items-stretch h-14">
         {visibleItems.map((item) => {
           const isActive = item.activePattern.test(location);
@@ -95,6 +91,10 @@ export function MobileNav() {
           );
         })}
       </div>
+      {/* Disclaimer — below icon labels */}
+      <p className="text-center text-[8px] text-white/25 leading-none pb-1 px-4 truncate">
+        MAOS ne remplace pas l'avis d'un professionnel qualifié. © 2026 MAOS Software Ltd
+      </p>
     </nav>
   );
 }
