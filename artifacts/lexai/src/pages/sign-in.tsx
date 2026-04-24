@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
 import { useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { Navbar } from "@/components/layout/navbar";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -59,74 +59,69 @@ export default function SignInPage() {
   useHideClerkJunk();
 
   return (
-    <div className="min-h-screen bg-[#0d1b2e] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
 
-      {/* Bouton retour accueil */}
-      <div className="w-full max-w-sm mb-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-[#c9a227] text-sm font-medium transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          {t.notFound.goHome}
-        </Link>
-      </div>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        {/* Branding */}
+        <div className="mb-8 flex flex-col items-center gap-1.5">
+          <Link href="/" className="flex flex-col items-center gap-1 transition-opacity hover:opacity-80">
+            <img src={`${basePath}/logo-light.png`} alt="MAOS Legal" className="h-14 w-auto object-contain" />
+            <span className="text-accent text-sm font-bold tracking-widest uppercase font-serif">Legal</span>
+          </Link>
+          <p className="text-muted-foreground text-[11px] font-medium tracking-[0.2em] uppercase mt-1">
+            {t.auth.intelligenceJuridiquePremium}
+          </p>
+        </div>
 
-      {/* Branding */}
-      <div className="mb-8 flex flex-col items-center gap-2">
-        <Link href="/" className="flex flex-col items-center gap-1 transition-opacity hover:opacity-80">
-          <img src={`${basePath}/logo-dark.png`} alt="MAOS Legal" className="h-14 w-auto object-contain" />
-          <span className="text-[#c9a227] text-sm font-bold tracking-widest uppercase font-serif">Legal</span>
-        </Link>
-        <p className="text-slate-400 text-[11px] font-medium tracking-widest uppercase mt-1">
-          {t.auth.intelligenceJuridiquePremium}
+        <SignIn
+          routing="path"
+          path={`${basePath}/sign-in`}
+          signUpUrl={`${basePath}/sign-up`}
+          fallbackRedirectUrl={`${basePath}/chat`}
+          appearance={{
+            variables: {
+              colorPrimary: "#c9a227",
+              colorBackground: "#faf8f3",
+              colorText: "#0d1b2e",
+              colorTextSecondary: "#4a5568",
+              colorInputBackground: "#ffffff",
+              colorInputText: "#0d1b2e",
+              colorNeutral: "#4a5568",
+              colorSuccess: "#15803d",
+              colorDanger: "#dc2626",
+              fontFamily: "'Inter', sans-serif",
+              borderRadius: "0.5rem",
+            },
+            elements: {
+              card: "shadow-lg border border-border bg-card",
+              header: "!hidden",
+              headerTitle: "!hidden",
+              headerSubtitle: "!hidden",
+              socialButtonsBlockButton: "border border-border bg-background hover:bg-muted text-foreground",
+              socialButtonsBlockButtonText: "text-foreground font-medium",
+              dividerLine: "bg-border",
+              dividerText: "text-muted-foreground",
+              formFieldLabel: "text-foreground text-sm font-medium",
+              formFieldInput: "bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-accent",
+              formButtonPrimary: "bg-accent hover:bg-accent/90 text-[#0d1b2e] font-semibold",
+              footerActionLink: "text-accent hover:text-accent/80",
+              identityPreviewText: "text-foreground",
+              identityPreviewEditButton: "text-accent",
+              otpCodeFieldInput: "bg-background border-border text-foreground",
+              developerBanner: "!hidden",
+              footerPages: "!hidden",
+              footerPagesLink__help: "!hidden",
+              footerPagesLink__privacy: "!hidden",
+              footerPagesLink__terms: "!hidden",
+            },
+          }}
+        />
+
+        <p className="mt-8 text-muted-foreground text-xs text-center max-w-sm">
+          {t.auth.signInDisclaimer}
         </p>
       </div>
-
-      <SignIn
-        routing="path"
-        path={`${basePath}/sign-in`}
-        signUpUrl={`${basePath}/sign-up`}
-        fallbackRedirectUrl={`${basePath}/chat`}
-        appearance={{
-          variables: {
-            colorPrimary: "#c9a227",
-            colorBackground: "#112240",
-            colorText: "#e2e8f0",
-            colorTextSecondary: "#94a3b8",
-            colorInputBackground: "#1e3a5f",
-            colorInputText: "#e2e8f0",
-            colorNeutral: "#94a3b8",
-            colorSuccess: "#22c55e",
-            colorDanger: "#ef4444",
-            fontFamily: "'Inter', sans-serif",
-            borderRadius: "0.5rem",
-          },
-          elements: {
-            card: "shadow-2xl border border-[#1e3a5f] bg-[#112240]",
-            header: "!hidden",
-            headerTitle: "!hidden",
-            headerSubtitle: "!hidden",
-            socialButtonsBlockButton: "border-[#1e3a5f] bg-[#1a2d4a] hover:bg-[#1e3a5f] text-white",
-            socialButtonsBlockButtonText: "text-white font-medium",
-            dividerLine: "bg-[#1e3a5f]",
-            dividerText: "text-slate-500",
-            formFieldLabel: "text-slate-300 text-sm",
-            formFieldInput: "bg-[#1a2d4a] border-[#1e3a5f] text-white placeholder:text-slate-500 focus:border-[#c9a227]",
-            formButtonPrimary: "bg-[#c9a227] hover:bg-[#b8921f] text-[#0d1b2e] font-semibold",
-            footerActionLink: "text-[#c9a227] hover:text-[#b8921f]",
-            identityPreviewText: "text-white",
-            identityPreviewEditButton: "text-[#c9a227]",
-            otpCodeFieldInput: "bg-[#1a2d4a] border-[#1e3a5f] text-white",
-            developerBanner: "!hidden",
-            footerPages: "!hidden",
-            footerPagesLink__help: "!hidden",
-            footerPagesLink__privacy: "!hidden",
-            footerPagesLink__terms: "!hidden",
-          },
-        }}
-      />
-
-      <p className="mt-8 text-slate-500 text-xs text-center max-w-sm">
-        {t.auth.signInDisclaimer}
-      </p>
     </div>
   );
 }
