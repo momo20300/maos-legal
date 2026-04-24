@@ -1,17 +1,24 @@
 import { Link, useLocation } from "wouter";
 import {
-  Home, Scale, GraduationCap, FolderOpen, User, ShieldCheck, Plus,
+  Home, Scale, GraduationCap, FolderOpen, User, ShieldCheck, Plus, LogOut,
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
 
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export function DesktopSidebar() {
   const [location] = useLocation();
-  const { isSignedIn, user } = useAuthContext();
+  const { isSignedIn, user, logout } = useAuthContext();
   const { language } = useLanguage();
   const isAdmin = user?.email === "elasri.mounsef@gmail.com";
   const isRTL = language === "ar";
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = `${basePath}/`;
+  };
 
   const modules = [
     {
@@ -110,8 +117,15 @@ export function DesktopSidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border">
+      {/* Footer — logout + copyright */}
+      <div className="p-3 border-t border-sidebar-border space-y-2">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          {isRTL ? "تسجيل الخروج" : "Déconnexion"}
+        </button>
         <p className="text-[9px] text-sidebar-foreground/25 leading-snug text-center">
           MAOS ne remplace pas l'avis d'un professionnel qualifié. © 2026 MAOS Software Ltd
         </p>
