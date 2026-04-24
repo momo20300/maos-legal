@@ -13,7 +13,22 @@
 
 .cl-developerBanner,
 [data-clerk-development-mode],
-#cl-dev-browser-warning {
+#cl-dev-browser-warning,
+[data-localization-key="badge__devMode"],
+.cl-badge__devMode,
+.cl-badge,
+.cl-footerPages,
+.cl-footerPagesLink__help,
+.cl-footerPagesLink__privacy,
+.cl-footerPagesLink__terms,
+.cl-devBranding,
+[class*="devMode"],
+[class*="devBrand"],
+[class*="developerBanner"] {
+  display: none !important;
+}
+
+:has(> [data-localization-key="badge__devMode"]) {
   display: none !important;
 }
 
