@@ -391,7 +391,7 @@ router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, re
 
   try {
     const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
+      model: "claude-opus-4-5",
       max_tokens: 8192,
       system: getSystemPrompt(conv.jurisdiction),
       messages: chatMessages,
@@ -529,7 +529,7 @@ router.post(
 
     try {
       const stream = anthropic.messages.stream({
-        model: "claude-sonnet-4-6",
+        model: "claude-opus-4-5",
         max_tokens: 8192,
         system: getSystemPrompt(conv.jurisdiction),
         messages: chatMessages as Parameters<typeof anthropic.messages.stream>[0]["messages"],
