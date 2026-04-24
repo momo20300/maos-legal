@@ -350,108 +350,107 @@ export default function ChatPage() {
     );
   }
 
-  /* ── DESKTOP: horizontal split — form TOP, list BOTTOM ── */
+  /* ── DESKTOP: left = form (mobile style), right = list ── */
   return (
     <Layout>
-      <div className="flex flex-col flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="flex flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
-        {/* ── TOP: compact new-consultation form ── */}
-        <div className="shrink-0 bg-card border-b border-border">
+        {/* LEFT: form panel — same layout as mobile */}
+        <div className="w-[400px] shrink-0 flex flex-col border-r border-border bg-card overflow-y-auto">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-border shrink-0">
+            <JusticeScaleSVG size={24} />
+            <div>
+              <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
+            </div>
+          </div>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              {/* Header row */}
-              <div className="flex items-center gap-3 px-6 pt-4 pb-2">
-                <JusticeScaleSVG size={22} />
-                <div>
-                  <p className="text-sm font-bold text-foreground leading-none">{t.chat.consultationTitle}</p>
-                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{t.chat.consultationSubtitle}</p>
-                </div>
-              </div>
+            <form onSubmit={form.handleSubmit(onSubmit)} key={language} className="flex flex-col gap-4 px-5 pt-5 pb-6">
 
-              {/* Controls row: jurisdictions + inputs + button */}
-              <div className="flex items-start gap-3 px-6 pb-4 flex-wrap lg:flex-nowrap" key={language}>
-                {/* Jurisdiction pills — horizontal */}
-                <div className="flex gap-2 shrink-0 flex-wrap">
-                  {JURISDICTIONS.map(({ key, flag, short }) => {
-                    const isSelected = watchJurisdiction === key;
-                    const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-semibold transition-all whitespace-nowrap ${
-                          isSelected ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227] shadow-sm" : "border-border bg-background hover:bg-muted text-foreground"
-                        }`}
-                      >
-                        {isText
-                          ? <span className={`text-xs font-bold px-1 py-0.5 rounded ${isSelected ? "bg-[#c9a227]/20" : "bg-muted"}`}>{flag}</span>
-                          : <span className="text-base leading-none">{flag}</span>}
+              {/* Jurisdiction 2×2 grid — same as mobile */}
+              <div className="grid grid-cols-2 gap-2">
+                {JURISDICTIONS.map(({ key, flag, short }) => {
+                  const isSelected = watchJurisdiction === key;
+                  const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => form.setValue("jurisdiction", key as any, { shouldValidate: true })}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-xl border text-left transition-all ${
+                        isSelected ? "border-[#c9a227] bg-[#c9a227]/10 shadow-sm" : "border-border bg-background hover:bg-muted"
+                      }`}
+                    >
+                      {isText
+                        ? <span className={`text-xs font-bold px-1 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
+                        : <span className="text-lg leading-none">{flag}</span>}
+                      <span className={`text-sm font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
                         {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Hidden jurisdiction validation field */}
-                <FormField control={form.control} name="jurisdiction" render={({ field }) => (
-                  <FormItem className="hidden">
-                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                      <FormControl><SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger></FormControl>
-                      <SelectContent>{JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}</SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                {/* Title */}
-                <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem className="flex-1 min-w-[180px]">
-                    <FormControl>
-                      <Input placeholder={t.chat.casePlaceholder} className="h-9 text-sm" {...field} data-testid="input-title" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                {/* Legal Domain */}
-                <FormField control={form.control} name="legalDomain" render={({ field }) => (
-                  <FormItem className="w-[200px] shrink-0">
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
-                      <FormControl>
-                        <SelectTrigger className="h-9 text-sm" data-testid="select-domain">
-                          <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {filteredDomains?.map((domain) => (
-                          <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                {/* Submit */}
-                <Button
-                  type="submit"
-                  className="h-9 px-5 text-sm font-semibold shrink-0"
-                  disabled={createMutation.isPending}
-                  data-testid="button-create-consultation"
-                >
-                  {createMutation.isPending
-                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t.chat.initializingExpert}</>
-                    : <>{t.chat.beginConsultation}<ChevronRight className="w-4 h-4 ml-1" /></>}
-                </Button>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
+
+              {/* Hidden jurisdiction field for validation */}
+              <FormField control={form.control} name="jurisdiction" render={({ field }) => (
+                <FormItem className="hidden">
+                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                    <FormControl><SelectTrigger data-testid="select-jurisdiction"><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>{JURISDICTIONS.map(j => <SelectItem key={j.key} value={j.key}>{j.short}</SelectItem>)}</SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              {/* Title */}
+              <FormField control={form.control} name="title" render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder={t.chat.casePlaceholder} className="bg-background h-11 text-sm" {...field} data-testid="input-title" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              {/* Legal Domain */}
+              <FormField control={form.control} name="legalDomain" render={({ field }) => (
+                <FormItem>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={!watchJurisdiction}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background h-11 text-sm" data-testid="select-domain">
+                        <SelectValue placeholder={!watchJurisdiction ? t.chat.selectJurisdictionFirst : t.chat.domainPlaceholder} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filteredDomains?.map((domain) => (
+                        <SelectItem key={domain.id} value={domain.name}>{domainLabel(domain)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full h-12 text-base font-semibold shadow-md mt-1"
+                disabled={createMutation.isPending}
+                data-testid="button-create-consultation"
+              >
+                {createMutation.isPending
+                  ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />{t.chat.initializingExpert}</>
+                  : <>{t.chat.beginConsultation}<ChevronRight className="w-5 h-5 ml-1" /></>}
+              </Button>
             </form>
           </Form>
         </div>
 
-        {/* ── BOTTOM: consultations + archived documents ── */}
+        {/* ── RIGHT: consultations + archived documents ── */}
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          <div className="flex items-center gap-2 px-6 py-3 border-b border-border bg-card shrink-0">
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-card shrink-0">
             <MessageSquare className="w-4 h-4 text-accent" />
             <h2 className="text-sm font-bold text-foreground">
               {isRTL ? "استشاراتي ومراسلاتي" : "Consultations & Courriers"}
@@ -463,13 +462,13 @@ export default function ChatPage() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
 
             {/* Conversations */}
             <div>
               {convsLoading ? (
-                <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
-                  {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />)}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                  {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />)}
                 </div>
               ) : !conversations?.length ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
@@ -481,7 +480,7 @@ export default function ChatPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                   {conversations.map((conv) => {
                     const isVoice = (conv as any).source === "voice";
                     return (
@@ -530,11 +529,11 @@ export default function ChatPage() {
                   )}
                 </div>
                 {docsLoading ? (
-                  <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                     {[1,2].map(i => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                     {archivedDocs.map((doc) => (
                       <Link key={doc.id} href={doc.conversationId ? `/conversations/${doc.conversationId}` : "/chat"}>
                         <div className="group bg-card border border-[#c9a227]/30 rounded-xl p-4 hover:border-[#c9a227]/70 transition-all cursor-pointer">
