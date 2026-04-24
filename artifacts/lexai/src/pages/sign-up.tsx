@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuthContext } from "@/contexts/auth-context";
+import { useTheme } from "@/hooks/use-theme";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -11,6 +12,8 @@ export default function SignUpPage() {
   const { t } = useLanguage();
   const { register } = useAuthContext();
   const [, navigate] = useLocation();
+  const { theme } = useTheme();
+  const logoSrc = `${basePath}/${theme === "light" ? "logo-dark.png" : "logo-light.png"}`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +45,7 @@ export default function SignUpPage() {
         <div className="w-full max-w-sm bg-card border border-border rounded-xl shadow-lg px-6 py-5 flex flex-col items-center">
 
           <Link href={`${basePath}/`} className="flex flex-col items-center gap-0.5 mb-3 cursor-pointer">
-            <img src={`${basePath}/logo-light.png`} alt="MAOS Legal" className="h-auto w-[140px] object-contain" />
+            <img src={logoSrc} alt="MAOS Legal" className="h-auto w-[140px] object-contain" />
             <span className="text-accent font-serif font-bold text-sm tracking-[0.25em] uppercase">Legal</span>
           </Link>
 

@@ -8,6 +8,7 @@ import { VoiceCallInlineButton } from "@/components/chat/voice-call-button";
 import { useHealthCheck, useGetLegalDomainStats, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuthContext } from "@/contexts/auth-context";
+import { useTheme } from "@/hooks/use-theme";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -21,6 +22,8 @@ export default function LandingPage() {
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
   const { t, language } = useLanguage();
   const { isSignedIn } = useAuthContext();
+  const { theme } = useTheme();
+  const logoSrc = `${basePath}/${theme === "light" ? "logo-dark.png" : "logo-light.png"}`;
 
   const plans = PLAN_META.map((meta) => ({
     ...meta,
@@ -61,7 +64,7 @@ export default function LandingPage() {
             {/* Branding block */}
             <div className="flex flex-col items-center gap-1.5 mb-2">
               <img
-                src={`${basePath}/logo-dark.png`}
+                src={logoSrc}
                 alt="MAOS Legal"
                 className="h-auto w-[200px] object-contain"
               />
