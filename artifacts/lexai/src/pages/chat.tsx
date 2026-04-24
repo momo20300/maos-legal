@@ -19,13 +19,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { format } from "date-fns";
-import { useState } from "react";
-
-const formSchema = z.object({
-  title: z.string().min(3),
-  jurisdiction: z.enum(["EU", "US", "Arabic", "Morocco"], { required_error: "Please select a jurisdiction" }),
-  legalDomain: z.string().min(1),
-});
+import { useState, useMemo } from "react";
 
 const JURISDICTIONS = [
   { key: "Morocco", flag: "🇲🇦", short: "Maroc", color: "#C1272D" },
@@ -34,6 +28,12 @@ const JURISDICTIONS = [
   { key: "Arabic",  flag: "AR",   short: "Moyen Orient", color: "#006233" },
 ];
 
+type FormValues = {
+  title: string;
+  jurisdiction: "EU" | "US" | "Arabic" | "Morocco";
+  legalDomain: string;
+};
+
 export default function ChatPage() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -41,6 +41,18 @@ export default function ChatPage() {
   const isMobile = useIsMobile();
   const isRTL = language === "ar";
   const [showForm, setShowForm] = useState(false);
+
+  const formSchema = useMemo(() =>
+    z.object({
+      title: z.string().min(3, t.chat.caseTitleMinLength),
+      jurisdiction: z.enum(["EU", "US", "Arabic", "Morocco"] as const, {
+        required_error: t.chat.jurisdictionRequired,
+        invalid_type_error: t.chat.jurisdictionRequired,
+      }),
+      legalDomain: z.string().min(1, t.chat.domainRequired),
+    }),
+    [t]
+  );
 
   // Pick domain display name by UI language
   const domainLabel = (d: { name: string; nameFr?: string; nameAr?: string }) =>
@@ -79,14 +91,14 @@ export default function ChatPage() {
     }
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { title: "", jurisdiction: undefined, legalDomain: "" },
   });
 
   const watchJurisdiction = form.watch("jurisdiction");
   const filteredDomains = domains?.filter((d) => d.jurisdiction === watchJurisdiction);
-  const onSubmit = (values: z.infer<typeof formSchema>) => createMutation.mutate({ data: values });
+  const onSubmit = (values: FormValues) => createMutation.mutate({ data: values });
 
   /* ── MOBILE: list view or form ── */
   if (isMobile) {
@@ -180,6 +192,7 @@ export default function ChatPage() {
     return (
       <Layout>
         <div
+          key={language}
           className="flex flex-col bg-background"
           style={{ height: "calc(100dvh - 56px - 64px - env(safe-area-inset-bottom))" }}
         >
@@ -356,7 +369,7 @@ export default function ChatPage() {
                 })}
               </div>
 
-              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+              <div key={language} className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                     <FormField
