@@ -204,14 +204,6 @@ export default function PreparationsPage() {
                 )}
               </div>
             </div>
-            {/* EXIT button */}
-            <button
-              onClick={exit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-xs font-bold transition-all border border-white/10"
-            >
-              <X className="w-3.5 h-3.5" />
-              EXIT
-            </button>
           </div>
 
           {/* Progress dots */}
