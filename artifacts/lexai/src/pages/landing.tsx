@@ -18,7 +18,7 @@ const PLAN_META = [
 export default function LandingPage() {
   const { data: health } = useHealthCheck({ query: { queryKey: getHealthCheckQueryKey() } });
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isSignedIn } = useAuth();
 
   const plans = PLAN_META.map((meta) => ({
@@ -75,7 +75,7 @@ export default function LandingPage() {
               {t.landing.headline1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent/60">{t.landing.headline2}</span>
             </h1>
-            <p className="text-[11px] lg:text-[13px] text-muted-foreground font-light leading-loose max-w-xl mx-auto whitespace-pre-line">
+            <p className={`${language === 'ar' ? 'text-[16px] lg:text-[18px]' : 'text-[11px] lg:text-[13px]'} text-muted-foreground font-light leading-loose max-w-xl mx-auto whitespace-pre-line`}>
               {t.landing.subtitle}
             </p>
 
