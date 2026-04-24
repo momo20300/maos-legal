@@ -11,6 +11,12 @@
   color: #0d1b2e;
 }
 
+.cl-developerBanner,
+[data-clerk-development-mode],
+#cl-dev-browser-warning {
+  display: none !important;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";

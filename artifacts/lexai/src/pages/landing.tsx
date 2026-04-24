@@ -3,15 +3,55 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Globe, Shield, BookOpen, CheckCircle2, ArrowRight, Zap, Star, GraduationCap } from "lucide-react";
-import { useHealthCheck, useListSubscriptionPlans, useGetLegalDomainStats, getListSubscriptionPlansQueryKey, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
+import { Scale, Globe, BookOpen, CheckCircle2, ArrowRight, Star, GraduationCap, LogIn, CreditCard } from "lucide-react";
+import { useHealthCheck, useGetLegalDomainStats, getGetLegalDomainStatsQueryKey, getHealthCheckQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useAuth } from "@clerk/react";
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const PLANS = [
+  {
+    id: "professional",
+    name: "Professionnel",
+    price: 49,
+    features: [
+      "100 consultations juridiques / mois",
+      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+      "Citations d'articles de loi précises",
+      "Jurisprudence et références législatives",
+      "Tous les domaines juridiques",
+      "Préparation concours Avocat / Procureur",
+      "Réponses prioritaires",
+    ],
+    questionsPerMonth: 100,
+    highlighted: false,
+  },
+  {
+    id: "expert",
+    name: "Expert",
+    price: 199,
+    features: [
+      "Consultations illimitées",
+      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+      "Recherche juridique approfondie",
+      "Accès complet à la jurisprudence",
+      "Tous les domaines juridiques",
+      "Préparation concours Avocat / Procureur",
+      "Panel d'experts IA dédié",
+      "Analyse de documents",
+      "Profils de juridiction personnalisés",
+    ],
+    questionsPerMonth: null,
+    highlighted: true,
+  },
+];
 
 export default function LandingPage() {
   const { data: health } = useHealthCheck({ query: { queryKey: getHealthCheckQueryKey() } });
-  const { data: plans } = useListSubscriptionPlans({ query: { queryKey: getListSubscriptionPlansQueryKey() } });
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
   const { t } = useLanguage();
+  const { isSignedIn } = useAuth();
 
   const features = [
     {
@@ -53,18 +93,31 @@ export default function LandingPage() {
             <p className="text-lg lg:text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
               {t.landing.subtitle}
             </p>
+
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Link href="/chat">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl">
-                  {t.landing.startConsultation}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/pricing">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-medium">
-                  {t.landing.viewPlans}
-                </Button>
-              </Link>
+              {isSignedIn ? (
+                <Link href="/chat">
+                  <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl">
+                    {t.landing.startConsultation}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/sign-in">
+                    <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl gap-2">
+                      <LogIn className="w-4 h-4" />
+                      Se connecter
+                    </Button>
+                  </Link>
+                  <Link href="/pricing">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-medium gap-2 border-accent/40 text-accent hover:bg-accent/5">
+                      <CreditCard className="w-4 h-4" />
+                      Payer pour commencer →
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             <div className="pt-8 flex items-center justify-center gap-8 text-sm font-medium text-muted-foreground">
@@ -99,7 +152,7 @@ export default function LandingPage() {
                 </Badge>
               ))}
             </div>
-            <Link href="/chat">
+            <Link href={isSignedIn ? "/chat" : "/sign-in"}>
               <Button variant="outline" className="border-[#C1272D] text-[#C1272D] hover:bg-[#C1272D]/5 whitespace-nowrap">
                 <GraduationCap className="w-4 h-4 mr-2" />
                 {t.landing.maosRevisionMode}
@@ -178,8 +231,8 @@ export default function LandingPage() {
             <p className="text-muted-foreground">{t.landing.pricingSubtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans?.map((plan) => (
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {PLANS.map((plan) => (
               <Card key={plan.id} className={`relative flex flex-col ${plan.highlighted ? 'border-accent shadow-lg scale-105 z-10 bg-primary text-primary-foreground' : 'border-border'}`}>
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-accent-foreground text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
@@ -194,8 +247,8 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent className="flex-1 space-y-6">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-serif font-bold">{plan.price === 0 ? t.pricing.getStarted : `$${plan.price}`}</span>
-                    {plan.price > 0 && <span className={`text-sm ${plan.highlighted ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{t.pricing.perMonth}</span>}
+                    <span className="text-4xl font-serif font-bold">${plan.price}</span>
+                    <span className={`text-sm ${plan.highlighted ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{t.pricing.perMonth}</span>
                   </div>
                   <ul className="space-y-3">
                     {plan.features.map((feature, i) => (
@@ -212,7 +265,7 @@ export default function LandingPage() {
                       className="w-full"
                       variant={plan.highlighted ? "secondary" : "outline"}
                     >
-                      {plan.price === 0 ? t.pricing.getStarted : t.pricing.subscribe}
+                      {t.pricing.subscribe}
                     </Button>
                   </Link>
                 </CardFooter>

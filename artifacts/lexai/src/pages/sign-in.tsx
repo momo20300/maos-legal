@@ -1,11 +1,34 @@
 import { SignIn } from "@clerk/react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
+import { useEffect } from "react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
+function useHideClerkDevBanner() {
+  useEffect(() => {
+    const selectors = [
+      ".cl-developerBanner",
+      "[data-localization-key='badge__devMode']",
+      "#cl-dev-browser-warning",
+    ];
+    const hide = () => {
+      selectors.forEach((sel) => {
+        document.querySelectorAll(sel).forEach((el) => {
+          (el as HTMLElement).style.setProperty("display", "none", "important");
+        });
+      });
+    };
+    hide();
+    const observer = new MutationObserver(hide);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+}
+
 export default function SignInPage() {
   const { t } = useLanguage();
+  useHideClerkDevBanner();
 
   return (
     <div className="min-h-screen bg-[#0d1b2e] flex flex-col items-center justify-center px-4 py-12">
@@ -61,6 +84,7 @@ export default function SignInPage() {
             identityPreviewText: "text-white",
             identityPreviewEditButton: "text-[#c9a227]",
             otpCodeFieldInput: "bg-[#1a2d4a] border-[#1e3a5f] text-white",
+            developerBanner: "!hidden",
           },
         }}
       />

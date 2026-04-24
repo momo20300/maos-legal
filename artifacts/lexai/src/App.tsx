@@ -12,6 +12,7 @@ import ChatPage from "@/pages/chat";
 import ConversationPage from "@/pages/conversation";
 import SignInPage from "@/pages/sign-in";
 import SignUpPage from "@/pages/sign-up";
+import AdminPage from "@/pages/admin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +61,11 @@ function Router() {
             <ConversationPage />
           </ProtectedRoute>
         )}
+      </Route>
+      <Route path="/admin">
+        <ProtectedRoute>
+          <AdminPage />
+        </ProtectedRoute>
       </Route>
       <Route component={NotFound} />
     </Switch>

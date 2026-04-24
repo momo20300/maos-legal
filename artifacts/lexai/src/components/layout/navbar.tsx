@@ -28,7 +28,7 @@ export function Navbar() {
   const { isSignedIn } = useAuth();
 
   const navLinks = [
-    { href: "/chat", label: t.nav.chat, icon: <MessageSquare className="w-4 h-4 mr-2" /> },
+    ...(isSignedIn ? [{ href: "/chat", label: t.nav.chat, icon: <MessageSquare className="w-4 h-4 mr-2" /> }] : []),
     { href: "/pricing", label: t.nav.pricing, icon: <CreditCard className="w-4 h-4 mr-2" /> },
   ];
 
@@ -108,19 +108,12 @@ export function Navbar() {
                 afterSignOutUrl={`${basePath}/`}
               />
             ) : (
-              <>
-                <Link href="/sign-in" data-testid="link-sign-in">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <LogIn className="w-4 h-4" />
-                    {t.nav.signIn || "Connexion"}
-                  </Button>
-                </Link>
-                <Link href="/chat" data-testid="link-nav-cta">
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    {t.nav.newCase}
-                  </Button>
-                </Link>
-              </>
+              <Link href="/sign-in" data-testid="link-sign-in">
+                <Button size="sm" className="gap-2">
+                  <LogIn className="w-4 h-4" />
+                  {t.nav.signIn || "Connexion"}
+                </Button>
+              </Link>
             )}
           </div>
         </div>
@@ -182,15 +175,12 @@ export function Navbar() {
           ))}
           {!isSignedIn && (
             <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="outline" className="w-full gap-2">
+              <Button className="w-full gap-2">
                 <LogIn className="w-4 h-4" />
                 {t.nav.signIn || "Connexion"}
               </Button>
             </Link>
           )}
-          <Link href="/chat" onClick={() => setMobileMenuOpen(false)}>
-            <Button className="w-full mt-2">{t.nav.newCase}</Button>
-          </Link>
         </div>
       )}
     </nav>
