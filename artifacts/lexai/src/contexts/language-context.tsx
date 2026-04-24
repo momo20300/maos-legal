@@ -361,7 +361,7 @@ const translations: Record<Language, Translations> = {
     landing: {
       badge: "L'Avenir de l'Intelligence Juridique",
       headline1: "La clarté juridique",
-      headline2: "sans compromis.",
+      headline2: "sans compromis",
       subtitle: "Expert nouvelle génération en droit Marocain toutes branches.\nDroit Européen, Américain et Pays du Moyen-Orient.\nCitations exactes d'articles de loi et de jurisprudence.\nPréparation aux concours Avocat et métiers juridiques.",
       startConsultation: "Démarrer une Consultation",
       viewPlans: "Voir les Offres",
