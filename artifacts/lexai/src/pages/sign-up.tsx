@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { useLanguage } from "@/contexts/language-context";
 import { useEffect } from "react";
 import { Navbar } from "@/components/layout/navbar";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -72,6 +74,12 @@ export default function SignUpPage() {
           <p className="text-muted-foreground text-[11px] font-medium tracking-[0.2em] uppercase mt-1">
             {t.auth.intelligenceJuridiquePremium}
           </p>
+          <Link href="/" className="mt-3">
+            <Button variant="outline" size="sm" className="gap-2 text-xs">
+              <Home className="w-3.5 h-3.5" />
+              {t.notFound.goHome}
+            </Button>
+          </Link>
         </div>
 
         <SignUp
@@ -98,10 +106,11 @@ export default function SignUpPage() {
               header: "!hidden",
               headerTitle: "!hidden",
               headerSubtitle: "!hidden",
-              socialButtonsBlockButton: "border border-border bg-background hover:bg-muted text-foreground",
-              socialButtonsBlockButtonText: "text-foreground font-medium",
-              dividerLine: "bg-border",
-              dividerText: "text-muted-foreground",
+              socialButtonsRoot: "!hidden",
+              socialButtonsBlockButton: "!hidden",
+              dividerRow: "!hidden",
+              dividerLine: "!hidden",
+              dividerText: "!hidden",
               formFieldLabel: "text-foreground text-sm font-medium",
               formFieldInput: "bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-accent",
               formButtonPrimary: "bg-accent hover:bg-accent/90 text-[#0d1b2e] font-semibold",
