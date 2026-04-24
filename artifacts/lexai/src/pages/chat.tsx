@@ -1,6 +1,10 @@
 import { Layout } from "@/components/layout/layout";
 import { ChatSidebar } from "@/components/chat/sidebar";
-import { useListLegalDomains, getListLegalDomainsQueryKey, useCreateAnthropicConversation } from "@workspace/api-client-react";
+import {
+  useListLegalDomains, getListLegalDomainsQueryKey, useCreateAnthropicConversation,
+  useListAnthropicConversations, getListAnthropicConversationsQueryKey,
+  useDeleteAnthropicConversation,
+} from "@workspace/api-client-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,12 +12,14 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
-import { Scale, Loader2, ChevronRight } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getListAnthropicConversationsQueryKey } from "@workspace/api-client-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
+import { format } from "date-fns";
+import { useState } from "react";
 
 const formSchema = z.object({
   title: z.string().min(3),
@@ -25,7 +31,7 @@ const JURISDICTIONS = [
   { key: "Morocco", flag: "🇲🇦", short: "Maroc", color: "#C1272D" },
   { key: "EU",      flag: "🇪🇺", short: "EU",    color: "#003399" },
   { key: "US",      flag: "🇺🇸", short: "US",    color: "#B22234" },
-  { key: "Arabic",  flag: "🌙",   short: "Moyen Orient", color: "#006233" },
+  { key: "Arabic",  flag: "AR",   short: "Moyen Orient", color: "#006233" },
 ];
 
 export default function ChatPage() {
@@ -33,6 +39,8 @@ export default function ChatPage() {
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
+  const isRTL = language === "ar";
+  const [showForm, setShowForm] = useState(false);
 
   // Pick domain display name by UI language
   const domainLabel = (d: { name: string; nameFr?: string; nameAr?: string }) =>
@@ -41,6 +49,26 @@ export default function ChatPage() {
   const { data: domains } = useListLegalDomains({
     query: { queryKey: getListLegalDomainsQueryKey() }
   });
+
+  const { data: conversations, isLoading: convsLoading } = useListAnthropicConversations({
+    query: { queryKey: getListAnthropicConversationsQueryKey() }
+  });
+
+  const deleteMutation = useDeleteAnthropicConversation({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAnthropicConversationsQueryKey() });
+      }
+    }
+  });
+
+  const handleDelete = (e: React.MouseEvent, id: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm(t.chat.deleteConfirm)) {
+      deleteMutation.mutate({ id });
+    }
+  };
 
   const createMutation = useCreateAnthropicConversation({
     mutation: {
@@ -60,16 +88,104 @@ export default function ChatPage() {
   const filteredDomains = domains?.filter((d) => d.jurisdiction === watchJurisdiction);
   const onSubmit = (values: z.infer<typeof formSchema>) => createMutation.mutate({ data: values });
 
-  /* ── MOBILE: everything visible without scroll ── */
+  /* ── MOBILE: list view or form ── */
   if (isMobile) {
+    const labelNew = isRTL ? "استشارة جديدة" : language === "en" ? "New Consultation" : "Nouvelle Consultation";
+    const labelConsulter = isRTL ? "استشاراتي" : language === "en" ? "My Consultations" : "Consulter";
+    const labelEmpty = isRTL ? "لا توجد استشارات بعد" : language === "en" ? "No consultations yet" : "Aucune consultation pour l'instant";
+    const labelEmptyDesc = isRTL ? "ابدأ استشارة قانونية جديدة" : language === "en" ? "Start a new legal consultation" : "Commencez une nouvelle consultation";
+
+    if (!showForm) {
+      return (
+        <Layout>
+          <div className="flex flex-col bg-background overflow-y-auto" style={{ height: "calc(100dvh - 56px - 64px - env(safe-area-inset-bottom))" }} dir={isRTL ? "rtl" : "ltr"}>
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-card px-4 py-3 flex items-center justify-between border-b border-border">
+              <div className="flex items-center gap-2">
+                <Scale className="w-5 h-5 text-accent" />
+                <h1 className="text-base font-bold text-foreground">{labelConsulter}</h1>
+                {conversations && conversations.length > 0 && (
+                  <span className="text-xs bg-accent text-[#0d1b2e] rounded-full px-2 py-0.5 font-bold">
+                    {conversations.length}
+                  </span>
+                )}
+              </div>
+              <Button size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setShowForm(true)}>
+                <Plus className="w-3.5 h-3.5" />
+                {labelNew}
+              </Button>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 p-4 space-y-3">
+              {convsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />)}
+                </div>
+              ) : conversations?.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
+                    <Scale className="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">{labelEmpty}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{labelEmptyDesc}</p>
+                  </div>
+                  <Button className="gap-2 mt-2" onClick={() => setShowForm(true)}>
+                    <Plus className="w-4 h-4" />
+                    {labelNew}
+                  </Button>
+                </div>
+              ) : (
+                conversations?.map((conv) => (
+                  <Link key={conv.id} href={`/conversations/${conv.id}`}>
+                    <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all active:scale-[0.99]">
+                      <button
+                        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={(e) => handleDelete(e, conv.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="flex items-start gap-2.5 pr-8">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <MessageSquare className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-foreground line-clamp-1">{conv.title}</p>
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <JurisdictionBadge jurisdiction={conv.jurisdiction} className="text-[10px] h-4 py-0 px-1.5" />
+                            <span className="text-[10px] text-muted-foreground">
+                              {format(new Date(conv.createdAt), "d MMM yyyy")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-muted-foreground font-medium">
+                            <Shield className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{conv.legalDomain}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </Layout>
+      );
+    }
+
+    /* ── MOBILE FORM VIEW ── */
     return (
       <Layout>
         <div
           className="flex flex-col bg-background"
           style={{ height: "calc(100dvh - 56px - 64px - env(safe-area-inset-bottom))" }}
         >
-          {/* Mini header */}
-          <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+          {/* Back header */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+            <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
               <Scale className="w-4 h-4 text-primary" />
             </div>
@@ -80,12 +196,13 @@ export default function ChatPage() {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 px-4 gap-3">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 px-4 pt-3 gap-3">
 
               {/* Jurisdiction cards — 2x2 compact */}
               <div className="grid grid-cols-2 gap-2">
                 {JURISDICTIONS.map(({ key, flag, short }) => {
                   const isSelected = watchJurisdiction === key;
+                  const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
                   return (
                     <button
                       key={key}
@@ -97,7 +214,11 @@ export default function ChatPage() {
                           : "border-border bg-card hover:bg-muted"
                       }`}
                     >
-                      <span className="text-lg leading-none">{flag}</span>
+                      {isText ? (
+                        <span className={`text-xs font-bold px-1 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
+                      ) : (
+                        <span className="text-lg leading-none">{flag}</span>
+                      )}
                       <span className={`text-xs font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
                         {short}
                       </span>
@@ -210,6 +331,7 @@ export default function ChatPage() {
               <div className="grid grid-cols-2 gap-2 mb-5">
                 {JURISDICTIONS.map(({ key, flag, short }) => {
                   const isSelected = watchJurisdiction === key;
+                  const isText = flag.length <= 2 && !/\p{Emoji}/u.test(flag);
                   return (
                     <button
                       key={key}
@@ -219,7 +341,11 @@ export default function ChatPage() {
                         isSelected ? "border-[#c9a227] bg-[#c9a227]/10" : "border-border bg-card hover:bg-muted"
                       }`}
                     >
-                      <span className="text-xl">{flag}</span>
+                      {isText ? (
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded bg-muted ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>{flag}</span>
+                      ) : (
+                        <span className="text-xl">{flag}</span>
+                      )}
                       <span className={`text-sm font-semibold ${isSelected ? "text-[#c9a227]" : "text-foreground"}`}>
                         {t.jurisdictions[key as keyof typeof t.jurisdictions] || short}
                       </span>

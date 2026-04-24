@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   GraduationCap, ChevronLeft, Zap, RotateCcw,
-  CheckCircle2, Send, X, BookOpen, Award, Loader2,
+  CheckCircle2, Send, X, BookOpen, Award, Loader2, Plus,
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API = `${BASE_URL}/api`;
@@ -42,6 +43,8 @@ export default function PreparationsPage() {
   const { toast } = useToast();
   const isRTL = language === "ar";
 
+  const isMobile = useIsMobile();
+  const [mobileShowList, setMobileShowList] = useState(true);
   const [phase, setPhase] = useState<Phase>("select");
   const [selectedDomain, setSelectedDomain] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
@@ -157,7 +160,10 @@ export default function PreparationsPage() {
     setStreamBuffer("");
   };
 
-  const exit = () => navigate(`${BASE_URL}/`);
+  const exit = () => {
+    if (isMobile) { setMobileShowList(true); reset(); }
+    else navigate(`${BASE_URL}/`);
+  };
 
   const formatText = (text: string) => {
     const lines = text.split("\n");
@@ -229,6 +235,46 @@ export default function PreparationsPage() {
       <Layout>
         <div className="min-h-screen flex items-center justify-center bg-[#0d1b2e]">
           <div className="w-8 h-8 border-4 border-[#c9a227] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </Layout>
+    );
+  }
+
+  /* ── MOBILE: list landing ── */
+  if (isMobile && mobileShowList) {
+    const labelNew = isRTL ? "تمرين جديد" : "Nouvelle Préparation";
+    const labelTitle = isRTL ? "تحضيراتي" : "Préparer";
+    const labelEmpty = isRTL ? "لا توجد تحضيرات بعد" : "Aucun exercice pour l'instant";
+    const labelEmptyDesc = isRTL ? "ابدأ تمريناً جديداً وصحح مع الذكاء الاصطناعي" : "Commencez un exercice et corrigez-le avec l'IA";
+    return (
+      <Layout>
+        <div className="flex flex-col bg-background overflow-y-auto" style={{ height: "calc(100dvh - 56px - 64px - env(safe-area-inset-bottom))" }} dir={isRTL ? "rtl" : "ltr"}>
+          {/* Header */}
+          <div className="sticky top-0 z-10 bg-card px-4 py-3 flex items-center justify-between border-b border-border">
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-accent" />
+              <h1 className="text-base font-bold text-foreground">{labelTitle}</h1>
+            </div>
+            <Button size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setMobileShowList(false)}>
+              <Plus className="w-3.5 h-3.5" />
+              {labelNew}
+            </Button>
+          </div>
+
+          {/* Empty state */}
+          <div className="flex flex-col items-center justify-center flex-1 py-16 gap-4 text-center px-6">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a227]/20 to-[#c9a227]/5 border border-[#c9a227]/30 flex items-center justify-center">
+              <BookOpen className="w-7 h-7 text-[#c9a227]" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">{labelEmpty}</p>
+              <p className="text-sm text-muted-foreground mt-1">{labelEmptyDesc}</p>
+            </div>
+            <Button className="gap-2 mt-2 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold" onClick={() => setMobileShowList(false)}>
+              <Plus className="w-4 h-4" />
+              {labelNew}
+            </Button>
+          </div>
         </div>
       </Layout>
     );
