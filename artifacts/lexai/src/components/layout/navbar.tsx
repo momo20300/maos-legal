@@ -124,23 +124,31 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile: logout (left) + language + theme (nav links are in bottom bar) */}
-        <div className="md:hidden flex items-center gap-1">
+        {/* Mobile controls — always LTR so QUIT is physically left */}
+        <div className="md:hidden flex items-center gap-0.5" dir="ltr">
+          {/* QUIT — always first = always leftmost */}
           {isSignedIn && (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-xs font-semibold"
+              className="flex items-center gap-1 px-2 py-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
               title="Se déconnecter"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-bold tracking-wide">QUIT</span>
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-widest leading-none">Quit</span>
             </button>
           )}
 
+          {/* Separator */}
+          {isSignedIn && <span className="w-px h-4 bg-white/10 mx-0.5" />}
+
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">
-                <span className="text-base">{currentLang?.flag}</span>
+              <Button variant="ghost" size="icon" className="w-8 h-8 text-white/60 hover:text-white hover:bg-white/10" data-testid="button-language-switcher-mobile">
+                <span className="text-sm leading-none">{currentLang?.flag}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -156,10 +164,6 @@ export function Navbar() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="text-white/70 hover:text-white hover:bg-white/10" data-testid="button-theme-toggle-mobile">
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
         </div>
       </div>
     </nav>
