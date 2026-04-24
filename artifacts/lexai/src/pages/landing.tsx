@@ -84,9 +84,9 @@ export default function LandingPage() {
               {isSignedIn ? (
                 <div className="flex items-center gap-3">
                   <Link href="/chat">
-                    <Button size="lg" className="h-14 px-8 text-base font-medium shadow-xl">
+                    <Button className="h-10 px-6 text-sm font-medium shadow-md gap-2">
                       {t.landing.startConsultation}
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
                   <VoiceCallInlineButton />
