@@ -37,7 +37,7 @@ export default function SignUpPage() {
           <img src={`${basePath}/logo-dark.png`} alt="MAOS Legal" className="h-12 w-auto object-contain" />
           <span className="text-[#c9a227] text-sm font-semibold tracking-widest uppercase font-serif">Legal</span>
         </Link>
-        <p className="text-slate-400 text-xs font-medium tracking-widest uppercase">Intelligence Juridique Premium</p>
+        <p className="text-slate-400 text-xs font-medium tracking-widest uppercase">{t.auth.intelligenceJuridiquePremium}</p>
       </div>
 
       <SignUp
@@ -90,7 +90,7 @@ export default function SignUpPage() {
       />
 
       <p className="mt-8 text-slate-500 text-sm text-center max-w-sm">
-        {t.auth?.signUpDisclaimer || "Créez votre compte MAOS Legal et choisissez votre abonnement pour accéder à l'intelligence juridique premium."}
+        {t.auth.signUpDisclaimer}
       </p>
     </div>
   );

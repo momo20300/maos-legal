@@ -16,6 +16,8 @@ export interface Translations {
     subtitle: string;
     startConsultation: string;
     viewPlans: string;
+    signIn: string;
+    payToStart: string;
     systemsOk: string;
     systemsDegraded: string;
     consultations: string;
@@ -38,6 +40,11 @@ export interface Translations {
     pricingSubtitle: string;
     maosSubtitle: string;
     maosRevisionMode: string;
+  };
+  auth: {
+    intelligenceJuridiquePremium: string;
+    signInDisclaimer: string;
+    signUpDisclaimer: string;
   };
   chat: {
     newConsultation: string;
@@ -127,6 +134,21 @@ export interface Translations {
     cardRequired: string;
     month: string;
   };
+  plans: {
+    professional: {
+      name: string;
+      features: string[];
+    };
+    expert: {
+      name: string;
+      features: string[];
+    };
+  };
+  notFound: {
+    title: string;
+    description: string;
+    goHome: string;
+  };
 }
 
 const translations: Record<Language, Translations> = {
@@ -144,6 +166,8 @@ const translations: Record<Language, Translations> = {
       subtitle: "Access a sophisticated panel of AI legal experts across Europe, the US, Arabic jurisdictions, and Moroccan law. Precise answers, authoritative citations, zero ambiguity.",
       startConsultation: "Start Consultation",
       viewPlans: "View Plans",
+      signIn: "Sign In",
+      payToStart: "Pay to Get Started →",
       systemsOk: "Systems Operational",
       systemsDegraded: "Systems Degraded",
       consultations: "Consultations",
@@ -166,6 +190,11 @@ const translations: Record<Language, Translations> = {
       pricingSubtitle: "Choose the tier that matches your legal intelligence needs.",
       maosSubtitle: "Moroccan Legal Intelligence • Legal Encyclopedia 2026",
       maosRevisionMode: "Study Mode",
+    },
+    auth: {
+      intelligenceJuridiquePremium: "Premium Legal Intelligence",
+      signInDisclaimer: "By accessing MAOS Legal, you agree to our terms of use and privacy policy.",
+      signUpDisclaimer: "Create your MAOS Legal account and choose your subscription to access premium legal intelligence.",
     },
     chat: {
       newConsultation: "New Consultation",
@@ -255,6 +284,39 @@ const translations: Record<Language, Translations> = {
       cardRequired: "Credit card required • No free trial",
       month: "month",
     },
+    plans: {
+      professional: {
+        name: "Professional",
+        features: [
+          "100 legal consultations / month",
+          "EU, US, Arabic & Moroccan law (MAOS Legal)",
+          "Precise law article citations",
+          "Case law & legislative references",
+          "All legal domains",
+          "Bar / Prosecutor exam preparation",
+          "Priority responses",
+        ],
+      },
+      expert: {
+        name: "Expert",
+        features: [
+          "Unlimited consultations",
+          "EU, US, Arabic & Moroccan law (MAOS Legal)",
+          "In-depth legal research",
+          "Full access to case law",
+          "All legal domains",
+          "Bar / Prosecutor exam preparation",
+          "Dedicated AI expert panel",
+          "Document analysis",
+          "Custom jurisdiction profiles",
+        ],
+      },
+    },
+    notFound: {
+      title: "404 — Page Not Found",
+      description: "The page you are looking for does not exist.",
+      goHome: "Return to Home",
+    },
   },
 
   fr: {
@@ -271,6 +333,8 @@ const translations: Record<Language, Translations> = {
       subtitle: "Accédez à un panel sophistiqué d'experts juridiques IA couvrant l'Europe, les États-Unis, les pays arabes et le droit marocain. Réponses précises, citations faisant autorité, zéro ambiguïté.",
       startConsultation: "Démarrer une Consultation",
       viewPlans: "Voir les Offres",
+      signIn: "Se connecter",
+      payToStart: "Payer pour commencer →",
       systemsOk: "Systèmes Opérationnels",
       systemsDegraded: "Systèmes Dégradés",
       consultations: "Consultations",
@@ -293,6 +357,11 @@ const translations: Record<Language, Translations> = {
       pricingSubtitle: "Choisissez l'offre adaptée à vos besoins en intelligence juridique.",
       maosSubtitle: "Intelligence Juridique Marocaine • Encyclopédie du Droit 2026",
       maosRevisionMode: "Mode Révision",
+    },
+    auth: {
+      intelligenceJuridiquePremium: "Intelligence Juridique Premium",
+      signInDisclaimer: "En accédant à MAOS Legal, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
+      signUpDisclaimer: "Créez votre compte MAOS Legal et choisissez votre abonnement pour accéder à l'intelligence juridique premium.",
     },
     chat: {
       newConsultation: "Nouvelle Consultation",
@@ -382,6 +451,39 @@ const translations: Record<Language, Translations> = {
       cardRequired: "Carte bancaire requise • Sans essai gratuit",
       month: "mois",
     },
+    plans: {
+      professional: {
+        name: "Professionnel",
+        features: [
+          "100 consultations juridiques / mois",
+          "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+          "Citations d'articles de loi précises",
+          "Jurisprudence et références législatives",
+          "Tous les domaines juridiques",
+          "Préparation concours Avocat / Procureur",
+          "Réponses prioritaires",
+        ],
+      },
+      expert: {
+        name: "Expert",
+        features: [
+          "Consultations illimitées",
+          "Droit UE, US, Arabe et Marocain (MAOS Legal)",
+          "Recherche juridique approfondie",
+          "Accès complet à la jurisprudence",
+          "Tous les domaines juridiques",
+          "Préparation concours Avocat / Procureur",
+          "Panel d'experts IA dédié",
+          "Analyse de documents",
+          "Profils de juridiction personnalisés",
+        ],
+      },
+    },
+    notFound: {
+      title: "404 — Page introuvable",
+      description: "La page que vous recherchez n'existe pas.",
+      goHome: "Retour à l'accueil",
+    },
   },
 
   ar: {
@@ -398,6 +500,8 @@ const translations: Record<Language, Translations> = {
       subtitle: "احصل على لجنة متطورة من خبراء القانون بالذكاء الاصطناعي في أوروبا والولايات المتحدة والدول العربية والقانون المغربي. إجابات دقيقة، مراجع موثوقة، لا غموض.",
       startConsultation: "بدء الاستشارة",
       viewPlans: "عرض الخطط",
+      signIn: "تسجيل الدخول",
+      payToStart: "ادفع للبدء ←",
       systemsOk: "الأنظمة تعمل",
       systemsDegraded: "الأنظمة متدهورة",
       consultations: "استشارة",
@@ -420,6 +524,11 @@ const translations: Record<Language, Translations> = {
       pricingSubtitle: "اختر المستوى المناسب لاحتياجاتك من الذكاء القانوني.",
       maosSubtitle: "الذكاء القانوني المغربي • موسوعة القانون 2026",
       maosRevisionMode: "وضع المراجعة",
+    },
+    auth: {
+      intelligenceJuridiquePremium: "الذكاء القانوني المتميز",
+      signInDisclaimer: "بالوصول إلى MAOS Legal، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا.",
+      signUpDisclaimer: "أنشئ حسابك في MAOS Legal واختر اشتراكك للوصول إلى الذكاء القانوني المتميز.",
     },
     chat: {
       newConsultation: "استشارة جديدة",
@@ -496,12 +605,12 @@ const translations: Record<Language, Translations> = {
       premiumOnly: "وصول مدفوع فقط",
       sslBadge: "SSL 256 بت",
       jurisdictionsBadge: "4 ولايات قضائية",
-      citationsBadge: "استشهادات قانونية حقيقية",
+      citationsBadge: "مراجع قانونية حقيقية",
       responseBadge: "استجابة فورية",
-      encryptionNote: "جميع الاشتراكات تتضمن تشفيرًا من الدرجة المؤسسية. الأسعار بالدولار الأمريكي.",
+      encryptionNote: "تشمل جميع الاشتراكات تشفيراً على مستوى المؤسسات. الأسعار بالدولار الأمريكي.",
       activePlan: "الاشتراك النشط",
       renewsOn: "يتجدد في",
-      goToChat: "الذهاب إلى المحادثة",
+      goToChat: "الذهاب للاستشارة",
       currentPlanLabel: "اشتراكك الحالي",
       subscribeNow: "اشترك الآن",
       getStartedNow: "ابدأ الآن",
@@ -509,38 +618,68 @@ const translations: Record<Language, Translations> = {
       cardRequired: "بطاقة بنكية مطلوبة • بدون تجربة مجانية",
       month: "شهر",
     },
+    plans: {
+      professional: {
+        name: "المهني",
+        features: [
+          "100 استشارة قانونية / شهر",
+          "القانون الأوروبي والأمريكي والعربي والمغربي (MAOS Legal)",
+          "استشهادات دقيقة بمواد القانون",
+          "السوابق القضائية والمراجع التشريعية",
+          "جميع المجالات القانونية",
+          "التحضير لمباراة المحاماة / النيابة",
+          "ردود ذات أولوية",
+        ],
+      },
+      expert: {
+        name: "الخبير",
+        features: [
+          "استشارات غير محدودة",
+          "القانون الأوروبي والأمريكي والعربي والمغربي (MAOS Legal)",
+          "بحث قانوني متعمق",
+          "الوصول الكامل للسوابق القضائية",
+          "جميع المجالات القانونية",
+          "التحضير لمباراة المحاماة / النيابة",
+          "لجنة خبراء ذكاء اصطناعي مخصصة",
+          "تحليل المستندات",
+          "ملفات ولاية قضائية مخصصة",
+        ],
+      },
+    },
+    notFound: {
+      title: "404 — الصفحة غير موجودة",
+      description: "الصفحة التي تبحث عنها غير موجودة.",
+      goHome: "العودة إلى الرئيسية",
+    },
   },
 };
 
-interface LanguageContextType {
+type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: Translations;
-  isRTL: boolean;
-}
+};
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem("lexai-language");
+    const saved = localStorage.getItem("maos-language");
     return (saved as Language) || "fr";
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("lexai-language", lang);
+    localStorage.setItem("maos-language", lang);
   };
-
-  const isRTL = language === "ar";
 
   useEffect(() => {
     document.documentElement.lang = language;
-    document.documentElement.dir = isRTL ? "rtl" : "ltr";
-  }, [language, isRTL]);
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: translations[language], isRTL }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translations[language] }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -548,6 +687,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useLanguage() {
   const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
+  if (!ctx) throw new Error("useLanguage must be used inside LanguageProvider");
   return ctx;
 }

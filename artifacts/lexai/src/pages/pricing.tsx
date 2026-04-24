@@ -1,17 +1,20 @@
 import { Layout } from "@/components/layout/layout";
-import { useListSubscriptionPlans, useGetSubscriptionStatus, getListSubscriptionPlansQueryKey, getGetSubscriptionStatusQueryKey } from "@workspace/api-client-react";
+import { useGetSubscriptionStatus, getGetSubscriptionStatusQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ShieldCheck, CreditCard, Zap, Lock } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@clerk/react";
 import { Link } from "wouter";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
+const PLAN_META = [
+  { id: "professional", price: 49, questionsPerMonth: 100, highlighted: false },
+  { id: "expert", price: 199, questionsPerMonth: null, highlighted: true },
+];
+
 export default function PricingPage() {
-  const { data: plans, isLoading: isLoadingPlans } = useListSubscriptionPlans({ query: { queryKey: getListSubscriptionPlansQueryKey() } });
   const { data: status, isLoading: isLoadingStatus } = useGetSubscriptionStatus({ query: { queryKey: getGetSubscriptionStatusQueryKey() } });
   const { t } = useLanguage();
   const { isSignedIn } = useAuth();
@@ -19,6 +22,12 @@ export default function PricingPage() {
   const handleSubscribe = (planId: string) => {
     window.location.href = `${basePath}/api/subscriptions/checkout?planId=${planId}`;
   };
+
+  const plans = PLAN_META.map((meta) => ({
+    ...meta,
+    name: meta.id === "professional" ? t.plans.professional.name : t.plans.expert.name,
+    features: meta.id === "professional" ? t.plans.professional.features : t.plans.expert.features,
+  }));
 
   const trustBadges = [
     { icon: "🔒", label: t.pricing.sslBadge },
@@ -75,11 +84,7 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {isLoadingPlans ? (
-            Array(2).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-[560px] rounded-2xl" />
-            ))
-          ) : plans?.map((plan) => (
+          {plans.map((plan) => (
             <Card
               key={plan.id}
               className={`relative flex flex-col transition-all duration-300 hover:shadow-xl ${
@@ -121,7 +126,7 @@ export default function PricingPage() {
                 <ul className="space-y-3">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm leading-snug">
-                      <CheckCircle2 className={`w-4.5 h-4.5 shrink-0 mt-0.5 ${plan.highlighted ? "text-accent" : "text-primary"}`} />
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${plan.highlighted ? "text-accent" : "text-primary"}`} />
                       <span className={plan.highlighted ? "text-primary-foreground/90" : "text-muted-foreground"}>
                         {feature}
                       </span>
@@ -138,12 +143,12 @@ export default function PricingPage() {
                         ? "bg-accent text-[#0d1b2e] hover:bg-accent/90"
                         : "bg-primary text-primary-foreground hover:bg-primary/90"
                     }`}
-                    disabled={status?.plan === plan.name && status.isActive}
+                    disabled={status?.plan === plan.name && status?.isActive}
                     onClick={() => handleSubscribe(plan.id)}
                     data-testid={`button-subscribe-${plan.id}`}
                   >
                     <CreditCard className="w-4 h-4" />
-                    {status?.plan === plan.name && status.isActive
+                    {status?.plan === plan.name && status?.isActive
                       ? t.pricing.currentPlanLabel
                       : t.pricing.subscribeNow}
                   </Button>

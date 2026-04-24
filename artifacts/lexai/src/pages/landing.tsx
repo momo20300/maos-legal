@@ -10,41 +10,9 @@ import { useAuth } from "@clerk/react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const PLANS = [
-  {
-    id: "professional",
-    name: "Professionnel",
-    price: 49,
-    features: [
-      "100 consultations juridiques / mois",
-      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
-      "Citations d'articles de loi précises",
-      "Jurisprudence et références législatives",
-      "Tous les domaines juridiques",
-      "Préparation concours Avocat / Procureur",
-      "Réponses prioritaires",
-    ],
-    questionsPerMonth: 100,
-    highlighted: false,
-  },
-  {
-    id: "expert",
-    name: "Expert",
-    price: 199,
-    features: [
-      "Consultations illimitées",
-      "Droit UE, US, Arabe et Marocain (MAOS Legal)",
-      "Recherche juridique approfondie",
-      "Accès complet à la jurisprudence",
-      "Tous les domaines juridiques",
-      "Préparation concours Avocat / Procureur",
-      "Panel d'experts IA dédié",
-      "Analyse de documents",
-      "Profils de juridiction personnalisés",
-    ],
-    questionsPerMonth: null,
-    highlighted: true,
-  },
+const PLAN_META = [
+  { id: "professional", price: 49, questionsPerMonth: 100, highlighted: false },
+  { id: "expert", price: 199, questionsPerMonth: null, highlighted: true },
 ];
 
 export default function LandingPage() {
@@ -52,6 +20,12 @@ export default function LandingPage() {
   const { data: stats } = useGetLegalDomainStats({ query: { queryKey: getGetLegalDomainStatsQueryKey() } });
   const { t } = useLanguage();
   const { isSignedIn } = useAuth();
+
+  const plans = PLAN_META.map((meta) => ({
+    ...meta,
+    name: meta.id === "professional" ? t.plans.professional.name : t.plans.expert.name,
+    features: meta.id === "professional" ? t.plans.professional.features : t.plans.expert.features,
+  }));
 
   const features = [
     {
@@ -107,13 +81,13 @@ export default function LandingPage() {
                   <Link href="/sign-in">
                     <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-medium shadow-xl gap-2">
                       <LogIn className="w-4 h-4" />
-                      Se connecter
+                      {t.landing.signIn}
                     </Button>
                   </Link>
                   <Link href="/pricing">
                     <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base font-medium gap-2 border-accent/40 text-accent hover:bg-accent/5">
                       <CreditCard className="w-4 h-4" />
-                      Payer pour commencer →
+                      {t.landing.payToStart}
                     </Button>
                   </Link>
                 </>
@@ -232,7 +206,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {PLANS.map((plan) => (
+            {plans.map((plan) => (
               <Card key={plan.id} className={`relative flex flex-col ${plan.highlighted ? 'border-accent shadow-lg scale-105 z-10 bg-primary text-primary-foreground' : 'border-border'}`}>
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-accent-foreground text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1">
