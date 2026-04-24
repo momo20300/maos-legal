@@ -12,8 +12,8 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-[#0d1b2e] flex flex-col items-center justify-center px-4 py-12">
       <div className="mb-8 flex flex-col items-center gap-3">
         <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src={`${basePath}/logo.svg`} alt="LexAI" className="w-10 h-10" />
-          <span className="font-serif font-bold text-3xl tracking-tight text-white">LexAI</span>
+          <img src={`${basePath}/logo.svg`} alt="MAOS Legal" className="w-10 h-10" />
+          <span className="font-serif font-bold text-3xl tracking-tight text-white">MAOS Legal</span>
         </Link>
         <p className="text-[#c9a227] text-sm font-medium tracking-widest uppercase">Intelligence Juridique Premium</p>
       </div>
@@ -57,7 +57,7 @@ export default function SignUpPage() {
       />
 
       <p className="mt-8 text-slate-500 text-sm text-center max-w-sm">
-        {t.auth?.signUpDisclaimer || "Créez votre compte LexAI et choisissez votre abonnement pour accéder à l'intelligence juridique premium."}
+        {t.auth?.signUpDisclaimer || "Créez votre compte MAOS Legal et choisissez votre abonnement pour accéder à l'intelligence juridique premium."}
       </p>
     </div>
   );

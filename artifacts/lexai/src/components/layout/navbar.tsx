@@ -41,7 +41,7 @@ export function Navbar() {
           <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground">
             <Scale className="w-5 h-5" />
           </div>
-          <span className="font-serif font-bold text-xl tracking-tight text-primary dark:text-primary-foreground">LexAI</span>
+          <span className="font-serif font-bold text-xl tracking-tight text-primary dark:text-primary-foreground">MAOS Legal</span>
         </Link>
 
         {/* Desktop Nav */}

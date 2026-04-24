@@ -217,7 +217,7 @@ const translations: Record<Language, Translations> = {
       analyzeButton: "Analyze",
       submitButton: "Submit",
       legalDisclaimer: "Responses are AI-generated and do not constitute formal legal advice. Always verify citations and consult a qualified attorney.",
-      lexaiPartnerLabel: "LexAI Partner",
+      lexaiPartnerLabel: "MAOS Legal",
     },
     jurisdictions: {
       EU: "European Union (EU)",
@@ -344,7 +344,7 @@ const translations: Record<Language, Translations> = {
       analyzeButton: "Analyser",
       submitButton: "Soumettre",
       legalDisclaimer: "Les réponses sont générées par IA et ne constituent pas un conseil juridique formel. Vérifiez toujours les citations et consultez un avocat qualifié.",
-      lexaiPartnerLabel: "LexAI Partner",
+      lexaiPartnerLabel: "MAOS Legal",
     },
     jurisdictions: {
       EU: "Union Européenne (UE)",
@@ -471,7 +471,7 @@ const translations: Record<Language, Translations> = {
       analyzeButton: "تحليل",
       submitButton: "إرسال",
       legalDisclaimer: "الردود مُولَّدة بالذكاء الاصطناعي ولا تُشكّل استشارة قانونية رسمية. تحقق دائماً من الاستشهادات واستشر محامياً مؤهلاً.",
-      lexaiPartnerLabel: "شريك LexAI",
+      lexaiPartnerLabel: "MAOS Legal",
     },
     jurisdictions: {
       EU: "الاتحاد الأوروبي",

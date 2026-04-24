@@ -1,8 +1,8 @@
-# LexAI — Legal Intelligence Platform
+# MAOS Legal — Intelligence Juridique
 
 ## Overview
 
-LexAI is a premium AI-powered legal intelligence platform that provides expert legal guidance across EU, US, Arabic, and Moroccan (MAOS Legal) jurisdictions. Users can ask questions about law, receive detailed answers with real law article numbers and jurisprudence citations, draft printable legal documents (mise en demeure, letters, contracts, etc.), and manage consultations through a subscription model.
+MAOS Legal is a premium AI-powered legal intelligence platform that provides expert legal guidance across EU, US, Arabic, and Moroccan jurisdictions. Users can ask questions about law, receive detailed answers with real law article numbers and jurisprudence citations, draft printable legal documents (mise en demeure, letters, contracts, etc.), and manage consultations through a subscription model.
 
 ## Stack
 
@@ -81,7 +81,7 @@ When the AI drafts a formal document (mise en demeure, letter, contract, etc.), 
 
 ## Legal Disclaimer
 
-LexAI provides AI-assisted legal information, not legal advice. Users should consult licensed attorneys for their specific situations. This is included in every AI response.
+MAOS Legal provides AI-assisted legal information, not legal advice. Users should consult licensed attorneys for their specific situations. This is included in every AI response.
 
 ## Important Notes
 
