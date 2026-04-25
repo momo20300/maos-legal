@@ -534,16 +534,19 @@ export default function ConversationPage() {
                       </span>
                     </div>
 
-                    <Button
-                      size="sm"
-                      onClick={handleSend}
-                      disabled={(!input.trim() && !attachedFile) || isStreaming}
-                      className="h-8 gap-2 shadow-sm"
-                      data-testid="button-send"
-                    >
-                      {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                      {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
+                      <Button
+                        size="sm"
+                        onClick={handleSend}
+                        disabled={(!input.trim() && !attachedFile) || isStreaming}
+                        className="h-8 gap-2 shadow-sm"
+                        data-testid="button-send"
+                      >
+                        {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

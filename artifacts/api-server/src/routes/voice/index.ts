@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import Retell from "retell-sdk";
-import { db, callLogs, conversations, messages } from "@workspace/db";
+import { db, callLogs, conversations, messages, dossiers } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../../middlewares/requireAuth";
 import crypto from "crypto";
@@ -42,10 +42,11 @@ router.post("/voice/create-call", requireAuth, async (req, res): Promise<void> =
   const agentId = AGENT_IDS[lang];
 
   try {
-    // Build dynamic variables — pass conversation history if continuing an existing discussion
+    // Build dynamic variables — conversation history OR full user context
     const dynamicVars: Record<string, string> = {};
 
     if (conversationId) {
+      // Continuing a specific conversation: load its messages
       try {
         const existingMsgs = await db
           .select()
@@ -65,6 +66,66 @@ router.post("/voice/create-call", requireAuth, async (req, res): Promise<void> =
             .join("\n\n");
 
           dynamicVars["conversation_history"] = historyText.slice(0, 4000);
+          dynamicVars["has_history"] = "true";
+        }
+      } catch { /* non-blocking */ }
+    } else {
+      // No specific conversation — load full user context so the agent knows the client's history
+      try {
+        const [recentConvs, userDossiers] = await Promise.all([
+          db.select({
+            id: conversations.id,
+            title: conversations.title,
+            legalDomain: conversations.legalDomain,
+            jurisdiction: conversations.jurisdiction,
+            source: conversations.source,
+            createdAt: conversations.createdAt,
+          })
+            .from(conversations)
+            .where(eq(conversations.userId, userId))
+            .orderBy(desc(conversations.createdAt))
+            .limit(8),
+          db.select()
+            .from(dossiers)
+            .where(eq(dossiers.userId, userId))
+            .orderBy(desc(dossiers.createdAt))
+            .limit(6),
+        ]);
+
+        const isAr = lang === "ar";
+
+        let contextLines: string[] = [];
+
+        if (recentConvs.length > 0) {
+          contextLines.push(isAr ? "## المشاورات الأخيرة" : "## Consultations récentes");
+          recentConvs.forEach((c, i) => {
+            const srcLabel = c.source === "voice"
+              ? (isAr ? "صوتية" : "vocale")
+              : (isAr ? "كتابية" : "textuelle");
+            const dateStr = new Date(c.createdAt).toLocaleDateString(isAr ? "ar" : "fr-MA", {
+              day: "numeric", month: "short", year: "numeric"
+            });
+            contextLines.push(
+              `${i + 1}. [#${c.id}] ${c.title} — ${c.legalDomain} (${c.jurisdiction}) — ${srcLabel} — ${dateStr}`
+            );
+          });
+        }
+
+        if (userDossiers.length > 0) {
+          contextLines.push(isAr ? "\n## ملفاتي النشطة" : "\n## Mes dossiers actifs");
+          userDossiers.forEach((d, i) => {
+            contextLines.push(`${i + 1}. ${d.name}${d.description ? ` — ${d.description.slice(0, 150)}` : ""}`);
+          });
+        }
+
+        if (contextLines.length > 0) {
+          const header = isAr
+            ? "## سياق العميل — MAOS Legal\nالمعلومات التالية تصف ملف العميل الكامل. استخدمها للإجابة بدقة على أسئلته.\n\n"
+            : "## Contexte client — MAOS Legal\nLes informations suivantes décrivent le dossier complet du client. Utilise-les pour répondre avec précision à ses questions.\n\n";
+
+          const fullContext = (header + contextLines.join("\n")).slice(0, 4000);
+          dynamicVars["conversation_history"] = fullContext;
+          dynamicVars["user_context"] = fullContext;
           dynamicVars["has_history"] = "true";
         }
       } catch { /* non-blocking */ }
