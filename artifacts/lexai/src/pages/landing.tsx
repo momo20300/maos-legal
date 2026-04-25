@@ -55,7 +55,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <Layout>
+    <Layout scrollable>
       {/* Hero Section */}
       <section className="relative pt-12 pb-24 lg:pt-16 lg:pb-32 overflow-hidden border-b border-border bg-gradient-to-b from-background to-secondary/20">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
