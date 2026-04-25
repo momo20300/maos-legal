@@ -37,6 +37,9 @@ export default function ConversationPage() {
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
   const hasScrolledInitialRef = useRef(false);
+  const autoSendMsgRef = useRef<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSendRef = useRef<(override?: string) => Promise<void>>(null as any);
 
   const { data: conversation, isLoading: isLoadingConv } = useGetAnthropicConversation(id, {
     query: { enabled: !!id, queryKey: getGetAnthropicConversationQueryKey(id) }
@@ -114,6 +117,10 @@ export default function ConversationPage() {
     } else {
       setPreviewUrl(null);
     }
+    // PDF → auto-send: the AI will read it and ask the user what they want to know
+    if (file.type === "application/pdf") {
+      autoSendMsgRef.current = t.chat.pdfAutoPrompt;
+    }
   }, [toast, t]);
 
   const clearFile = useCallback((revokeUrl = true) => {
@@ -124,11 +131,11 @@ export default function ConversationPage() {
     if (cameraInputRef.current) cameraInputRef.current.value = "";
   }, [previewUrl]);
 
-  const handleSend = async () => {
-    if ((!input.trim() && !attachedFile) || isStreaming || !id) return;
+  const handleSend = async (overrideInput?: string) => {
+    const userContent = overrideInput !== undefined ? overrideInput : input;
+    if ((!userContent.trim() && !attachedFile) || isStreaming || !id) return;
 
-    const userContent = input;
-    setInput("");
+    if (overrideInput === undefined) setInput("");
     setIsStreaming(true);
     isStreamingRef.current = true;
     setStreamedContent("");
@@ -241,6 +248,22 @@ export default function ConversationPage() {
   };
 
   const isPdf = attachedFile?.type === "application/pdf";
+
+  // Keep ref always pointing to the latest handleSend (avoids stale closure in useEffect)
+  handleSendRef.current = handleSend;
+
+  // Auto-send when a PDF is attached: AI reads it and asks the user what they want to know
+  useEffect(() => {
+    if (attachedFile?.type === "application/pdf" && autoSendMsgRef.current !== null) {
+      const msg = autoSendMsgRef.current;
+      autoSendMsgRef.current = null;
+      // Small delay to ensure state is fully settled
+      const timer = setTimeout(() => {
+        handleSendRef.current(msg);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [attachedFile]);
 
   return (
     <Layout>
