@@ -110,6 +110,7 @@ export interface Translations {
     attachCameraLabel: string;
     fileHint: string;
     analyzeButton: string;
+    pdfAutoPrompt: string;
     submitButton: string;
     legalDisclaimer: string;
     lexaiPartnerLabel: string;
@@ -283,6 +284,7 @@ const translations: Record<Language, Translations> = {
       attachCameraLabel: "Take a photo",
       fileHint: "JPG · PNG · PDF · 15 MB max",
       analyzeButton: "Analyze",
+      pdfAutoPrompt: "Read this document carefully, summarize its contents, then ask me what I want to know, analyze or verify.",
       submitButton: "Submit",
       legalDisclaimer: "Responses are AI-generated and do not constitute formal legal advice. Always verify citations and consult a qualified attorney.",
       lexaiPartnerLabel: "MAOS Legal",
@@ -473,6 +475,7 @@ const translations: Record<Language, Translations> = {
       attachCameraLabel: "Prendre une photo",
       fileHint: "JPG · PNG · PDF · 15 Mo max",
       analyzeButton: "Analyser",
+      pdfAutoPrompt: "Lis attentivement ce document, résume son contenu puis demande-moi ce que je souhaite savoir, analyser ou vérifier.",
       submitButton: "Soumettre",
       legalDisclaimer: "Les réponses sont générées par IA et ne constituent pas un conseil juridique formel. Vérifiez toujours les citations et consultez un avocat qualifié.",
       lexaiPartnerLabel: "MAOS Legal",
@@ -663,6 +666,7 @@ const translations: Record<Language, Translations> = {
       attachCameraLabel: "التقاط صورة",
       fileHint: "JPG · PNG · PDF · 15 ميغابايت كحد أقصى",
       analyzeButton: "تحليل",
+      pdfAutoPrompt: "اقرأ هذا المستند بعناية، لخّص محتواه ثم اسألني ماذا أريد أن أعرف أو أحلل أو أتحقق منه.",
       submitButton: "إرسال",
       legalDisclaimer: "الردود مُولَّدة بالذكاء الاصطناعي ولا تُشكّل استشارة قانونية رسمية. تحقق دائماً من الاستشهادات واستشر محامياً مؤهلاً.",
       lexaiPartnerLabel: "MAOS Legal",
@@ -848,6 +852,7 @@ const translations: Record<Language, Translations> = {
       attachCameraLabel: "Tomar una foto",
       fileHint: "JPG · PNG · PDF · 15 MB máx",
       analyzeButton: "Analizar",
+      pdfAutoPrompt: "Lee este documento con atención, resume su contenido y luego pregúntame qué quiero saber, analizar o verificar.",
       submitButton: "Enviar",
       legalDisclaimer: "Las respuestas son generadas por IA y no constituyen asesoramiento jurídico formal. Verifica siempre las citas y consulta a un abogado cualificado.",
       lexaiPartnerLabel: "MAOS Legal",
@@ -983,6 +988,7 @@ const translations: Record<Language, Translations> = {
       attachCameraLabel: "Foto aufnehmen",
       fileHint: "JPG · PNG · PDF · max. 15 MB",
       analyzeButton: "Analysieren",
+      pdfAutoPrompt: "Lies dieses Dokument sorgfältig, fasse seinen Inhalt zusammen und frage mich dann, was ich wissen, analysieren oder prüfen möchte.",
       submitButton: "Absenden",
       legalDisclaimer: "Antworten werden von KI generiert und stellen keine formale Rechtsberatung dar. Überprüfen Sie stets Zitate und konsultieren Sie einen qualifizierten Anwalt.",
       lexaiPartnerLabel: "MAOS Legal",
