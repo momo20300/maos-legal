@@ -466,8 +466,7 @@ export default function ConversationPage() {
           </div>
 
           {/* Input Area */}
-          {!isVoiceConversation && (
-            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
+          <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
               <div className="max-w-4xl mx-auto space-y-2">
 
                 {/* File Preview */}
@@ -547,19 +546,6 @@ export default function ConversationPage() {
 
               </div>
             </div>
-          )}
-
-          {/* Voice conversation: prompt to continue by voice */}
-          {isVoiceConversation && (
-            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
-              <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-muted/50 border border-border text-sm text-muted-foreground">
-                  <span>Continuez la conversation par appel vocal</span>
-                  <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-                </div>
-              </div>
-            </div>
-          )}
         </main>
       </div>
     </Layout>

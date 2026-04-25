@@ -41,7 +41,7 @@ const LANG_LABELS: Record<CallLanguage, { started: string; ended: string; greeti
   pl: { started: "Połączenie w toku", ended: "Połączenie zakończone", greeting: "MAOS Legal do Twoich usług", viewLabel: "Zobacz", archivedTitle: "Rozmowa zarchiwizowana", archivedDesc: "Transkrypcja została zapisana", callbackLabel: "Oddzwoń" },
 };
 
-const HIDDEN_PATHS = ["/", "/profile"];
+const HIDDEN_PATHS = ["/profile"];
 
 function useVoiceCall(navigate: (path: string) => void, onCallArchived?: () => void) {
   const [callState, setCallState] = useState<CallState>("idle");
