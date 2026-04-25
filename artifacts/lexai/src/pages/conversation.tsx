@@ -359,7 +359,7 @@ export default function ConversationPage() {
           </header>
 
           {/* Chat Area (printable) */}
-          <div id="print-area" ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
+          <div id="print-area" ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth outline-none" tabIndex={-1}>
             <div className="max-w-4xl mx-auto flex flex-col">
 
               {messages?.length === 0 && !isStreaming && (

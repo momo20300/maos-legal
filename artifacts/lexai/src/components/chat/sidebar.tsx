@@ -38,7 +38,7 @@ export function ChatSidebar() {
   };
 
   return (
-    <div className="w-64 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col h-[calc(100dvh-4rem)] shrink-0">
+    <div className="w-64 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col overflow-hidden shrink-0">
       {/* New consultation button */}
       <div className="p-3 border-b border-sidebar-border">
         <Link href="/chat">

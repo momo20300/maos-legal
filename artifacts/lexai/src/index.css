@@ -11,6 +11,18 @@
   color: #0d1b2e;
 }
 
+/* Suppress browser's automatic scroll-focus blue outline on overflow containers */
+.overflow-y-auto:focus,
+.overflow-y-auto:focus-visible,
+.overflow-auto:focus,
+.overflow-auto:focus-visible,
+.overflow-hidden:focus,
+.overflow-hidden:focus-visible,
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none !important;
+}
+
 .cl-developerBanner,
 [data-clerk-development-mode],
 #cl-dev-browser-warning,
