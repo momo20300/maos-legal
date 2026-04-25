@@ -321,9 +321,7 @@ export default function ConversationPage() {
               </div>
             ) : null}
             <div className="flex items-center gap-1.5 shrink-0">
-              {isVoiceConversation && (
-                <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-              )}
+              <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
               <button onClick={handlePrint} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Imprimer / PDF">
                 <Printer className="w-4 h-4" />
               </button>
@@ -363,9 +361,7 @@ export default function ConversationPage() {
 
             {/* Right side header actions */}
             <div className="flex items-center gap-2">
-              {isVoiceConversation && (
-                <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-              )}
+              <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
               <button
                 onClick={handlePrint}
                 className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium"
@@ -557,19 +553,16 @@ export default function ConversationPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-                      <Button
-                        size="sm"
-                        onClick={handleSend}
-                        disabled={(!input.trim() && !attachedFile) || isStreaming}
-                        className="h-8 gap-2 shadow-sm"
-                        data-testid="button-send"
-                      >
-                        {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                        {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleSend}
+                      disabled={(!input.trim() && !attachedFile) || isStreaming}
+                      className="h-8 gap-2 shadow-sm"
+                      data-testid="button-send"
+                    >
+                      {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
+                    </Button>
                   </div>
                 </div>
 
