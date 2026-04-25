@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Phone, PhoneOff, Mic, MicOff, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { RetellWebClient } from "retell-client-js-sdk";
 import { useAuthContext } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -29,20 +30,20 @@ const LANG_OPTIONS: LangOption[] = [
   { code: "pl", flag: "🇵🇱", label: "Agent Polski",         sublabel: "Prawo PL / EU / Międzynarodowe" },
 ];
 
-const LANG_LABELS: Record<CallLanguage, { started: string; ended: string; greeting: string }> = {
-  fr: { started: "Appel en cours", ended: "Appel terminé", greeting: "MAOS Legal à votre écoute" },
-  ar: { started: "تم الاتصال", ended: "انتهى الاتصال", greeting: "مرحباً بك في MAOS Legal" },
-  en: { started: "Call in progress", ended: "Call ended", greeting: "MAOS Legal at your service" },
-  es: { started: "Llamada en curso", ended: "Llamada terminada", greeting: "MAOS Legal a su servicio" },
-  de: { started: "Gespräch läuft", ended: "Gespräch beendet", greeting: "MAOS Legal ist für Sie da" },
-  it: { started: "Chiamata in corso", ended: "Chiamata terminata", greeting: "MAOS Legal al vostro servizio" },
-  no: { started: "Samtale pågår", ended: "Samtale avsluttet", greeting: "MAOS Legal til din tjeneste" },
-  pl: { started: "Połączenie w toku", ended: "Połączenie zakończone", greeting: "MAOS Legal do Twoich usług" },
+const LANG_LABELS: Record<CallLanguage, { started: string; ended: string; greeting: string; viewLabel: string; archivedTitle: string; archivedDesc: string }> = {
+  fr: { started: "Appel en cours", ended: "Appel terminé", greeting: "MAOS Legal à votre écoute", viewLabel: "Voir", archivedTitle: "Appel archivé", archivedDesc: "La transcription est sauvegardée" },
+  ar: { started: "تم الاتصال", ended: "انتهى الاتصال", greeting: "مرحباً بك في MAOS Legal", viewLabel: "عرض", archivedTitle: "تم أرشفة المكالمة", archivedDesc: "التسجيل محفوظ في استشاراتك" },
+  en: { started: "Call in progress", ended: "Call ended", greeting: "MAOS Legal at your service", viewLabel: "View", archivedTitle: "Call archived", archivedDesc: "Transcript saved to your consultations" },
+  es: { started: "Llamada en curso", ended: "Llamada terminada", greeting: "MAOS Legal a su servicio", viewLabel: "Ver", archivedTitle: "Llamada archivada", archivedDesc: "La transcripción está guardada" },
+  de: { started: "Gespräch läuft", ended: "Gespräch beendet", greeting: "MAOS Legal ist für Sie da", viewLabel: "Anzeigen", archivedTitle: "Anruf archiviert", archivedDesc: "Transkript wurde gespeichert" },
+  it: { started: "Chiamata in corso", ended: "Chiamata terminata", greeting: "MAOS Legal al vostro servizio", viewLabel: "Vedi", archivedTitle: "Chiamata archiviata", archivedDesc: "La trascrizione è stata salvata" },
+  no: { started: "Samtale pågår", ended: "Samtale avsluttet", greeting: "MAOS Legal til din tjeneste", viewLabel: "Vis", archivedTitle: "Samtale arkivert", archivedDesc: "Transkripsjonen er lagret" },
+  pl: { started: "Połączenie w toku", ended: "Połączenie zakończone", greeting: "MAOS Legal do Twoich usług", viewLabel: "Zobacz", archivedTitle: "Rozmowa zarchiwizowana", archivedDesc: "Transkrypcja została zapisana" },
 };
 
 const HIDDEN_PATHS = ["/", "/profile", "/dossiers", "/preparations"];
 
-function useVoiceCall() {
+function useVoiceCall(navigate: (path: string) => void) {
   const [callState, setCallState] = useState<CallState>("idle");
   const [activeLang, setActiveLang] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
@@ -60,7 +61,8 @@ function useVoiceCall() {
       });
     } catch { /* billing errors are non-blocking */ }
 
-    // Fire archive in background — transcript takes a few seconds to process
+    const labels = LANG_LABELS[lang];
+
     fetch(`${BASE_URL}/api/voice/archive-call`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -68,13 +70,22 @@ function useVoiceCall() {
       body: JSON.stringify({ callId, language: lang }),
     }).then(r => r.json()).then(data => {
       if (data.conversationId) {
+        const convId = data.conversationId;
         toast({
-          title: lang === "ar" ? "تم أرشفة المكالمة" : "Appel archivé",
-          description: lang === "ar" ? "التسجيل محفوظ في استشاراتك" : "La transcription est sauvegardée dans vos consultations",
+          title: labels.archivedTitle,
+          description: labels.archivedDesc,
+          action: (
+            <ToastAction
+              altText={labels.viewLabel}
+              onClick={() => navigate(`/conversations/${convId}`)}
+            >
+              {labels.viewLabel} →
+            </ToastAction>
+          ),
         });
       }
     }).catch(() => {});
-  }, [toast]);
+  }, [toast, navigate]);
 
   const startCall = useCallback(async (lang: CallLanguage) => {
     setActiveLang(lang);
@@ -176,7 +187,8 @@ function VoiceAgentSheet({ onSelect, onClose }: { onSelect: (lang: CallLanguage)
 
 export function VoiceCallInlineButton() {
   const { isSignedIn } = useAuthContext();
-  const { callState, isMuted, startCall, endCall, toggleMute } = useVoiceCall();
+  const [, navigate] = useLocation();
+  const { callState, isMuted, startCall, endCall, toggleMute } = useVoiceCall(navigate);
   const [showSheet, setShowSheet] = useState(false);
 
   if (!isSignedIn) return null;
@@ -225,8 +237,8 @@ export function VoiceCallInlineButton() {
 export function VoiceCallFAB() {
   const { isSignedIn } = useAuthContext();
   const { language: uiLanguage } = useLanguage();
-  const [location] = useLocation();
-  const { callState, activeLang, isMuted, startCall, endCall, toggleMute } = useVoiceCall();
+  const [location, navigate] = useLocation();
+  const { callState, activeLang, isMuted, startCall, endCall, toggleMute } = useVoiceCall(navigate);
   const [showSheet, setShowSheet] = useState(false);
 
   void uiLanguage;

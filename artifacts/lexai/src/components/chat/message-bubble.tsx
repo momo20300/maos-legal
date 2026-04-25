@@ -101,10 +101,10 @@ function processChildren(children: React.ReactNode): React.ReactNode {
   return children;
 }
 
-// Custom markdown components
+// Custom markdown components — theme-aware (no hardcoded text-white)
 const mdComponents: Components = {
   h1: ({ children }) => (
-    <h1 className="text-lg font-bold text-white mt-5 mb-2 pb-1 border-b border-white/20">
+    <h1 className="text-lg font-bold text-foreground mt-5 mb-2 pb-1 border-b border-border">
       {children}
     </h1>
   ),
@@ -114,7 +114,7 @@ const mdComponents: Components = {
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-sm font-bold text-white/90 mt-3 mb-1.5">
+    <h3 className="text-sm font-bold text-foreground/90 mt-3 mb-1.5">
       {children}
     </h3>
   ),
@@ -124,10 +124,10 @@ const mdComponents: Components = {
     </p>
   ),
   strong: ({ children }) => (
-    <strong className="font-semibold text-white">{children}</strong>
+    <strong className="font-semibold text-foreground">{children}</strong>
   ),
   em: ({ children }) => (
-    <em className="italic text-white/80">{children}</em>
+    <em className="italic text-foreground/80">{children}</em>
   ),
   ul: ({ children }) => (
     <ul className="list-disc list-outside ml-4 space-y-1 my-2 text-sm">
@@ -140,50 +140,50 @@ const mdComponents: Components = {
     </ol>
   ),
   li: ({ children }) => (
-    <li className="leading-relaxed text-white/80 pl-1">
+    <li className="leading-relaxed text-foreground/80 pl-1">
       {processChildren(children)}
     </li>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-[#c9a227]/60 pl-4 my-3 italic text-white/70 text-sm">
+    <blockquote className="border-l-4 border-[#c9a227]/60 pl-4 my-3 italic text-foreground/70 text-sm">
       {children}
     </blockquote>
   ),
-  hr: () => <hr className="border-white/15 my-4" />,
+  hr: () => <hr className="border-border my-4" />,
   code: ({ children, className }) => {
     const isBlock = className?.includes("language-");
     if (isBlock) {
       return (
-        <pre className="bg-black/30 rounded-lg p-3 my-3 overflow-x-auto text-xs font-mono text-green-300 border border-white/10">
+        <pre className="bg-muted rounded-lg p-3 my-3 overflow-x-auto text-xs font-mono text-foreground border border-border">
           <code>{children}</code>
         </pre>
       );
     }
     return (
-      <code className="bg-white/10 rounded px-1.5 py-0.5 text-[11px] font-mono text-[#c9a227]">
+      <code className="bg-muted rounded px-1.5 py-0.5 text-[11px] font-mono text-[#c9a227]">
         {children}
       </code>
     );
   },
   table: ({ children }) => (
-    <div className="overflow-x-auto my-3 rounded-xl border border-white/15">
+    <div className="overflow-x-auto my-3 rounded-xl border border-border">
       <table className="w-full text-xs border-collapse">
         {children}
       </table>
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-[#c9a227]/15 border-b border-white/15">
+    <thead className="bg-[#c9a227]/15 border-b border-border">
       {children}
     </thead>
   ),
   tbody: ({ children }) => (
-    <tbody className="divide-y divide-white/10">
+    <tbody className="divide-y divide-border">
       {children}
     </tbody>
   ),
   tr: ({ children }) => (
-    <tr className="hover:bg-white/5 transition-colors">
+    <tr className="hover:bg-muted/50 transition-colors">
       {children}
     </tr>
   ),
@@ -193,7 +193,7 @@ const mdComponents: Components = {
     </th>
   ),
   td: ({ children }) => (
-    <td className="px-3 py-2 text-white/80 text-xs leading-snug">
+    <td className="px-3 py-2 text-foreground/80 text-xs leading-snug">
       {processChildren(children)}
     </td>
   ),
@@ -207,7 +207,7 @@ const mdComponents: Components = {
 // Main markdown renderer for assistant messages
 function MarkdownContent({ content }: { content: string }) {
   return (
-    <div className="prose-invert text-white/85">
+    <div className="text-foreground/85">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
         {content}
       </ReactMarkdown>
@@ -291,7 +291,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </span>
 
           {attachmentType && message.attachmentData && attachmentType === "image" && (
-            <div className="mb-1 rounded-xl overflow-hidden border border-white/15 max-w-[280px]">
+            <div className="mb-1 rounded-xl overflow-hidden border border-border max-w-[280px]">
               <img
                 src={message.attachmentData}
                 alt={attachmentFilename}
