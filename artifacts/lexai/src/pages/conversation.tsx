@@ -6,7 +6,7 @@ import { useRoute, Link } from "wouter";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft, Printer } from "lucide-react";
+import { Send, Loader2, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft, Printer } from "lucide-react";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -363,47 +363,76 @@ export default function ConversationPage() {
             <div className="max-w-4xl mx-auto flex flex-col">
 
               {messages?.length === 0 && !isStreaming && (
-                <div className="h-[40vh] flex flex-col items-center justify-center text-center space-y-4 text-muted-foreground" data-no-print>
-                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center">
-                    <Info className="w-8 h-8 opacity-50" />
-                  </div>
+                <div className="py-8 flex flex-col items-center text-center space-y-6" data-no-print>
+                  {/* Title */}
                   <div>
-                    <h3 className="font-serif font-bold text-foreground text-lg mb-1">
+                    <h3 className="font-serif font-bold text-foreground text-xl mb-1">
                       {conversation?.jurisdiction === "Morocco"
                         ? t.chat.readyMaosTitle
                         : t.chat.readyDefaultTitle}
                     </h3>
-                    <p className="text-sm max-w-md mx-auto mb-4">
+                    <p className="text-sm text-muted-foreground max-w-sm mx-auto">
                       {conversation?.jurisdiction === "Morocco"
                         ? t.chat.maosReadyDesc
                         : t.chat.defaultReadyDesc}
                     </p>
-                    <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
-                      >
-                        <FileImage className="w-4 h-4 text-accent" />
-                        <span>{t.chat.photosImages}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
-                      >
-                        <FileText className="w-4 h-4 text-accent" />
-                        <span>{t.chat.pdfDocuments}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => cameraInputRef.current?.click()}
-                        className="flex items-center gap-1.5 hover:text-accent transition-colors cursor-pointer"
-                      >
-                        <Camera className="w-4 h-4 text-accent" />
-                        <span>{t.chat.takePhotoLabel}</span>
-                      </button>
-                    </div>
+                  </div>
+
+                  {/* Document analysis cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-xl">
+                    {/* Camera card */}
+                    <button
+                      type="button"
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="group flex flex-col items-center gap-3 p-4 rounded-2xl border border-border bg-card hover:border-accent/50 hover:bg-accent/5 transition-all text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                        <Camera className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{t.chat.takePhotoLabel}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{t.chat.emptyPhotoDesc}</p>
+                      </div>
+                    </button>
+
+                    {/* Image/PDF upload card */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group flex flex-col items-center gap-3 p-4 rounded-2xl border border-border bg-card hover:border-accent/50 hover:bg-accent/5 transition-all text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                        <ScanSearch className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{t.chat.photosImages}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{t.chat.emptyImageDesc}</p>
+                      </div>
+                    </button>
+
+                    {/* PDF card */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group flex flex-col items-center gap-3 p-4 rounded-2xl border border-border bg-card hover:border-accent/50 hover:bg-accent/5 transition-all text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                        <FileText className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{t.chat.pdfDocuments}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{t.chat.emptyPdfDesc}</p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Examples */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 max-w-lg">
+                    {[t.chat.examplePvAccident, t.chat.exampleContrat, t.chat.exampleBail, t.chat.exampleMiseEnDemeure].map((ex) => (
+                      <span key={ex} className="text-[11px] px-3 py-1 rounded-full bg-muted border border-border text-muted-foreground">
+                        {ex}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}

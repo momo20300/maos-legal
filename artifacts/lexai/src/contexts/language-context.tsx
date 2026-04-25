@@ -113,6 +113,13 @@ export interface Translations {
     submitButton: string;
     legalDisclaimer: string;
     lexaiPartnerLabel: string;
+    emptyPhotoDesc: string;
+    emptyImageDesc: string;
+    emptyPdfDesc: string;
+    examplePvAccident: string;
+    exampleContrat: string;
+    exampleBail: string;
+    exampleMiseEnDemeure: string;
   };
   jurisdictions: {
     EU: string;
@@ -279,6 +286,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Submit",
       legalDisclaimer: "Responses are AI-generated and do not constitute formal legal advice. Always verify citations and consult a qualified attorney.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Take a photo of any document with your camera",
+      emptyImageDesc: "Upload a photo, screenshot or scan",
+      emptyPdfDesc: "Upload a PDF contract, judgment or form",
+      examplePvAccident: "🚗 Accident report",
+      exampleContrat: "📋 Contract",
+      exampleBail: "🏠 Lease",
+      exampleMiseEnDemeure: "⚠️ Notice letter",
     },
     jurisdictions: {
       EU: "European Union (EU)",
@@ -462,6 +476,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Soumettre",
       legalDisclaimer: "Les réponses sont générées par IA et ne constituent pas un conseil juridique formel. Vérifiez toujours les citations et consultez un avocat qualifié.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Photographiez un document avec votre appareil photo",
+      emptyImageDesc: "Importez une photo, capture d'écran ou scan",
+      emptyPdfDesc: "Importez un contrat PDF, jugement ou formulaire",
+      examplePvAccident: "🚗 PV d'accident",
+      exampleContrat: "📋 Contrat",
+      exampleBail: "🏠 Bail",
+      exampleMiseEnDemeure: "⚠️ Mise en demeure",
     },
     jurisdictions: {
       EU: "Union Européenne (UE)",
@@ -645,6 +666,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "إرسال",
       legalDisclaimer: "الردود مُولَّدة بالذكاء الاصطناعي ولا تُشكّل استشارة قانونية رسمية. تحقق دائماً من الاستشهادات واستشر محامياً مؤهلاً.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "التقط صورة لأي وثيقة بكاميرتك",
+      emptyImageDesc: "حمّل صورة أو لقطة شاشة أو مسحاً ضوئياً",
+      emptyPdfDesc: "حمّل عقداً أو حكماً أو نموذجاً بصيغة PDF",
+      examplePvAccident: "🚗 محضر الحادث",
+      exampleContrat: "📋 عقد",
+      exampleBail: "🏠 عقد إيجار",
+      exampleMiseEnDemeure: "⚠️ إنذار رسمي",
     },
     jurisdictions: {
       EU: "الاتحاد الأوروبي",
@@ -823,6 +851,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Enviar",
       legalDisclaimer: "Las respuestas son generadas por IA y no constituyen asesoramiento jurídico formal. Verifica siempre las citas y consulta a un abogado cualificado.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Fotografía cualquier documento con tu cámara",
+      emptyImageDesc: "Sube una foto, captura de pantalla o escaneo",
+      emptyPdfDesc: "Sube un contrato PDF, sentencia o formulario",
+      examplePvAccident: "🚗 Acta de accidente",
+      exampleContrat: "📋 Contrato",
+      exampleBail: "🏠 Arrendamiento",
+      exampleMiseEnDemeure: "⚠️ Requerimiento",
     },
     jurisdictions: { EU: "Unión Europea (UE)", US: "Estados Unidos (EE.UU.)", Arabic: "Países Árabes", Morocco: "Marruecos — MAOS Legal" },
     pricing: {
@@ -951,6 +986,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Absenden",
       legalDisclaimer: "Antworten werden von KI generiert und stellen keine formale Rechtsberatung dar. Überprüfen Sie stets Zitate und konsultieren Sie einen qualifizierten Anwalt.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Fotografieren Sie ein Dokument mit Ihrer Kamera",
+      emptyImageDesc: "Foto, Screenshot oder Scan hochladen",
+      emptyPdfDesc: "PDF-Vertrag, Urteil oder Formular hochladen",
+      examplePvAccident: "🚗 Unfallbericht",
+      exampleContrat: "📋 Vertrag",
+      exampleBail: "🏠 Mietvertrag",
+      exampleMiseEnDemeure: "⚠️ Mahnung",
     },
     jurisdictions: { EU: "Europäische Union (EU)", US: "Vereinigte Staaten (USA)", Arabic: "Arabische Länder", Morocco: "Marokko — MAOS Legal" },
     pricing: {
@@ -1079,6 +1121,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Invia",
       legalDisclaimer: "Le risposte sono generate dall'IA e non costituiscono una consulenza legale formale. Verifica sempre le citazioni e consulta un avvocato qualificato.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Fotografa qualsiasi documento con la tua fotocamera",
+      emptyImageDesc: "Carica una foto, screenshot o scansione",
+      emptyPdfDesc: "Carica un contratto PDF, sentenza o modulo",
+      examplePvAccident: "🚗 Verbale d'incidente",
+      exampleContrat: "📋 Contratto",
+      exampleBail: "🏠 Contratto d'affitto",
+      exampleMiseEnDemeure: "⚠️ Diffida",
     },
     jurisdictions: { EU: "Unione Europea (UE)", US: "Stati Uniti (USA)", Arabic: "Paesi Arabi", Morocco: "Marocco — MAOS Legal" },
     pricing: {
@@ -1207,6 +1256,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Send",
       legalDisclaimer: "Svarene er KI-genererte og utgjør ikke formell juridisk rådgivning. Bekreft alltid henvisninger og konsulter en kvalifisert advokat.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Ta et bilde av et dokument med kameraet ditt",
+      emptyImageDesc: "Last opp et foto, skjermbilde eller skanning",
+      emptyPdfDesc: "Last opp en PDF-kontrakt, dom eller skjema",
+      examplePvAccident: "🚗 Ulykkesrapport",
+      exampleContrat: "📋 Kontrakt",
+      exampleBail: "🏠 Leieavtale",
+      exampleMiseEnDemeure: "⚠️ Varsel",
     },
     jurisdictions: { EU: "Den europeiske union (EU)", US: "USA", Arabic: "Arabiske land", Morocco: "Marokko — MAOS Legal" },
     pricing: {
@@ -1335,6 +1391,13 @@ const translations: Record<Language, Translations> = {
       submitButton: "Wyślij",
       legalDisclaimer: "Odpowiedzi są generowane przez AI i nie stanowią formalnej porady prawnej. Zawsze weryfikuj cytaty i konsultuj się z wykwalifikowanym prawnikiem.",
       lexaiPartnerLabel: "MAOS Legal",
+      emptyPhotoDesc: "Zrób zdjęcie dokumentu aparatem",
+      emptyImageDesc: "Prześlij zdjęcie, zrzut ekranu lub skan",
+      emptyPdfDesc: "Prześlij umowę PDF, wyrok lub formularz",
+      examplePvAccident: "🚗 Protokół wypadku",
+      exampleContrat: "📋 Umowa",
+      exampleBail: "🏠 Umowa najmu",
+      exampleMiseEnDemeure: "⚠️ Wezwanie do zapłaty",
     },
     jurisdictions: { EU: "Unia Europejska (UE)", US: "Stany Zjednoczone (USA)", Arabic: "Kraje Arabskie", Morocco: "Maroko — MAOS Legal" },
     pricing: {

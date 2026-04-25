@@ -606,24 +606,50 @@ router.post(
     let claudeContent: ContentBlock[] = [];
     let storedContent = "";
 
+    // Smart auto-analysis prompt used when user sends no custom instruction
+    const AUTO_ANALYSIS_PROMPT = `Tu es un expert juridique doté d'une vision parfaite. Analyse ce document avec le plus grand soin et structure ta réponse comme suit :
+
+## 🔍 Type de document
+Identifie précisément le type : contrat de vente, bail d'habitation, constat amiable d'accident, PV de police, jugement, facture, mise en demeure, formulaire vierge à remplir, etc.
+
+## 👥 Acteurs / Parties identifiées
+Liste toutes les personnes, sociétés ou entités présentes dans le document, avec leur rôle exact (vendeur, acheteur, locataire, bailleur, conducteur A, conducteur B, témoin, assuré, assureur, etc.).
+
+## 📋 Analyse du contenu
+
+**Si c'est un formulaire à remplir (constat, déclaration, dossier vierge) :**
+- Explique chaque champ vide et ce qu'il faut y inscrire précisément
+- Donne des exemples concrets pour les rubriques importantes
+- Signale les champs obligatoires vs optionnels
+- Explique les conséquences juridiques de chaque déclaration
+
+**Si c'est un document signé / reçu :**
+- Résume les obligations et droits de chaque partie
+- Identifie les clauses importantes, inhabituelles ou défavorables
+- Signale tout risque juridique ou point d'attention
+- Cite les articles de loi applicables [entre crochets]
+
+## ✅ Conseils pratiques
+Que doit faire le client maintenant ? Quels délais respecter ? Quels recours possibles ?`;
+
     if (file.mimetype === "application/pdf") {
       try {
         const parsed = await pdfParse(file.buffer);
         const extractedText = parsed.text.trim();
         const prompt = userText
           ? `${userText}\n\n--- Contenu du document PDF (${file.originalname}) ---\n${extractedText}`
-          : `Analysez ce document juridique et fournissez une analyse détaillée avec les dispositions légales applicables :\n\n--- ${file.originalname} ---\n${extractedText}`;
+          : `${AUTO_ANALYSIS_PROMPT}\n\n--- Contenu du document PDF (${file.originalname}) ---\n${extractedText}`;
 
         claudeContent = [{ type: "text", text: prompt }];
         storedContent = userText
           ? `📄 [PDF: ${file.originalname}]\n\n${userText}`
-          : `📄 [PDF: ${file.originalname}]\n\nAnalyse juridique demandée`;
+          : `📄 [PDF: ${file.originalname}]\n\nAnalyse automatique demandée`;
       } catch {
         res.status(400).json({ error: "Failed to parse PDF" });
         return;
       }
     } else {
-      // Image file
+      // Image file — use Claude's native vision
       const mimeToType: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/gif"> = {
         "image/jpeg": "image/jpeg",
         "image/png": "image/png",
@@ -633,9 +659,7 @@ router.post(
       const mediaType = mimeToType[file.mimetype] ?? "image/jpeg";
       const base64Data = file.buffer.toString("base64");
 
-      const promptText = userText
-        ? userText
-        : "Analysez ce document/cette image sous l'angle juridique. Identifiez les clauses importantes, les risques légaux potentiels, et fournissez vos conseils.";
+      const promptText = userText || AUTO_ANALYSIS_PROMPT;
 
       claudeContent = [
         {
@@ -646,7 +670,7 @@ router.post(
       ];
       storedContent = userText
         ? `🖼️ [Image: ${file.originalname}]\n\n${userText}`
-        : `🖼️ [Image: ${file.originalname}]\n\nAnalyse juridique demandée`;
+        : `🖼️ [Image: ${file.originalname}]\n\nAnalyse automatique demandée`;
     }
 
     // Save user message to DB (store image as base64 data URL if ≤ 2MB)
