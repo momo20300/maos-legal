@@ -78,7 +78,8 @@ export function DesktopSidebar() {
 
   return (
     <aside
-      className={`hidden md:flex flex-col shrink-0 border-r border-border bg-sidebar text-sidebar-foreground transition-all duration-300 relative overflow-hidden ${collapsed ? "w-14" : "w-72"}`}
+      className={`hidden md:flex flex-col shrink-0 border-r border-border bg-sidebar text-sidebar-foreground transition-all duration-300 relative ${collapsed ? "w-14" : "w-72"}`}
+      style={{ height: "calc(100dvh - 4rem)" }}
       dir={isRTL ? "rtl" : "ltr"}
     >
       {/* Collapse toggle button */}

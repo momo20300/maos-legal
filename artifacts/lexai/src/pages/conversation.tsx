@@ -6,7 +6,7 @@ import { useRoute, Link } from "wouter";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft, Printer } from "lucide-react";
+import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft } from "lucide-react";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -89,10 +89,6 @@ export default function ConversationPage() {
       scrollToStreamingTop();
     }
   }, [streamedContent.length < 200 ? streamedContent : null, scrollToStreamingTop]);
-
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
 
   const handleCallArchived = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
@@ -267,16 +263,6 @@ export default function ConversationPage() {
 
   return (
     <Layout>
-      {/* Print styles */}
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #print-area, #print-area * { visibility: visible; }
-          #print-area { position: absolute; left: 0; top: 0; width: 100%; }
-          header, nav, footer, [data-no-print] { display: none !important; }
-        }
-      `}</style>
-
       <input
         ref={fileInputRef}
         type="file"
@@ -296,7 +282,7 @@ export default function ConversationPage() {
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
           {/* Mobile header */}
-          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0" data-no-print>
+          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
             <JusticeScaleSVG size={22} className="shrink-0" />
             <Link href="/chat">
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -322,14 +308,14 @@ export default function ConversationPage() {
             ) : null}
             <div className="flex items-center gap-1.5 shrink-0">
               <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-              <button onClick={handlePrint} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Imprimer / PDF">
-                <Printer className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1 shrink-0 text-muted-foreground bg-muted px-2 py-1 rounded-full border border-border">
+                <ScanSearch className="w-3.5 h-3.5 text-accent" />
+              </div>
             </div>
           </div>
 
           {/* Desktop header */}
-          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0" data-no-print>
+          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0">
             {isLoadingConv ? (
               <div className="flex items-center gap-3">
                 <JusticeScaleSVG size={28} />
@@ -359,17 +345,8 @@ export default function ConversationPage() {
               </div>
             )}
 
-            {/* Right side header actions */}
             <div className="flex items-center gap-2">
               <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
-              <button
-                onClick={handlePrint}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium"
-                title="Imprimer / Sauvegarder en PDF"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">Imprimer</span>
-              </button>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
                 <ScanSearch className="w-3.5 h-3.5 text-accent" />
                 <span>{t.chat.analyzeDocBadge}</span>
@@ -377,20 +354,22 @@ export default function ConversationPage() {
             </div>
           </header>
 
-          {/* Chat Area (printable) */}
-          <div id="print-area" ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth outline-none" tabIndex={-1}>
+          {/* Chat Area */}
+          <div ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
             <div className="max-w-4xl mx-auto flex flex-col">
 
               {messages?.length === 0 && !isStreaming && (
-                <div className="py-8 flex flex-col items-center text-center space-y-6" data-no-print>
-                  {/* Title */}
+                <div className="h-[40vh] flex flex-col items-center justify-center text-center space-y-4 text-muted-foreground">
+                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center">
+                    <Info className="w-8 h-8 opacity-50" />
+                  </div>
                   <div>
-                    <h3 className="font-serif font-bold text-foreground text-xl mb-1">
+                    <h3 className="font-serif font-bold text-foreground text-lg mb-1">
                       {conversation?.jurisdiction === "Morocco"
                         ? t.chat.readyMaosTitle
                         : t.chat.readyDefaultTitle}
                     </h3>
-                    <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                    <p className="text-sm max-w-md mx-auto mb-4">
                       {conversation?.jurisdiction === "Morocco"
                         ? t.chat.maosReadyDesc
                         : t.chat.defaultReadyDesc}
@@ -488,7 +467,7 @@ export default function ConversationPage() {
 
           {/* Input Area */}
           {!isVoiceConversation && (
-            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0" data-no-print>
+            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
               <div className="max-w-4xl mx-auto space-y-2">
 
                 {/* File Preview */}
@@ -572,7 +551,7 @@ export default function ConversationPage() {
 
           {/* Voice conversation: prompt to continue by voice */}
           {isVoiceConversation && (
-            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0" data-no-print>
+            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
               <div className="max-w-4xl mx-auto">
                 <div className="flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-muted/50 border border-border text-sm text-muted-foreground">
                   <span>Continuez la conversation par appel vocal</span>

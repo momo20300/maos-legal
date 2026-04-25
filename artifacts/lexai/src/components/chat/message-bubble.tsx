@@ -1,9 +1,8 @@
-import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AnthropicMessage } from "@workspace/api-client-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Scale, User, FileText, Image, X, ZoomIn } from "lucide-react";
+import { Scale, User, FileText, Image } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { DocumentCard } from "./document-card";
 import type { Components } from "react-markdown";
@@ -216,33 +215,9 @@ function MarkdownContent({ content }: { content: string }) {
   );
 }
 
-// Fullscreen image lightbox
-function ImageLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
-  return (
-    <div
-      className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <button
-        className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/40 rounded-full p-2 transition-colors"
-        onClick={onClose}
-      >
-        <X className="w-6 h-6" />
-      </button>
-      <img
-        src={src}
-        alt={alt}
-        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      />
-    </div>
-  );
-}
-
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === "assistant";
   const { t, language } = useLanguage();
-  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const {
     preText,
@@ -299,84 +274,60 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const displayText = attachmentType ? chatText : message.content;
 
   return (
-    <>
-      {lightboxOpen && message.attachmentData && (
-        <ImageLightbox
-          src={message.attachmentData}
-          alt={attachmentFilename}
-          onClose={() => setLightboxOpen(false)}
-        />
-      )}
+    <div
+      className={`flex w-full ${isAssistant ? "justify-start" : "justify-end"} mb-6`}
+      data-testid={`message-${message.role}`}
+    >
+      <div className={`flex gap-4 max-w-[92%] md:max-w-[85%] ${isAssistant ? "flex-row" : "flex-row-reverse"}`}>
+        <Avatar className={`w-8 h-8 border shadow-sm shrink-0 ${isAssistant ? "bg-primary border-primary-border" : "bg-secondary border-secondary-border"}`}>
+          <AvatarFallback className={isAssistant ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
+            {isAssistant ? <Scale className="w-4 h-4" /> : <User className="w-4 h-4" />}
+          </AvatarFallback>
+        </Avatar>
 
-      <div
-        className={`flex w-full ${isAssistant ? "justify-start" : "justify-end"} mb-6`}
-        data-testid={`message-${message.role}`}
-      >
-        <div className={`flex gap-4 max-w-[92%] md:max-w-[85%] ${isAssistant ? "flex-row" : "flex-row-reverse"}`}>
-          <Avatar className={`w-8 h-8 border shadow-sm shrink-0 ${isAssistant ? "bg-primary border-primary-border" : "bg-secondary border-secondary-border"}`}>
-            <AvatarFallback className={isAssistant ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}>
-              {isAssistant ? <Scale className="w-4 h-4" /> : <User className="w-4 h-4" />}
-            </AvatarFallback>
-          </Avatar>
+        <div className={`flex flex-col gap-1 ${isAssistant ? "items-start" : "items-end"} min-w-0 flex-1`}>
+          <span className="text-xs font-medium text-muted-foreground ml-1 mr-1">
+            {isAssistant ? t.chat.lexaiPartnerLabel : t.chat.youLabel}
+          </span>
 
-          <div className={`flex flex-col gap-1 ${isAssistant ? "items-start" : "items-end"} min-w-0 flex-1`}>
-            <span className="text-xs font-medium text-muted-foreground ml-1 mr-1">
-              {isAssistant ? t.chat.lexaiPartnerLabel : t.chat.youLabel}
-            </span>
-
-            {/* Image attachment — clickable for lightbox */}
-            {attachmentType === "image" && message.attachmentData && (
-              <div
-                className="mb-1 rounded-xl overflow-hidden border border-border max-w-[280px] relative group cursor-zoom-in"
-                onClick={() => setLightboxOpen(true)}
-              >
-                <img
-                  src={message.attachmentData}
-                  alt={attachmentFilename}
-                  className="w-full h-auto object-contain max-h-48 transition-opacity group-hover:opacity-90"
-                />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-xl">
-                  <ZoomIn className="w-6 h-6 text-white drop-shadow" />
-                </div>
-              </div>
-            )}
-
-            {/* Image placeholder when too large to store */}
-            {attachmentType === "image" && !message.attachmentData && (
-              <div className="mb-1 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-muted/50 border border-border text-muted-foreground">
-                <Image className="w-4 h-4 text-accent shrink-0" />
-                <span className="truncate max-w-[200px]">{attachmentFilename}</span>
-              </div>
-            )}
-
-            {/* PDF attachment badge */}
-            {attachmentType === "pdf" && (
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium mb-1 ${
-                isAssistant
-                  ? "bg-muted text-muted-foreground"
-                  : "bg-primary/80 text-primary-foreground/90"
-              }`}>
-                <FileText className="w-3.5 h-3.5 shrink-0" />
-                <span className="max-w-[200px] truncate">{attachmentFilename}</span>
-              </div>
-            )}
-
-            <div
-              className={`px-5 py-3.5 rounded-2xl shadow-sm w-full ${
-                isAssistant
-                  ? "bg-card border border-border text-card-foreground rounded-tl-none"
-                  : "bg-primary text-primary-foreground rounded-tr-none"
-              }`}
-            >
-              {isAssistant ? (
-                <MarkdownContent content={displayText} />
-              ) : (
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayText}</p>
-              )}
+          {attachmentType && message.attachmentData && attachmentType === "image" && (
+            <div className="mb-1 rounded-xl overflow-hidden border border-border max-w-[280px]">
+              <img
+                src={message.attachmentData}
+                alt={attachmentFilename}
+                className="w-full h-auto object-contain max-h-48"
+              />
             </div>
+          )}
+
+          {attachmentType && (
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium mb-1 ${
+              isAssistant
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary/80 text-primary-foreground/90"
+            }`}>
+              {attachmentType === "pdf"
+                ? <FileText className="w-3.5 h-3.5 shrink-0" />
+                : <Image className="w-3.5 h-3.5 shrink-0" />}
+              <span className="max-w-[200px] truncate">{attachmentFilename}</span>
+            </div>
+          )}
+
+          <div
+            className={`px-5 py-3.5 rounded-2xl shadow-sm w-full ${
+              isAssistant
+                ? "bg-card border border-border text-card-foreground rounded-tl-none"
+                : "bg-primary text-primary-foreground rounded-tr-none"
+            }`}
+          >
+            {isAssistant ? (
+              <MarkdownContent content={displayText} />
+            ) : (
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayText}</p>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
