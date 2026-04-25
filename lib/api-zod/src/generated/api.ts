@@ -24,6 +24,7 @@ export const ListAnthropicConversationsResponseItem = zod.object({
   jurisdiction: zod.string(),
   legalDomain: zod.string(),
   createdAt: zod.coerce.date(),
+  source: zod.string().optional().nullable(),
   messageCount: zod.number(),
 });
 export const ListAnthropicConversationsResponse = zod.array(
@@ -52,6 +53,7 @@ export const GetAnthropicConversationResponse = zod.object({
   jurisdiction: zod.string(),
   legalDomain: zod.string(),
   createdAt: zod.coerce.date(),
+  source: zod.string().optional().nullable(),
   messageCount: zod.number(),
   messages: zod.array(
     zod.object({

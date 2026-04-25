@@ -10,7 +10,7 @@ import { useLocation } from "wouter";
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 type CallState = "idle" | "connecting" | "active" | "error";
-type CallLanguage = "fr" | "ar" | "en" | "es" | "de" | "it" | "no" | "pl";
+export type CallLanguage = "fr" | "ar" | "en" | "es" | "de" | "it" | "no" | "pl";
 
 interface LangOption {
   code: CallLanguage;
@@ -30,28 +30,29 @@ const LANG_OPTIONS: LangOption[] = [
   { code: "pl", flag: "🇵🇱", label: "Agent Polski",         sublabel: "Prawo PL / EU / Międzynarodowe" },
 ];
 
-const LANG_LABELS: Record<CallLanguage, { started: string; ended: string; greeting: string; viewLabel: string; archivedTitle: string; archivedDesc: string }> = {
-  fr: { started: "Appel en cours", ended: "Appel terminé", greeting: "MAOS Legal à votre écoute", viewLabel: "Voir", archivedTitle: "Appel archivé", archivedDesc: "La transcription est sauvegardée" },
-  ar: { started: "تم الاتصال", ended: "انتهى الاتصال", greeting: "مرحباً بك في MAOS Legal", viewLabel: "عرض", archivedTitle: "تم أرشفة المكالمة", archivedDesc: "التسجيل محفوظ في استشاراتك" },
-  en: { started: "Call in progress", ended: "Call ended", greeting: "MAOS Legal at your service", viewLabel: "View", archivedTitle: "Call archived", archivedDesc: "Transcript saved to your consultations" },
-  es: { started: "Llamada en curso", ended: "Llamada terminada", greeting: "MAOS Legal a su servicio", viewLabel: "Ver", archivedTitle: "Llamada archivada", archivedDesc: "La transcripción está guardada" },
-  de: { started: "Gespräch läuft", ended: "Gespräch beendet", greeting: "MAOS Legal ist für Sie da", viewLabel: "Anzeigen", archivedTitle: "Anruf archiviert", archivedDesc: "Transkript wurde gespeichert" },
-  it: { started: "Chiamata in corso", ended: "Chiamata terminata", greeting: "MAOS Legal al vostro servizio", viewLabel: "Vedi", archivedTitle: "Chiamata archiviata", archivedDesc: "La trascrizione è stata salvata" },
-  no: { started: "Samtale pågår", ended: "Samtale avsluttet", greeting: "MAOS Legal til din tjeneste", viewLabel: "Vis", archivedTitle: "Samtale arkivert", archivedDesc: "Transkripsjonen er lagret" },
-  pl: { started: "Połączenie w toku", ended: "Połączenie zakończone", greeting: "MAOS Legal do Twoich usług", viewLabel: "Zobacz", archivedTitle: "Rozmowa zarchiwizowana", archivedDesc: "Transkrypcja została zapisana" },
+const LANG_LABELS: Record<CallLanguage, { started: string; ended: string; greeting: string; viewLabel: string; archivedTitle: string; archivedDesc: string; callbackLabel: string }> = {
+  fr: { started: "Appel en cours", ended: "Appel terminé", greeting: "MAOS Legal à votre écoute", viewLabel: "Voir", archivedTitle: "Appel archivé", archivedDesc: "La transcription est sauvegardée", callbackLabel: "Rappeler" },
+  ar: { started: "تم الاتصال", ended: "انتهى الاتصال", greeting: "مرحباً بك في MAOS Legal", viewLabel: "عرض", archivedTitle: "تم أرشفة المكالمة", archivedDesc: "التسجيل محفوظ في استشاراتك", callbackLabel: "معاودة الاتصال" },
+  en: { started: "Call in progress", ended: "Call ended", greeting: "MAOS Legal at your service", viewLabel: "View", archivedTitle: "Call archived", archivedDesc: "Transcript saved", callbackLabel: "Call back" },
+  es: { started: "Llamada en curso", ended: "Llamada terminada", greeting: "MAOS Legal a su servicio", viewLabel: "Ver", archivedTitle: "Llamada archivada", archivedDesc: "La transcripción está guardada", callbackLabel: "Volver a llamar" },
+  de: { started: "Gespräch läuft", ended: "Gespräch beendet", greeting: "MAOS Legal ist für Sie da", viewLabel: "Anzeigen", archivedTitle: "Anruf archiviert", archivedDesc: "Transkript wurde gespeichert", callbackLabel: "Zurückrufen" },
+  it: { started: "Chiamata in corso", ended: "Chiamata terminata", greeting: "MAOS Legal al vostro servizio", viewLabel: "Vedi", archivedTitle: "Chiamata archiviata", archivedDesc: "La trascrizione è stata salvata", callbackLabel: "Richiamare" },
+  no: { started: "Samtale pågår", ended: "Samtale avsluttet", greeting: "MAOS Legal til din tjeneste", viewLabel: "Vis", archivedTitle: "Samtale arkivert", archivedDesc: "Transkripsjonen er lagret", callbackLabel: "Ring tilbake" },
+  pl: { started: "Połączenie w toku", ended: "Połączenie zakończone", greeting: "MAOS Legal do Twoich usług", viewLabel: "Zobacz", archivedTitle: "Rozmowa zarchiwizowana", archivedDesc: "Transkrypcja została zapisana", callbackLabel: "Oddzwoń" },
 };
 
 const HIDDEN_PATHS = ["/", "/profile", "/dossiers", "/preparations"];
 
-function useVoiceCall(navigate: (path: string) => void) {
+function useVoiceCall(navigate: (path: string) => void, onCallArchived?: () => void) {
   const [callState, setCallState] = useState<CallState>("idle");
   const [activeLang, setActiveLang] = useState<CallLanguage>("fr");
   const [isMuted, setIsMuted] = useState(false);
   const clientRef = useRef<RetellWebClient | null>(null);
   const callIdRef = useRef<string | null>(null);
+  const convIdRef = useRef<number | undefined>(undefined);
   const { toast } = useToast();
 
-  const archiveCall = useCallback(async (callId: string, lang: CallLanguage) => {
+  const archiveCall = useCallback(async (callId: string, lang: CallLanguage, conversationId?: number) => {
     try {
       await fetch(`${BASE_URL}/api/billing/charge-call`, {
         method: "POST",
@@ -67,10 +68,11 @@ function useVoiceCall(navigate: (path: string) => void) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ callId, language: lang }),
+      body: JSON.stringify({ callId, language: lang, ...(conversationId ? { conversationId } : {}) }),
     }).then(r => r.json()).then(data => {
       if (data.conversationId) {
         const convId = data.conversationId;
+        onCallArchived?.();
         toast({
           title: labels.archivedTitle,
           description: labels.archivedDesc,
@@ -85,11 +87,12 @@ function useVoiceCall(navigate: (path: string) => void) {
         });
       }
     }).catch(() => {});
-  }, [toast, navigate]);
+  }, [toast, navigate, onCallArchived]);
 
-  const startCall = useCallback(async (lang: CallLanguage) => {
+  const startCall = useCallback(async (lang: CallLanguage, conversationId?: number) => {
     setActiveLang(lang);
     setCallState("connecting");
+    convIdRef.current = conversationId;
     const labels = LANG_LABELS[lang];
 
     try {
@@ -97,7 +100,7 @@ function useVoiceCall(navigate: (path: string) => void) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ language: lang }),
+        body: JSON.stringify({ language: lang, ...(conversationId ? { conversationId } : {}) }),
       });
 
       if (!res.ok) {
@@ -117,12 +120,14 @@ function useVoiceCall(navigate: (path: string) => void) {
 
       client.on("call_ended", () => {
         const finishedCallId = callIdRef.current;
+        const finishedConvId = convIdRef.current;
         setCallState("idle");
         setIsMuted(false);
         clientRef.current = null;
         callIdRef.current = null;
+        convIdRef.current = undefined;
         toast({ title: labels.ended });
-        if (finishedCallId) archiveCall(finishedCallId, lang);
+        if (finishedCallId) archiveCall(finishedCallId, lang, finishedConvId);
       });
 
       client.on("error", () => {
@@ -154,7 +159,7 @@ function useVoiceCall(navigate: (path: string) => void) {
   return { callState, activeLang, isMuted, startCall, endCall, toggleMute };
 }
 
-function VoiceAgentSheet({ onSelect, onClose }: { onSelect: (lang: CallLanguage) => void; onClose: () => void }) {
+export function VoiceAgentSheet({ onSelect, onClose }: { onSelect: (lang: CallLanguage) => void; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -185,10 +190,11 @@ function VoiceAgentSheet({ onSelect, onClose }: { onSelect: (lang: CallLanguage)
   );
 }
 
-export function VoiceCallInlineButton() {
+// Inline button used inside conversation pages
+export function VoiceCallInlineButton({ conversationId, onArchived }: { conversationId?: number; onArchived?: () => void }) {
   const { isSignedIn } = useAuthContext();
   const [, navigate] = useLocation();
-  const { callState, isMuted, startCall, endCall, toggleMute } = useVoiceCall(navigate);
+  const { callState, isMuted, startCall, endCall, toggleMute } = useVoiceCall(navigate, onArchived);
   const [showSheet, setShowSheet] = useState(false);
 
   if (!isSignedIn) return null;
@@ -196,12 +202,12 @@ export function VoiceCallInlineButton() {
   if (callState === "active") {
     return (
       <div className="flex items-center gap-2">
-        <button onClick={toggleMute} className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all border ${isMuted ? "bg-red-500 border-red-600 text-white" : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"}`} title={isMuted ? "Réactiver le micro" : "Couper le micro"}>
-          {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+        <button onClick={toggleMute} className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all border ${isMuted ? "bg-red-500 border-red-600 text-white" : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"}`} title={isMuted ? "Réactiver le micro" : "Couper le micro"}>
+          {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
         </button>
         <div className="relative">
-          <button onClick={endCall} className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xl transition-all active:scale-95" title="Raccrocher">
-            <PhoneOff className="w-6 h-6" />
+          <button onClick={endCall} className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xl transition-all active:scale-95" title="Raccrocher">
+            <PhoneOff className="w-5 h-5" />
           </button>
           <span className="absolute inset-0 rounded-full bg-red-400 opacity-30 animate-ping pointer-events-none" />
         </div>
@@ -211,9 +217,9 @@ export function VoiceCallInlineButton() {
 
   if (callState === "connecting") {
     return (
-      <div className="relative w-14 h-14">
-        <div className="w-14 h-14 rounded-full bg-[#c9a227] flex items-center justify-center shadow-xl">
-          <Phone className="w-6 h-6 text-[#0d1b2e] animate-pulse" />
+      <div className="relative w-10 h-10">
+        <div className="w-10 h-10 rounded-full bg-[#c9a227] flex items-center justify-center shadow-xl">
+          <Phone className="w-5 h-5 text-[#0d1b2e] animate-pulse" />
         </div>
         <span className="absolute inset-0 rounded-full bg-[#c9a227] opacity-40 animate-ping pointer-events-none" />
       </div>
@@ -224,12 +230,18 @@ export function VoiceCallInlineButton() {
     <>
       <button
         onClick={() => setShowSheet(true)}
-        className="w-14 h-14 rounded-full bg-[#c9a227] hover:bg-[#b8911f] text-[#0d1b2e] flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95 focus:outline-none"
-        title="Appeler un agent vocal MAOS Legal"
+        className="flex items-center gap-2 h-9 px-3 rounded-xl bg-[#c9a227] hover:bg-[#b8911f] text-[#0d1b2e] font-semibold text-xs shadow-lg transition-all hover:scale-105 active:scale-95 focus:outline-none"
+        title="Rappeler un agent vocal MAOS Legal"
       >
-        <Phone className="w-6 h-6" />
+        <Phone className="w-4 h-4" />
+        {conversationId ? "Rappeler" : "Appeler"}
       </button>
-      {showSheet && <VoiceAgentSheet onSelect={startCall} onClose={() => setShowSheet(false)} />}
+      {showSheet && (
+        <VoiceAgentSheet
+          onSelect={(lang) => { startCall(lang, conversationId); }}
+          onClose={() => setShowSheet(false)}
+        />
+      )}
     </>
   );
 }
@@ -246,6 +258,9 @@ export function VoiceCallFAB() {
 
   const isHidden = HIDDEN_PATHS.some(p => location === p);
   if (!isSignedIn || isHidden) return null;
+
+  // Don't show FAB on conversation pages (the inline button is there)
+  if (location.startsWith("/conversations/")) return null;
 
   if (callState === "active") {
     return (
@@ -285,7 +300,7 @@ export function VoiceCallFAB() {
           <Phone className="w-6 h-6" />
         </button>
       </div>
-      {showSheet && <VoiceAgentSheet onSelect={startCall} onClose={() => setShowSheet(false)} />}
+      {showSheet && <VoiceAgentSheet onSelect={(lang) => startCall(lang)} onClose={() => setShowSheet(false)} />}
     </>
   );
 }

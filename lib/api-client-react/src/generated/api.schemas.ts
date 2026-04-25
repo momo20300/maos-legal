@@ -15,6 +15,7 @@ export interface AnthropicConversation {
   jurisdiction: string;
   legalDomain: string;
   createdAt: string;
+  source?: string | null;
   messageCount: number;
 }
 
@@ -43,6 +44,7 @@ export interface AnthropicConversationWithMessages {
   jurisdiction: string;
   legalDomain: string;
   createdAt: string;
+  source?: string | null;
   messageCount: number;
   messages: AnthropicMessage[];
 }

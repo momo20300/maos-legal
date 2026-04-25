@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
-  User, Mail, Briefcase, Lock, Phone,
+  User, Mail, Briefcase, Lock, Globe, Phone,
   Save, Eye, EyeOff, LogOut, CheckCircle2, Clock,
   CreditCard, Shield, Zap, Star, Check, Wallet, TrendingUp,
   PhoneCall, ArrowUpCircle, ArrowDownCircle, Gift, Plus,
@@ -49,6 +49,7 @@ export default function ProfilePage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [country, setCountry] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPwd, setCurrentPwd] = useState("");
@@ -79,7 +80,7 @@ export default function ProfilePage() {
   const [showRechargeForm, setShowRechargeForm] = useState(false);
 
   useEffect(() => { if (isLoaded && !isSignedIn) navigate(`${BASE_URL}/sign-in`); }, [isLoaded, isSignedIn]);
-  useEffect(() => { if (user) { setFirstName(user.firstName || ""); setLastName(user.lastName || ""); setJobTitle(user.jobTitle || ""); setSelectedPlan(user.plan || "professional"); } }, [user]);
+  useEffect(() => { if (user) { setFirstName(user.firstName || ""); setLastName(user.lastName || ""); setJobTitle(user.jobTitle || ""); setCountry(user.country || ""); setSelectedPlan(user.plan || "professional"); } }, [user]);
 
   const fetchBalance = useCallback(async () => {
     if (!isSignedIn) return;
@@ -115,7 +116,7 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
-    try { await updateProfile({ firstName, lastName, jobTitle }); await refreshUser(); toast({ title: isRTL ? "تم الحفظ" : "Profil mis à jour" }); }
+    try { await updateProfile({ firstName, lastName, jobTitle, country }); await refreshUser(); toast({ title: isRTL ? "تم الحفظ" : "Profil mis à jour" }); }
     catch (err: any) { toast({ variant: "destructive", title: "Erreur", description: err.message }); }
     finally { setSavingProfile(false); }
   };
@@ -203,6 +204,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-1.5"><Label className="text-muted-foreground text-xs font-medium flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" />Email</Label><Input value={user?.email || ""} disabled className="h-10 text-sm opacity-50 cursor-not-allowed" /></div>
                 <div className="space-y-1.5"><Label className="text-muted-foreground text-xs font-medium flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" />{isRTL ? "المهنة" : "Emploi / Poste"}</Label><Input value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="Ex: Avocat, Juriste, Notaire..." className="h-10 text-sm" /></div>
+                <div className="space-y-1.5"><Label className="text-muted-foreground text-xs font-medium flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" />{isRTL ? "البلد" : "Pays"}</Label><Input value={country} onChange={e => setCountry(e.target.value)} placeholder={isRTL ? "المغرب، فرنسا، بلجيكا..." : "Maroc, France, Belgique..."} className="h-10 text-sm" /></div>
                 <Button onClick={handleSaveProfile} disabled={savingProfile} className="w-full h-10 bg-accent hover:bg-accent/90 text-[#0d1b2e] font-semibold text-sm">
                   {savingProfile ? <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-[#0d1b2e]/40 border-t-[#0d1b2e] rounded-full animate-spin" />Enregistrement...</span> : <span className="flex items-center gap-2"><Save className="w-4 h-4" />Sauvegarder</span>}
                 </Button>

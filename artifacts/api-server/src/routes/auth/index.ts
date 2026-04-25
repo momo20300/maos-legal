@@ -49,7 +49,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     (req.session as any).userId = user.id;
     (req.session as any).email = user.email;
 
-    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle, plan: user.plan, subscriptionStatus: user.subscriptionStatus, isAdmin: user.email === ADMIN_EMAIL });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle, country: user.country, plan: user.plan, subscriptionStatus: user.subscriptionStatus, isAdmin: user.email === ADMIN_EMAIL });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur." });
   }
@@ -67,24 +67,24 @@ router.get("/auth/me", async (req, res): Promise<void> => {
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     if (!user) { req.session.destroy(() => {}); res.status(401).json({ error: "Utilisateur introuvable." }); return; }
 
-    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle, plan: user.plan, subscriptionStatus: user.subscriptionStatus, isAdmin: user.email === ADMIN_EMAIL });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle, country: user.country, plan: user.plan, subscriptionStatus: user.subscriptionStatus, isAdmin: user.email === ADMIN_EMAIL });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur." });
   }
 });
 
-// Update profile (firstName, lastName, jobTitle)
+// Update profile (firstName, lastName, jobTitle, country)
 router.put("/auth/profile", requireAuth, async (req, res): Promise<void> => {
   const userId = (req as any).userId as string;
-  const { firstName, lastName, jobTitle } = req.body as { firstName?: string; lastName?: string; jobTitle?: string };
+  const { firstName, lastName, jobTitle, country } = req.body as { firstName?: string; lastName?: string; jobTitle?: string; country?: string };
 
   try {
     await db.update(users)
-      .set({ firstName: firstName || null, lastName: lastName || null, jobTitle: jobTitle || null })
+      .set({ firstName: firstName || null, lastName: lastName || null, jobTitle: jobTitle || null, country: country || null })
       .where(eq(users.id, userId));
 
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, jobTitle: user.jobTitle, country: user.country });
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la mise à jour du profil." });
   }

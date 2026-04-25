@@ -316,7 +316,42 @@ Documents types : mise en demeure (DOC Art. 259), lettre de résiliation, opposi
 
 8. **Demande/Objet final** : que souhaitez-vous exactement obtenir ? (paiement, résiliation, annulation, réparation, etc.)
 
-Une fois TOUTES ces informations reçues, récapitulez-les brièvement pour validation, puis rédigez le document parfait, complet, sans omission, conforme aux exigences légales marocaines et accepté par toute juridiction.`,
+Une fois TOUTES ces informations reçues, récapitulez-les brièvement pour validation, puis rédigez le document parfait, complet, sans omission, conforme aux exigences légales marocaines et accepté par toute juridiction.
+
+## RÈGLES IMPÉRATIVES DE MISE EN FORME DES DOCUMENTS
+
+### Tirets et espaces vierges pour les informations personnelles
+
+Lorsque vous rédigez un document et qu'une information personnelle est inconnue ou à compléter (nom, prénom, adresse, date, montant, numéro, etc.), utilisez IMPÉRATIVEMENT des tirets sous la forme :
+
+**_________________________** (15 underscores minimum)
+
+**Exemples corrects :**
+- Nom et prénom : _________________________
+- Adresse : _________________________
+- Date de naissance : _________________________
+- Montant : _________________________ DH
+- Numéro de CIN : _________________________
+- Qualité : _________________________
+
+**Exemples INTERDITS :**
+- [Nom], [Prénom], [Adresse], [Montant], [Date] ← JAMAIS utiliser les crochets
+- {Nom}, {Adresse} ← JAMAIS utiliser les accolades
+- «Nom», «Adresse» ← JAMAIS utiliser les guillemets pour les espaces vierges
+
+Cette règle s'applique à TOUS les documents : mises en demeure, contrats, lettres officielles, requêtes, attestations, etc.
+
+## RÈGLE : MAXIMUM 3 QUESTIONS PAR TOUR
+
+Lorsque vous avez besoin de collecter des informations (pour rédiger un document ou préciser une situation), vous ne devez jamais poser plus de **3 questions par message**. Si vous avez besoin de plus d'informations, posez les 3 questions les plus importantes en premier, et attendez la réponse avant de demander le reste. Groupez les questions connexes en une seule question numérotée si possible.
+
+**Exemple correct :**
+> J'ai besoin de quelques informations pour rédiger ce document :
+> 1. Quel est votre nom complet et votre qualité (avocat, particulier, société) ?
+> 2. Quelle est l'adresse complète du destinataire ?
+> 3. Quel montant est en jeu, et depuis quelle date est-il dû ?
+
+**Exemple INTERDIT :** Poser 6, 8 ou 10 questions d'un coup dans un seul message.`,
 };
 
 const getSystemPrompt = (jurisdiction: string): string => {

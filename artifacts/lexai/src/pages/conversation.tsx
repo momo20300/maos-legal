@@ -6,12 +6,13 @@ import { useRoute, Link } from "wouter";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft } from "lucide-react";
+import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft, Printer } from "lucide-react";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/language-context";
 import { useToast } from "@/hooks/use-toast";
+import { VoiceCallInlineButton } from "@/components/chat/voice-call-button";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -35,6 +36,7 @@ export default function ConversationPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const isStreamingRef = useRef(false);
+  const hasScrolledInitialRef = useRef(false);
 
   const { data: conversation, isLoading: isLoadingConv } = useGetAnthropicConversation(id, {
     query: { enabled: !!id, queryKey: getGetAnthropicConversationQueryKey(id) }
@@ -44,8 +46,14 @@ export default function ConversationPage() {
     query: { enabled: !!id, queryKey: getListAnthropicMessagesQueryKey(id) }
   });
 
+  const isVoiceConversation = conversation?.source === "voice";
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    chatAreaRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const scrollToStreamingTop = useCallback(() => {
@@ -55,17 +63,38 @@ export default function ConversationPage() {
     }
   }, []);
 
+  // Initial scroll: top for voice transcripts, bottom for chat
   useEffect(() => {
-    if (!isStreamingRef.current) {
+    if (!isLoadingMsgs && messages && !hasScrolledInitialRef.current) {
+      hasScrolledInitialRef.current = true;
+      if (isVoiceConversation) {
+        scrollToTop();
+      } else {
+        scrollToBottom();
+      }
+    }
+  }, [isLoadingMsgs, messages, isVoiceConversation, scrollToTop, scrollToBottom]);
+
+  useEffect(() => {
+    if (!isStreamingRef.current && !isVoiceConversation) {
       scrollToBottom();
     }
-  }, [messages, scrollToBottom]);
+  }, [messages, scrollToBottom, isVoiceConversation]);
 
   useEffect(() => {
     if (isStreamingRef.current && streamedContent) {
       scrollToStreamingTop();
     }
   }, [streamedContent.length < 200 ? streamedContent : null, scrollToStreamingTop]);
+
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
+  const handleCallArchived = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
+    queryClient.refetchQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
+  }, [queryClient, id]);
 
   const handleFileChange = useCallback((file: File | null) => {
     if (!file) return;
@@ -215,6 +244,16 @@ export default function ConversationPage() {
 
   return (
     <Layout>
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+          header, nav, footer, [data-no-print] { display: none !important; }
+        }
+      `}</style>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -234,7 +273,7 @@ export default function ConversationPage() {
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
           {/* Mobile header */}
-          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
+          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0" data-no-print>
             <JusticeScaleSVG size={22} className="shrink-0" />
             <Link href="/chat">
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -258,13 +297,18 @@ export default function ConversationPage() {
                 </p>
               </div>
             ) : null}
-            <div className="flex items-center gap-1 shrink-0 text-muted-foreground bg-muted px-2 py-1 rounded-full border border-border">
-              <ScanSearch className="w-3.5 h-3.5 text-accent" />
+            <div className="flex items-center gap-1.5 shrink-0">
+              {isVoiceConversation && (
+                <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
+              )}
+              <button onClick={handlePrint} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Imprimer / PDF">
+                <Printer className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
           {/* Desktop header */}
-          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0">
+          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0" data-no-print>
             {isLoadingConv ? (
               <div className="flex items-center gap-3">
                 <JusticeScaleSVG size={28} />
@@ -293,18 +337,33 @@ export default function ConversationPage() {
                 <span>Conversation not found</span>
               </div>
             )}
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
-              <ScanSearch className="w-3.5 h-3.5 text-accent" />
-              <span>{t.chat.analyzeDocBadge}</span>
+
+            {/* Right side header actions */}
+            <div className="flex items-center gap-2">
+              {isVoiceConversation && (
+                <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
+              )}
+              <button
+                onClick={handlePrint}
+                className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors text-xs font-medium"
+                title="Imprimer / Sauvegarder en PDF"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Imprimer</span>
+              </button>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
+                <ScanSearch className="w-3.5 h-3.5 text-accent" />
+                <span>{t.chat.analyzeDocBadge}</span>
+              </div>
             </div>
           </header>
 
-          {/* Chat Area */}
-          <div ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
+          {/* Chat Area (printable) */}
+          <div id="print-area" ref={chatAreaRef} className="flex-1 overflow-y-auto p-3 md:p-6 scroll-smooth">
             <div className="max-w-4xl mx-auto flex flex-col">
 
               {messages?.length === 0 && !isStreaming && (
-                <div className="h-[40vh] flex flex-col items-center justify-center text-center space-y-4 text-muted-foreground">
+                <div className="h-[40vh] flex flex-col items-center justify-center text-center space-y-4 text-muted-foreground" data-no-print>
                   <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center">
                     <Info className="w-8 h-8 opacity-50" />
                   </div>
@@ -380,86 +439,100 @@ export default function ConversationPage() {
           </div>
 
           {/* Input Area */}
-          <div className="p-3 md:p-4 bg-background border-t border-border shrink-0">
-            <div className="max-w-4xl mx-auto space-y-2">
+          {!isVoiceConversation && (
+            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0" data-no-print>
+              <div className="max-w-4xl mx-auto space-y-2">
 
-              {/* File Preview */}
-              {attachedFile && (
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-accent/30 bg-accent/5">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="preview" className="w-14 h-14 object-cover rounded-lg border border-border shrink-0" />
-                  ) : (
-                    <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center border border-border shrink-0">
-                      <FileText className="w-6 h-6 text-accent" />
+                {/* File Preview */}
+                {attachedFile && (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-accent/30 bg-accent/5">
+                    {previewUrl ? (
+                      <img src={previewUrl} alt="preview" className="w-14 h-14 object-cover rounded-lg border border-border shrink-0" />
+                    ) : (
+                      <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center border border-border shrink-0">
+                        <FileText className="w-6 h-6 text-accent" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{attachedFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isPdf ? t.chat.fileTypePdf : t.chat.fileTypeImage} — {(attachedFile.size / 1024).toFixed(0)} Ko
+                      </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{attachedFile.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {isPdf ? t.chat.fileTypePdf : t.chat.fileTypeImage} — {(attachedFile.size / 1024).toFixed(0)} Ko
-                    </p>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0" onClick={() => clearFile()}>
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0" onClick={clearFile}>
-                    <X className="w-4 h-4" />
-                  </Button>
+                )}
+
+                {/* Input Box */}
+                <div className="relative rounded-xl overflow-hidden border border-input bg-card shadow-sm focus-within:ring-1 focus-within:ring-ring transition-all">
+                  <Textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={attachedFile ? t.chat.docQuestionPlaceholder : t.chat.typeMessage}
+                    className="min-h-[80px] max-h-[300px] w-full resize-none border-0 focus-visible:ring-0 p-4 pb-12 bg-transparent text-sm"
+                    data-testid="textarea-message"
+                  />
+
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-accent"
+                        title={t.chat.attachFileLabel}
+                        onClick={() => fileInputRef.current?.click()}
+                        data-testid="button-attach-file"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-accent"
+                        title={t.chat.attachCameraLabel}
+                        onClick={() => cameraInputRef.current?.click()}
+                        data-testid="button-camera"
+                      >
+                        <Camera className="w-4 h-4" />
+                      </Button>
+                      <span className="text-[10px] text-muted-foreground hidden sm:inline ml-1">
+                        {t.chat.fileHint}
+                      </span>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      onClick={handleSend}
+                      disabled={(!input.trim() && !attachedFile) || isStreaming}
+                      className="h-8 gap-2 shadow-sm"
+                      data-testid="button-send"
+                    >
+                      {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
+                    </Button>
+                  </div>
                 </div>
-              )}
 
-              {/* Input Box */}
-              <div className="relative rounded-xl overflow-hidden border border-input bg-card shadow-sm focus-within:ring-1 focus-within:ring-ring transition-all">
-                <Textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={attachedFile ? t.chat.docQuestionPlaceholder : t.chat.typeMessage}
-                  className="min-h-[80px] max-h-[300px] w-full resize-none border-0 focus-visible:ring-0 p-4 pb-12 bg-transparent text-sm"
-                  data-testid="textarea-message"
-                />
+              </div>
+            </div>
+          )}
 
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-accent"
-                      title={t.chat.attachFileLabel}
-                      onClick={() => fileInputRef.current?.click()}
-                      data-testid="button-attach-file"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-accent"
-                      title={t.chat.attachCameraLabel}
-                      onClick={() => cameraInputRef.current?.click()}
-                      data-testid="button-camera"
-                    >
-                      <Camera className="w-4 h-4" />
-                    </Button>
-                    <span className="text-[10px] text-muted-foreground hidden sm:inline ml-1">
-                      {t.chat.fileHint}
-                    </span>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    onClick={handleSend}
-                    disabled={(!input.trim() && !attachedFile) || isStreaming}
-                    className="h-8 gap-2 shadow-sm"
-                    data-testid="button-send"
-                  >
-                    {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
-                  </Button>
+          {/* Voice conversation: prompt to continue by voice */}
+          {isVoiceConversation && (
+            <div className="p-3 md:p-4 bg-background border-t border-border shrink-0" data-no-print>
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-muted/50 border border-border text-sm text-muted-foreground">
+                  <span>Continuez la conversation par appel vocal</span>
+                  <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
                 </div>
               </div>
-
             </div>
-          </div>
+          )}
         </main>
       </div>
     </Layout>

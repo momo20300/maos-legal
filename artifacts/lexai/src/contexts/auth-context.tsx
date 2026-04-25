@@ -9,6 +9,7 @@ export interface AuthUser {
   firstName: string | null;
   lastName: string | null;
   jobTitle: string | null;
+  country: string | null;
   plan: string | null;
   subscriptionStatus: string | null;
   isAdmin: boolean;
@@ -22,7 +23,7 @@ interface AuthContextValue {
   register: (email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  updateProfile: (data: { firstName?: string; lastName?: string; jobTitle?: string }) => Promise<void>;
+  updateProfile: (data: { firstName?: string; lastName?: string; jobTitle?: string; country?: string }) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
@@ -75,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
-  const updateProfile = async (profileData: { firstName?: string; lastName?: string; jobTitle?: string }) => {
+  const updateProfile = async (profileData: { firstName?: string; lastName?: string; jobTitle?: string; country?: string }) => {
     const res = await fetch(`${API}/auth/profile`, {
       method: "PUT", headers: { "Content-Type": "application/json" },
       credentials: "include", body: JSON.stringify(profileData),
