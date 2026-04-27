@@ -128,10 +128,10 @@ export default function ConversationPage() {
   }, [previewUrl]);
 
   const handleSend = async (overrideInput?: string) => {
-    const userContent = overrideInput !== undefined ? overrideInput : input;
+    const userContent = typeof overrideInput === "string" ? overrideInput : input;
     if ((!userContent.trim() && !attachedFile) || isStreaming || !id) return;
 
-    if (overrideInput === undefined) setInput("");
+    if (typeof overrideInput !== "string") setInput("");
     setIsStreaming(true);
     isStreamingRef.current = true;
     setStreamedContent("");
