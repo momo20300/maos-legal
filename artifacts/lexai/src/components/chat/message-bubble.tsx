@@ -64,6 +64,11 @@ function parseMessage(content: string): ParsedMessage {
   return { preText: chatText, documentContent: null, documentStreaming: false, postText: "", attachmentType, attachmentFilename, chatText };
 }
 
+// Detect Arabic characters in a string
+function containsArabic(text: string): boolean {
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text);
+}
+
 // Highlight legal citations inside a string
 const CITATION_RE = /(\[(?:Art(?:icle)?\.?|Section|Sec\.|U\.S\.C\.|C\.F\.R\.|CJEU|v\.|Arrêt|Décision|Loi|Dahir|D\.O\.C|CPP?C?|CPCC|DOC)[^\]]*\]|\[[^\]]{3,60}\])/g;
 
@@ -205,9 +210,13 @@ const mdComponents: Components = {
 };
 
 // Main markdown renderer for assistant messages
-function MarkdownContent({ content }: { content: string }) {
+function MarkdownContent({ content, isRtl }: { content: string; isRtl?: boolean }) {
   return (
-    <div className="text-foreground/85">
+    <div
+      className="text-foreground/85"
+      dir={isRtl ? "rtl" : undefined}
+      style={isRtl ? { textAlign: "right", fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" } : undefined}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
         {content}
       </ReactMarkdown>
@@ -230,6 +239,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   } = parseMessage(message.content);
 
   const hasDocument = documentContent !== null;
+  const isRtl = containsArabic(message.content);
 
   if (isAssistant && (hasDocument || documentStreaming)) {
     return (
@@ -246,7 +256,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
             {preText && (
               <div className="px-5 py-3.5 rounded-2xl shadow-sm bg-card border border-border text-card-foreground rounded-tl-none">
-                <MarkdownContent content={preText} />
+                <MarkdownContent content={preText} isRtl={containsArabic(preText)} />
               </div>
             )}
 
@@ -261,7 +271,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
             {postText && (
               <div className="px-5 py-3.5 rounded-2xl shadow-sm bg-card border border-border text-card-foreground rounded-tl-none">
-                <MarkdownContent content={postText} />
+                <MarkdownContent content={postText} isRtl={containsArabic(postText)} />
               </div>
             )}
           </div>
@@ -321,9 +331,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             }`}
           >
             {isAssistant ? (
-              <MarkdownContent content={displayText} />
+              <MarkdownContent content={displayText} isRtl={isRtl} />
             ) : (
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayText}</p>
+              <p
+                className="text-sm leading-relaxed whitespace-pre-wrap"
+                dir={isRtl ? "rtl" : undefined}
+                style={isRtl ? { textAlign: "right", fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" } : undefined}
+              >
+                {displayText}
+              </p>
             )}
           </div>
         </div>
