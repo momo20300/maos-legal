@@ -273,14 +273,14 @@ footer:focus-visible {
   }
 }
 
-@media (max-width: 768px) {
-  ::-webkit-scrollbar {
-    display: none;
-  }
-  html, body {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 @layer utilities {
