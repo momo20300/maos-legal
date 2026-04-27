@@ -7,7 +7,7 @@ interface DocumentCardProps {
   content: string;
 }
 
-function isArabicDocument(text: string): boolean {
+export function isArabicDocument(text: string): boolean {
   const arabicChars = (text.match(/[\u0600-\u06FF]/g) || []).length;
   return arabicChars / text.length > 0.25;
 }
@@ -163,7 +163,7 @@ function fmtInline(s: string): string {
   return esc(s).replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\*(.*?)\*/g, "<i>$1</i>");
 }
 
-function buildPrintHtml(content: string, isRTL: boolean): string {
+export function buildPrintHtml(content: string, isRTL: boolean): string {
   const lines = content.split("\n");
   const blocks = parseDocumentBlocks(lines);
   const align = isRTL ? "right" : "left";

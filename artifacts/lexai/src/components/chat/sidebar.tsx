@@ -2,12 +2,13 @@ import { Link, useLocation } from "wouter";
 import { useListAnthropicConversations } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Scale, Plus, Trash2, MessageSquare } from "lucide-react";
+import { Scale, Plus, Trash2, MessageSquare, FileDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteAnthropicConversation } from "@workspace/api-client-react";
 import { getListAnthropicConversationsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/language-context";
+import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
 
 export function ChatSidebar() {
   const [location, setLocation] = useLocation();
@@ -35,6 +36,18 @@ export function ChatSidebar() {
     if (confirm(t.chat.deleteConfirm)) {
       deleteMutation.mutate({ id });
     }
+  };
+
+  const handlePdf = (e: React.MouseEvent, conv: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isAR = isArabicDocument(conv.title ?? "");
+    const content = isAR
+      ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""}\n**المجال القانوني :** ${conv.legalDomain ?? ""}`
+      : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""}\n**Domaine juridique :** ${conv.legalDomain ?? ""}`;
+    const html = buildPrintHtml(content, isAR);
+    const win = window.open("", "_blank", "width=850,height=1100");
+    if (win) { win.document.write(html); win.document.close(); }
   };
 
   return (
@@ -81,18 +94,26 @@ export function ChatSidebar() {
                       data-testid={`link-conversation-${conv.id}`}
                     >
                       <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-[#c9a227]" : "text-sidebar-foreground/40"}`} />
-                      <span className="text-sm font-medium line-clamp-1 flex-1 pr-5 leading-snug">
+                      <span className="text-sm font-medium line-clamp-1 flex-1 pr-14 leading-snug">
                         {conv.title}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 absolute right-1.5 text-sidebar-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all shrink-0"
-                        onClick={(e) => handleDelete(e, conv.id)}
-                        data-testid={`button-delete-${conv.id}`}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <div className="absolute right-1.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                        <button
+                          className="h-6 w-6 rounded flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all shrink-0"
+                          onClick={(e) => handlePdf(e, conv)}
+                        >
+                          <FileDown className="w-3 h-3" />
+                        </button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-sidebar-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all shrink-0"
+                          onClick={(e) => handleDelete(e, conv.id)}
+                          data-testid={`button-delete-${conv.id}`}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   </Link>
                 );

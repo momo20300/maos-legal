@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   FolderOpen, Plus, Trash2, MessageSquare,
-  Link2, X, ArrowLeft, ChevronRight, Loader2,
+  Link2, X, ArrowLeft, ChevronRight, Loader2, FileDown,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useLanguage } from "@/contexts/language-context";
@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -112,6 +113,32 @@ export default function DossiersPage() {
     fetchDetail(selectedDossier.id);
   };
 
+  const openPrintWindow = (html: string) => {
+    const win = window.open("", "_blank", "width=850,height=1100");
+    if (win) { win.document.write(html); win.document.close(); }
+  };
+
+  const handleDossierPdf = (e: React.MouseEvent, dossier: Dossier) => {
+    e.stopPropagation();
+    const isAR = language === "ar";
+    const dateStr = format(new Date(dossier.createdAt), "d MMMM yyyy");
+    const content = isAR
+      ? `# ${dossier.name}\n\n${dossier.description ?? ""}\n\n---\n\n**تاريخ الإنشاء :** ${dateStr}`
+      : `# ${dossier.name}\n\n${dossier.description ?? ""}\n\n---\n\n**Date de création :** ${dateStr}`;
+    openPrintWindow(buildPrintHtml(content, isAR));
+  };
+
+  const handleItemPdf = (e: React.MouseEvent, item: DossierItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isAR = isArabicDocument(item.conversationTitle) || language === "ar";
+    const dateStr = format(new Date(item.conversationCreatedAt), "d MMMM yyyy");
+    const content = isAR
+      ? `# ${item.conversationTitle}\n\n---\n\n**الجهة القضائية :** ${item.conversationJurisdiction}\n**المجال القانوني :** ${item.conversationLegalDomain}\n**التاريخ :** ${dateStr}`
+      : `# ${item.conversationTitle}\n\n---\n\n**Juridiction :** ${item.conversationJurisdiction}\n**Domaine juridique :** ${item.conversationLegalDomain}\n**Date :** ${dateStr}`;
+    openPrintWindow(buildPrintHtml(content, isAR));
+  };
+
   const openLink = async () => {
     const r = await fetch(`${BASE}/api/anthropic/conversations`, { credentials: "include" });
     if (r.ok) setConversations(await r.json());
@@ -173,10 +200,15 @@ export default function DossiersPage() {
                     {selectedDossier.items.map(item => (
                       <Link key={item.id} href={`/conversations/${item.conversationId}`}>
                         <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all">
-                          <button className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={e => { e.preventDefault(); e.stopPropagation(); handleUnlinkItem(item.id); }}>
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                          <div className="flex items-start gap-2.5 pr-8">
+                          <div className="absolute top-3 right-3 flex items-center gap-0.5">
+                            <button className="w-7 h-7 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors" onClick={e => handleItemPdf(e, item)}>
+                              <FileDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={e => { e.preventDefault(); e.stopPropagation(); handleUnlinkItem(item.id); }}>
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="flex items-start gap-2.5 pr-16">
                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><MessageSquare className="w-4 h-4 text-primary" /></div>
                             <div className="flex-1 min-w-0">
                               <p className="font-semibold text-sm text-foreground line-clamp-1">{item.conversationTitle}</p>
@@ -218,8 +250,15 @@ export default function DossiersPage() {
                   <div className="p-4 space-y-3">
                     {dossiers.map(dossier => (
                       <div key={dossier.id} className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer" onClick={() => fetchDetail(dossier.id)}>
-                        <button className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={e => handleDelete(e, dossier.id)}><Trash2 className="w-3.5 h-3.5" /></button>
-                        <div className="flex items-start gap-2.5 pr-8">
+                        <div className="absolute top-3 right-3 flex items-center gap-0.5">
+                          <button className="w-7 h-7 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors" onClick={e => handleDossierPdf(e, dossier)}>
+                            <FileDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={e => handleDelete(e, dossier.id)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="flex items-start gap-2.5 pr-16">
                           <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0"><FolderOpen className="w-4 h-4 text-[#c9a227]" /></div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm text-foreground line-clamp-1">{dossier.name}</p>
@@ -397,13 +436,21 @@ export default function DossiersPage() {
                     {selectedDossier.items.map(item => (
                       <Link key={item.id} href={`/conversations/${item.conversationId}`}>
                         <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer h-full">
-                          <button
-                            className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
-                            onClick={e => { e.preventDefault(); e.stopPropagation(); handleUnlinkItem(item.id); }}
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                          <div className="flex items-start gap-2.5 pr-6">
+                          <div className="absolute top-2.5 right-2.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                            <button
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all"
+                              onClick={e => handleItemPdf(e, item)}
+                            >
+                              <FileDown className="w-3 h-3" />
+                            </button>
+                            <button
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                              onClick={e => { e.preventDefault(); e.stopPropagation(); handleUnlinkItem(item.id); }}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <div className="flex items-start gap-2.5 pr-14">
                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                               <MessageSquare className="w-4 h-4 text-primary" />
                             </div>
@@ -448,13 +495,21 @@ export default function DossiersPage() {
                       className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 hover:shadow-md transition-all cursor-pointer"
                       onClick={() => fetchDetail(dossier.id)}
                     >
-                      <button
-                        className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
-                        onClick={e => handleDelete(e, dossier.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                      <div className="flex items-start gap-2.5 pr-6">
+                      <div className="absolute top-2.5 right-2.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                        <button
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all"
+                          onClick={e => handleDossierPdf(e, dossier)}
+                        >
+                          <FileDown className="w-3 h-3" />
+                        </button>
+                        <button
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                          onClick={e => handleDelete(e, dossier.id)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="flex items-start gap-2.5 pr-14">
                         <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0">
                           <FolderOpen className="w-4 h-4 text-[#c9a227]" />
                         </div>

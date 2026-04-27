@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "wouter";
-import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft, Phone, FileText } from "lucide-react";
+import { Scale, Loader2, ChevronRight, Plus, Trash2, Shield, MessageSquare, ChevronLeft, Phone, FileText, FileDown } from "lucide-react";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/language-context";
@@ -20,6 +20,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { format } from "date-fns";
 import { useState, useMemo, useEffect } from "react";
+import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -107,6 +108,29 @@ export default function ChatPage() {
     }
   };
 
+  const openPrintWindow = (html: string) => {
+    const win = window.open("", "_blank", "width=850,height=1100");
+    if (win) { win.document.write(html); win.document.close(); }
+  };
+
+  const handleConvPdf = (e: React.MouseEvent, conv: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isAR = isArabicDocument(conv.title ?? "") || language === "ar";
+    const dateStr = format(new Date(conv.createdAt), "d MMMM yyyy");
+    const content = isAR
+      ? `# ${conv.title}\n\n---\n\n**الجهة القضائية :** ${conv.jurisdiction}\n**المجال القانوني :** ${conv.legalDomain}\n**التاريخ :** ${dateStr}`
+      : `# ${conv.title}\n\n---\n\n**Juridiction :** ${conv.jurisdiction}\n**Domaine juridique :** ${conv.legalDomain}\n**Date :** ${dateStr}`;
+    openPrintWindow(buildPrintHtml(content, isAR));
+  };
+
+  const handleDocPdf = (e: React.MouseEvent, doc: ArchivedDoc) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isAR = isArabicDocument(doc.content);
+    openPrintWindow(buildPrintHtml(doc.content, isAR));
+  };
+
   const createMutation = useCreateAnthropicConversation({
     mutation: {
       onSuccess: (data) => {
@@ -180,13 +204,21 @@ export default function ChatPage() {
                 {conversations?.map((conv) => (
                   <Link key={conv.id} href={`/conversations/${conv.id}`}>
                     <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all active:scale-[0.99]">
-                      <button
-                        className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                        onClick={(e) => handleDelete(e, conv.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      <div className="flex items-start gap-2.5 pr-8">
+                      <div className="absolute top-3 right-3 flex items-center gap-0.5">
+                        <button
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
+                          onClick={(e) => handleConvPdf(e, conv)}
+                        >
+                          <FileDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          onClick={(e) => handleDelete(e, conv.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="flex items-start gap-2.5 pr-16">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                           <MessageSquare className="w-4 h-4 text-primary" />
                         </div>
@@ -486,13 +518,21 @@ export default function ChatPage() {
                     return (
                       <Link key={conv.id} href={`/conversations/${conv.id}`}>
                         <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer h-full">
-                          <button
-                            className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
-                            onClick={(e) => handleDelete(e, conv.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                          <div className="flex items-start gap-2.5 pr-6">
+                          <div className="absolute top-2.5 right-2.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                            <button
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all"
+                              onClick={(e) => handleConvPdf(e, conv)}
+                            >
+                              <FileDown className="w-3 h-3" />
+                            </button>
+                            <button
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                              onClick={(e) => handleDelete(e, conv.id)}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <div className="flex items-start gap-2.5 pr-14">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isVoice ? "bg-[#c9a227]/15" : "bg-primary/10"}`}>
                               {isVoice ? <Phone className="w-4 h-4 text-[#c9a227]" /> : <MessageSquare className="w-4 h-4 text-primary" />}
                             </div>
@@ -536,8 +576,14 @@ export default function ChatPage() {
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                     {archivedDocs.map((doc) => (
                       <Link key={doc.id} href={doc.conversationId ? `/conversations/${doc.conversationId}` : "/chat"}>
-                        <div className="group bg-card border border-[#c9a227]/30 rounded-xl p-4 hover:border-[#c9a227]/70 transition-all cursor-pointer">
-                          <div className="flex items-start gap-2.5">
+                        <div className="group relative bg-card border border-[#c9a227]/30 rounded-xl p-4 hover:border-[#c9a227]/70 transition-all cursor-pointer">
+                          <button
+                            className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 opacity-0 group-hover:opacity-100 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all"
+                            onClick={(e) => handleDocPdf(e, doc)}
+                          >
+                            <FileDown className="w-3 h-3" />
+                          </button>
+                          <div className="flex items-start gap-2.5 pr-8">
                             <div className="w-8 h-8 rounded-lg bg-[#c9a227]/15 flex items-center justify-center shrink-0">
                               <FileText className="w-4 h-4 text-[#c9a227]" />
                             </div>
