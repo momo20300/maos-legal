@@ -264,7 +264,7 @@ export function VoiceCallFAB() {
 
   if (callState === "active") {
     return (
-      <div className="fixed bottom-36 md:bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      <div className="fixed bottom-36 md:bottom-6 end-6 z-50 flex flex-col items-end gap-2">
         <button onClick={toggleMute} className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all border ${isMuted ? "bg-red-500 border-red-600 text-white" : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"}`} title={isMuted ? "Réactiver" : "Couper le micro"}>
           {isMuted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
         </button>
@@ -280,7 +280,7 @@ export function VoiceCallFAB() {
 
   if (callState === "connecting") {
     return (
-      <div className="fixed bottom-36 md:bottom-6 right-6 z-50">
+      <div className="fixed bottom-36 md:bottom-6 end-6 z-50">
         <div className="w-14 h-14 rounded-full bg-accent flex items-center justify-center shadow-xl">
           <Phone className="w-6 h-6 text-[#0d1b2e] animate-pulse" />
         </div>
@@ -291,7 +291,7 @@ export function VoiceCallFAB() {
 
   return (
     <>
-      <div className="fixed bottom-36 md:bottom-6 right-6 z-50">
+      <div className="fixed bottom-36 md:bottom-6 end-6 z-50">
         <button
           onClick={() => setShowSheet(true)}
           className="w-14 h-14 rounded-full bg-[#c9a227] hover:bg-[#b8911f] text-[#0d1b2e] flex items-center justify-center shadow-xl transition-all hover:scale-105 active:scale-95 focus:outline-none"
