@@ -11,10 +11,10 @@ interface LayoutProps {
 
 export function Layout({ children, scrollable = false }: LayoutProps) {
   return (
-    <div className="h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-background text-foreground overflow-hidden outline-none">
       <Navbar />
 
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden outline-none">
         <DesktopSidebar />
         {scrollable ? (
           <main className="flex-1 overflow-y-auto pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0 outline-none">

@@ -11,7 +11,7 @@
   color: #0d1b2e;
 }
 
-/* Suppress browser's automatic scroll-focus blue outline on overflow containers */
+/* Suppress browser's automatic scroll-focus blue outline on overflow containers and layout elements */
 .overflow-y-auto:focus,
 .overflow-y-auto:focus-visible,
 .overflow-auto:focus,
@@ -19,7 +19,21 @@
 .overflow-hidden:focus,
 .overflow-hidden:focus-visible,
 [tabindex="-1"]:focus,
-[tabindex="-1"]:focus-visible {
+[tabindex="-1"]:focus-visible,
+div:focus,
+div:focus-visible,
+main:focus,
+main:focus-visible,
+aside:focus,
+aside:focus-visible,
+nav:focus,
+nav:focus-visible,
+section:focus,
+section:focus-visible,
+header:focus,
+header:focus-visible,
+footer:focus,
+footer:focus-visible {
   outline: none !important;
 }
 
