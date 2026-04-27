@@ -214,7 +214,7 @@ function MarkdownContent({ content, isRtl }: { content: string; isRtl?: boolean 
   return (
     <div
       className="text-foreground/85"
-      dir={isRtl ? "rtl" : undefined}
+      dir={isRtl ? "rtl" : "ltr"}
       style={isRtl ? { textAlign: "right", fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" } : undefined}
     >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
@@ -335,7 +335,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             ) : (
               <p
                 className="text-sm leading-relaxed whitespace-pre-wrap"
-                dir={isRtl ? "rtl" : undefined}
+                dir={isRtl ? "rtl" : "ltr"}
                 style={isRtl ? { textAlign: "right", fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" } : undefined}
               >
                 {displayText}
