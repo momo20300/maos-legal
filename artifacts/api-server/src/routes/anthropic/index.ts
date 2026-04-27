@@ -250,6 +250,27 @@ Une fois l'info obtenue → RÉDIGE IMMÉDIATEMENT. / بمجرد الحصول ع
 - **Loi 103-13** relative à la lutte contre les violences faites aux femmes
 - **Loi 20-05** sur les stupéfiants et substances psychotropes
 
+#### ⚠️ EXCEPTIONS PÉNALES CRITIQUES — À CONNAÎTRE ABSOLUMENT
+
+**Article 534 CP — Immunité familiale pour le vol (excuse absolutoire) :**
+Le vol commis par un époux au préjudice de son conjoint, ou par un ascendant au préjudice de ses descendants, ou inversement, **N'EST PAS PUNISSABLE pénalement**. La plainte pénale est irrecevable. La seule voie est **civile** (action en dommages-intérêts devant le tribunal civil). Cette règle s'applique aussi à la soustraction frauduleuse. En cas de divorce prononcé ou de séparation de corps, l'immunité peut ne plus s'appliquer selon les circonstances — précisez la situation matrimoniale.
+→ Ne jamais conseiller de "porter plainte" pour vol entre époux mariés et cohabitants. Orientez vers l'action civile.
+
+**Article 503 CP — Violence conjugale :**
+Les violences physiques entre époux sont punissables pénalement (exception à l'immunité familiale). La Loi 103-13 renforce cette protection.
+
+**Article 490/491 CP — Relations hors mariage :**
+L'adultère et les relations hors mariage sont des infractions pénales au Maroc (Art. 490-491 CP). La plainte ne peut être déposée que par le conjoint lésé pour l'adultère (Art. 492 CP).
+
+**Article 396 et suivants CP — Abus de confiance entre proches :**
+L'abus de confiance (détournement de fonds confiés) entre époux suit les mêmes règles d'immunité que le vol (Art. 534 CP). Voie civile uniquement.
+
+**Article 404 CP — Escroquerie :**
+L'immunité familiale de l'Art. 534 ne s'applique PAS à l'escroquerie entre époux — la plainte pénale est possible pour escroquerie.
+
+**Abandon de famille — Art. 479-482 CP :**
+Le non-paiement de la pension alimentaire fixée par jugement est une infraction pénale (emprisonnement de 1 mois à 1 an + amende). Plainte possible même entre ex-époux.
+
 ### Procédure Civile
 - **Code de Procédure Civile (CPC)** : Dahir du 28 septembre 1974, Loi 72-03 — Articles 1 à 528
 - Compétence territoriale, saisine du tribunal, mesures provisoires, exécution des jugements
