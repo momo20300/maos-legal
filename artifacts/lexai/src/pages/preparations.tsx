@@ -201,7 +201,7 @@ export default function PreparationsPage() {
       } else if (line.startsWith("# ")) {
         elements.push(<h2 key={i} className="text-foreground font-bold text-lg mt-4 mb-2">{line.slice(2)}</h2>);
       } else if (line.startsWith("- ") || line.startsWith("• ")) {
-        elements.push(<li key={i} className="text-foreground/80 text-sm ml-4 list-disc">{line.slice(2)}</li>);
+        elements.push(<li key={i} className="text-foreground/80 text-sm ms-4 list-disc">{line.slice(2)}</li>);
       } else if (line.trim() === "") {
         elements.push(<div key={i} className="h-2" />);
       } else {
@@ -301,7 +301,7 @@ export default function PreparationsPage() {
                   <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider px-1">{isRTL ? "المادة القانونية" : "Matière"}</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {domains.map((d) => (
-                      <button key={d} onClick={() => setSelectedDomain(d)} className={`text-left px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all border ${selectedDomain === d ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}>{d}</button>
+                      <button key={d} onClick={() => setSelectedDomain(d)} className={`text-start px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all border ${selectedDomain === d ? "bg-[#c9a227]/20 border-[#c9a227]/60 text-[#c9a227]" : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}`}>{d}</button>
                     ))}
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function PreparationsPage() {
                   </div>
                 </div>
                 <Button onClick={generateExercise} disabled={!selectedDomain || !selectedDifficulty} className="w-full h-10 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm">
-                  <Zap className="w-4 h-4 mr-2" />{isRTL ? "توليد تمرين" : "Générer un exercice"}
+                  <Zap className="w-4 h-4 me-2" />{isRTL ? "توليد تمرين" : "Générer un exercice"}
                 </Button>
               </div>
             )}
@@ -338,13 +338,13 @@ export default function PreparationsPage() {
                   </div>
                   <div className="p-5 space-y-1">{formatText(exercise)}</div>
                 </div>
-                {phase === "exercise" && <Button onClick={() => setPhase("answering")} className="w-full h-11 bg-muted text-foreground border"><Send className="w-4 h-4 mr-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}</Button>}
+                {phase === "exercise" && <Button onClick={() => setPhase("answering")} className="w-full h-11 bg-muted text-foreground border"><Send className="w-4 h-4 me-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}</Button>}
                 {phase === "answering" && (
                   <div className="space-y-3">
                     <Textarea value={answer} onChange={e => setAnswer(e.target.value)} placeholder={isRTL ? "اكتب إجابتك..." : "Rédigez votre réponse..."} className="text-sm resize-none min-h-[180px]" dir={isRTL ? "rtl" : "ltr"} />
                     <div className="flex gap-2">
-                      <Button onClick={() => setPhase("exercise")} variant="ghost" className="flex-1 h-11 text-sm"><ChevronLeft className="w-4 h-4 mr-1" />{isRTL ? "رجوع" : "Retour"}</Button>
-                      <Button onClick={submitAnswer} disabled={!answer.trim() || answer.trim().length < 20} className="flex-[2] h-11 bg-[#c9a227] text-[#0d1b2e] font-bold text-sm"><CheckCircle2 className="w-4 h-4 mr-2" />{isRTL ? "تقديم" : "Soumettre"}</Button>
+                      <Button onClick={() => setPhase("exercise")} variant="ghost" className="flex-1 h-11 text-sm"><ChevronLeft className="w-4 h-4 me-1" />{isRTL ? "رجوع" : "Retour"}</Button>
+                      <Button onClick={submitAnswer} disabled={!answer.trim() || answer.trim().length < 20} className="flex-[2] h-11 bg-[#c9a227] text-[#0d1b2e] font-bold text-sm"><CheckCircle2 className="w-4 h-4 me-2" />{isRTL ? "تقديم" : "Soumettre"}</Button>
                     </div>
                   </div>
                 )}
@@ -366,8 +366,8 @@ export default function PreparationsPage() {
                   <div ref={correctionRef} className="p-5 space-y-1">{formatText(correction)}</div>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={reset} variant="outline" className="flex-1 h-11 text-sm"><RotateCcw className="w-4 h-4 mr-2" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}</Button>
-                  <Button onClick={() => setMobileShowList(true)} className="flex-1 h-11 text-sm"><X className="w-4 h-4 mr-2" />{isRTL ? "خروج" : "Terminer"}</Button>
+                  <Button onClick={reset} variant="outline" className="flex-1 h-11 text-sm"><RotateCcw className="w-4 h-4 me-2" />{isRTL ? "تمرين جديد" : "Nouvel exercice"}</Button>
+                  <Button onClick={() => setMobileShowList(true)} className="flex-1 h-11 text-sm"><X className="w-4 h-4 me-2" />{isRTL ? "خروج" : "Terminer"}</Button>
                 </div>
               </div>
             )}
@@ -404,7 +404,7 @@ export default function PreparationsPage() {
                   <button
                     key={d}
                     onClick={() => setSelectedDomain(d)}
-                    className={`px-2.5 py-2 rounded-lg border text-xs font-medium transition-all text-left truncate ${
+                    className={`px-2.5 py-2 rounded-lg border text-xs font-medium transition-all text-start truncate ${
                       selectedDomain === d ? "border-[#c9a227] bg-[#c9a227]/10 text-[#c9a227]" : "border-border bg-background hover:bg-muted text-foreground"
                     }`}
                   >
@@ -498,7 +498,7 @@ export default function PreparationsPage() {
 
                 {phase === "exercise" && (
                   <Button onClick={() => setPhase("answering")} className="w-full h-11 bg-muted hover:bg-muted/80 text-foreground border border-border font-medium">
-                    <Send className="w-4 h-4 mr-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}
+                    <Send className="w-4 h-4 me-2" />{isRTL ? "كتابة الإجابة" : "Rédiger ma réponse"}
                   </Button>
                 )}
 
@@ -514,10 +514,10 @@ export default function PreparationsPage() {
                     />
                     <div className="flex gap-2">
                       <Button onClick={() => setPhase("exercise")} variant="ghost" className="flex-1 h-11 text-muted-foreground text-sm">
-                        <ChevronLeft className={`w-4 h-4 mr-1 ${isRTL ? "rotate-180" : ""}`} />{isRTL ? "رجوع" : "Retour"}
+                        <ChevronLeft className={`w-4 h-4 me-1 ${isRTL ? "rotate-180" : ""}`} />{isRTL ? "رجوع" : "Retour"}
                       </Button>
                       <Button onClick={submitAnswer} disabled={!answer.trim() || answer.trim().length < 20} className="flex-[2] h-11 bg-[#c9a227] hover:bg-[#b8901f] text-[#0d1b2e] font-bold text-sm">
-                        <CheckCircle2 className="w-4 h-4 mr-2" />{isRTL ? "تقديم للتصحيح" : "Soumettre pour correction"}
+                        <CheckCircle2 className="w-4 h-4 me-2" />{isRTL ? "تقديم للتصحيح" : "Soumettre pour correction"}
                       </Button>
                     </div>
                   </div>
@@ -562,7 +562,7 @@ export default function PreparationsPage() {
 
                 <div className="flex gap-3">
                   <Button onClick={reset} variant="outline" className="flex-1 h-11 text-sm">
-                    <RotateCcw className="w-4 h-4 mr-2" />{isRTL ? "تمرين جديد بنفس الإعدادات" : "Nouvel exercice (mêmes paramètres)"}
+                    <RotateCcw className="w-4 h-4 me-2" />{isRTL ? "تمرين جديد بنفس الإعدادات" : "Nouvel exercice (mêmes paramètres)"}
                   </Button>
                 </div>
               </div>

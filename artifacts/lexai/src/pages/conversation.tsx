@@ -282,7 +282,7 @@ export default function ConversationPage() {
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 flex flex-col bg-background relative min-w-0">
           {/* Mobile header */}
-          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0">
+          <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-card border-b border-border shrink-0" dir="ltr">
             <JusticeScaleSVG size={22} className="shrink-0" />
             <Link href="/chat">
               <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -315,7 +315,7 @@ export default function ConversationPage() {
           </div>
 
           {/* Desktop header */}
-          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0">
+          <header className="hidden md:flex h-16 border-b border-border bg-card items-center px-6 justify-between shrink-0" dir="ltr">
             {isLoadingConv ? (
               <div className="flex items-center gap-3">
                 <JusticeScaleSVG size={28} />
