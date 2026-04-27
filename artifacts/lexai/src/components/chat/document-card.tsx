@@ -155,84 +155,371 @@ function buildTableHtml(header: string[], rows: string[][]): string {
   return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function fmtInline(s: string): string {
+  return esc(s).replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\*(.*?)\*/g, "<i>$1</i>");
+}
+
 function buildPrintHtml(content: string, isRTL: boolean): string {
   const lines = content.split("\n");
   const blocks = parseDocumentBlocks(lines);
+  const align = isRTL ? "right" : "left";
+  const mlProp = isRTL ? "margin-right" : "margin-left";
+  const today = new Date().toLocaleDateString(isRTL ? "ar-MA" : "fr-MA", { year: "numeric", month: "long", day: "numeric" });
+  const year = new Date().getFullYear();
 
   const bodyHtml = blocks
     .map((block) => {
       if (block.type === "table") {
-        return buildTableHtml(block.header, block.rows);
+        const ths = block.header.map((h) => `<th>${fmtInline(h)}</th>`).join("");
+        const trs = block.rows.map((row) => `<tr>${row.map((c) => `<td>${fmtInline(c)}</td>`).join("")}</tr>`).join("");
+        return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
       }
       const line = block.content;
-      if (!line.trim()) return "<br>";
+      if (!line.trim()) return "<div class='spacer'></div>";
       if (line.match(/^---+$/) || line.match(/^___+$/)) return "<hr>";
-      if (line.match(/^#{1,3} /)) return `<p class="heading">${line.replace(/^#{1,3} /, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\*(.*?)\*/g, "<i>$1</i>")}</p>`;
-      if (line.match(/^[\-\*] /)) return `<li>${line.replace(/^[\-\*] /, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")}</li>`;
-      if (line.match(/^\d+\. /)) return `<li>${line.replace(/^\d+\. /, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")}</li>`;
-      return `<p>${line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\*(.*?)\*/g, "<i>$1</i>")}</p>`;
+      if (line.match(/^#{1,3} /)) return `<p class="heading">${fmtInline(line.replace(/^#{1,3} /, ""))}</p>`;
+      if (line.match(/^[\-\*] /))  return `<div class="li">${fmtInline(line.replace(/^[\-\*] /, ""))}</div>`;
+      if (line.match(/^\d+\. /))   return `<div class="li">${fmtInline(line.replace(/^\d+\. /, ""))}</div>`;
+      return `<p>${fmtInline(line)}</p>`;
     })
     .join("\n");
+
+  const disclaimerText = isRTL
+    ? `تم إنشاء هذا المستند بواسطة MAOS Legal — الذكاء القانوني المتقدم. يُعدّ توجيهاً قانونياً ولا يُغني عن استشارة محامٍ مؤهل. © ${year} MAOS Legal — maossot.com`
+    : `Ce document a été généré par MAOS Legal — Intelligence Juridique IA. Il constitue une orientation juridique et ne remplace pas l'avis d'un avocat inscrit au barreau. © ${year} MAOS Legal — maossot.com`;
+
+  const docBadge = isRTL ? "وثيقة قانونية" : "DOCUMENT JURIDIQUE";
 
   return `<!DOCTYPE html>
 <html lang="${isRTL ? "ar" : "fr"}" dir="${isRTL ? "rtl" : "ltr"}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document Juridique</title>
+  <title>Document Juridique — MAOS Legal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     @page {
       size: A4;
-      margin: 8cm 2.5cm 3cm 2.5cm;
+      margin: 4cm 2.5cm 3.2cm 2.5cm;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: ${isRTL ? "'Amiri', 'Scheherazade New', 'Arial', serif" : "'Times New Roman', 'Georgia', serif"};
-      font-size: 12pt;
-      line-height: 1.8;
-      color: #000;
-      background: white;
+      font-family: ${isRTL ? "'Amiri', 'Scheherazade New', serif" : "'Inter', 'Helvetica Neue', Arial, sans-serif"};
+      font-size: 11pt;
+      line-height: 1.75;
+      color: #1a1a2e;
+      background: #fff;
       direction: ${isRTL ? "rtl" : "ltr"};
     }
-    .document { max-width: 100%; }
-    p { margin-bottom: 0.8em; text-align: justify; }
-    p.heading { font-weight: bold; font-size: 13pt; margin: 1.2em 0 0.4em; }
-    strong, b { font-weight: bold; }
-    em, i { font-style: italic; }
-    hr { border: none; border-top: 1px solid #666; margin: 1.5em 0; }
-    li {
-      margin-left: ${isRTL ? "0" : "1.5em"};
-      margin-right: ${isRTL ? "1.5em" : "0"};
-      margin-bottom: 0.3em;
+
+    /* ─── WATERMARK ─────────────────────────────── */
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-42deg);
+      font-family: 'Inter', sans-serif;
+      font-size: 88pt;
+      font-weight: 700;
+      color: rgba(201,168,76,0.055);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: 0.12em;
+      user-select: none;
     }
+
+    /* ─── HEADER (fixed on every page) ──────────── */
+    .doc-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3.6cm;
+      background: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5cm;
+      z-index: 10;
+    }
+    .doc-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #C9A84C 20%, #e4c87a 50%, #C9A84C 80%, transparent);
+    }
+    .logo-area { display: flex; align-items: center; gap: 14px; }
+    .logo-icon { width: 42px; height: 42px; flex-shrink: 0; }
+    .logo-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 19pt;
+      font-weight: 700;
+      color: #C9A84C;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .logo-tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 6.5pt;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .header-meta {
+      text-align: ${isRTL ? "left" : "right"};
+      display: flex;
+      flex-direction: column;
+      align-items: ${isRTL ? "flex-start" : "flex-end"};
+      gap: 7px;
+    }
+    .doc-badge {
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: #C9A84C;
+      font-family: 'Inter', sans-serif;
+      font-size: 6.5pt;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+    .doc-date {
+      font-family: 'Inter', sans-serif;
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ─── CONTENT ────────────────────────────────── */
+    .doc-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    p { margin-bottom: 0.85em; text-align: justify; }
+
+    p.heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 13pt;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin: 1.6em 0 0.5em;
+      padding-bottom: 7px;
+      border-bottom: 1.5px solid rgba(201,168,76,0.35);
+    }
+
+    strong, b { font-weight: 600; }
+    em, i { font-style: italic; }
+
+    hr {
+      border: none;
+      border-top: 1px solid rgba(201,168,76,0.25);
+      margin: 1.6em 0;
+    }
+
+    .spacer { height: 0.5em; }
+
+    .li {
+      ${mlProp}: 1.8em;
+      margin-bottom: 0.35em;
+      position: relative;
+    }
+    .li::before {
+      content: '◆';
+      position: absolute;
+      ${isRTL ? "right" : "left"}: -1.5em;
+      color: #C9A84C;
+      font-size: 6.5pt;
+      top: 5px;
+    }
+
+    /* ─── TABLES ─────────────────────────────────── */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1.2em 0;
-      font-size: 11pt;
+      margin: 1.3em 0;
+      font-size: 10pt;
+      border: 1px solid #d5cebb;
     }
+    thead tr { background: #1a1a2e; }
     th {
-      background: #f5f0e0;
-      border: 1px solid #999;
-      padding: 6px 10px;
-      font-weight: bold;
-      text-align: ${isRTL ? "right" : "left"};
+      color: #C9A84C;
+      border: 1px solid #2e2e50;
+      padding: 8px 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 8.5pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: ${align};
     }
     td {
-      border: 1px solid #bbb;
-      padding: 5px 10px;
-      text-align: ${isRTL ? "right" : "left"};
+      border: 1px solid #ddd8ca;
+      padding: 6px 12px;
+      text-align: ${align};
     }
-    tr:nth-child(even) td { background: #fafaf8; }
+    tr:nth-child(even) td { background: #faf8f3; }
+
+    /* ─── QR PLACEHOLDER ─────────────────────────── */
+    .qr-row {
+      display: flex;
+      justify-content: ${isRTL ? "flex-start" : "flex-end"};
+      align-items: center;
+      gap: 10px;
+      margin-top: 2.5em;
+      padding-top: 1em;
+      border-top: 1px solid rgba(201,168,76,0.2);
+    }
+    .qr-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 7pt;
+      color: #aaa;
+      text-align: ${isRTL ? "left" : "right"};
+      line-height: 1.5;
+    }
+    .qr-box {
+      width: 58px;
+      height: 58px;
+      border: 1.5px solid rgba(201,168,76,0.35);
+      border-radius: 4px;
+      background: #faf8f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ─── FOOTER (fixed on every page) ──────────── */
+    .doc-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 2.8cm;
+      background: #1a1a2e;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 10px;
+    }
+    .footer-gold-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #C9A84C 20%, #e4c87a 50%, #C9A84C 80%, transparent);
+      margin-bottom: 10px;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2.5cm;
+    }
+    .footer-disclaimer {
+      font-family: 'Inter', sans-serif;
+      font-size: 6.5pt;
+      color: rgba(255,255,255,0.32);
+      max-width: 75%;
+      line-height: 1.5;
+      direction: ${isRTL ? "rtl" : "ltr"};
+    }
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: ${isRTL ? "flex-start" : "flex-end"};
+      gap: 3px;
+    }
+    .footer-page {
+      font-family: 'Inter', sans-serif;
+      font-size: 8pt;
+      color: rgba(201,168,76,0.55);
+      white-space: nowrap;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 7pt;
+      color: rgba(201,168,76,0.3);
+      letter-spacing: 0.12em;
+    }
+
     @media print {
-      body { -webkit-print-color-adjust: exact; }
+      body { -webkit-print-color-adjust: exact; color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
 <body>
-  <div class="document">
-    ${bodyHtml}
+
+  <!-- Filigrane diagonal -->
+  <div class="watermark">CONFIDENTIEL</div>
+
+  <!-- En-tête premium -->
+  <div class="doc-header">
+    <div class="logo-area">
+      <svg class="logo-icon" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="21" cy="21" r="20" stroke="#C9A84C" stroke-width="1.2" opacity="0.35"/>
+        <line x1="21" y1="7" x2="21" y2="35" stroke="#C9A84C" stroke-width="1.4"/>
+        <line x1="9" y1="13" x2="33" y2="13" stroke="#C9A84C" stroke-width="1.4"/>
+        <line x1="9" y1="13" x2="5" y2="21" stroke="#C9A84C" stroke-width="1.1"/>
+        <line x1="33" y1="13" x2="37" y2="21" stroke="#C9A84C" stroke-width="1.1"/>
+        <path d="M4 21 Q9 18.5 14 21 Q9 23.5 4 21Z" fill="#C9A84C" opacity="0.85"/>
+        <path d="M28 21 Q33 18.5 38 21 Q33 23.5 28 21Z" fill="#C9A84C" opacity="0.85"/>
+        <rect x="17.5" y="33" width="7" height="2" rx="1" fill="#C9A84C" opacity="0.6"/>
+      </svg>
+      <div>
+        <div class="logo-name">MAOS Legal</div>
+        <div class="logo-tagline">Intelligence Juridique Premium</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="doc-badge">${docBadge}</div>
+      <div class="doc-date">${today}</div>
+    </div>
   </div>
+
+  <!-- Contenu du document -->
+  <div class="doc-content">
+    ${bodyHtml}
+
+    <!-- QR Code placeholder -->
+    <div class="qr-row">
+      <div class="qr-label">${isRTL ? "التحقق من\nالوثيقة" : "Vérification\ndu document"}</div>
+      <div class="qr-box">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect x="2" y="2" width="15" height="15" rx="1" stroke="#C9A84C" stroke-width="1.4" fill="none"/>
+          <rect x="5.5" y="5.5" width="8" height="8" fill="#C9A84C" opacity="0.45"/>
+          <rect x="23" y="2" width="15" height="15" rx="1" stroke="#C9A84C" stroke-width="1.4" fill="none"/>
+          <rect x="26.5" y="5.5" width="8" height="8" fill="#C9A84C" opacity="0.45"/>
+          <rect x="2" y="23" width="15" height="15" rx="1" stroke="#C9A84C" stroke-width="1.4" fill="none"/>
+          <rect x="5.5" y="26.5" width="8" height="8" fill="#C9A84C" opacity="0.45"/>
+          <rect x="23" y="23" width="4" height="4" fill="#C9A84C" opacity="0.45"/>
+          <rect x="29" y="23" width="4" height="4" fill="#C9A84C" opacity="0.45"/>
+          <rect x="35" y="23" width="2" height="2" fill="#C9A84C" opacity="0.45"/>
+          <rect x="23" y="29" width="4" height="4" fill="#C9A84C" opacity="0.45"/>
+          <rect x="29" y="29" width="2" height="2" fill="#C9A84C" opacity="0.45"/>
+          <rect x="33" y="33" width="4" height="4" fill="#C9A84C" opacity="0.45"/>
+          <rect x="23" y="35" width="4" height="2" fill="#C9A84C" opacity="0.45"/>
+          <rect x="29" y="33" width="2" height="4" fill="#C9A84C" opacity="0.45"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pied de page premium -->
+  <div class="doc-footer">
+    <div class="footer-gold-line"></div>
+    <div class="footer-inner">
+      <div class="footer-disclaimer">${disclaimerText}</div>
+      <div class="footer-right">
+        <div class="footer-page">Page 1</div>
+        <div class="footer-brand">MAOS LEGAL</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     window.onload = function() { window.print(); };
   </script>
