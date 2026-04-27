@@ -11,15 +11,15 @@
   color: #0d1b2e;
 }
 
-/* Suppress browser's automatic scroll-focus blue outline on overflow containers and layout elements */
+/* Suppress ALL browser focus rings on non-interactive elements */
 .overflow-y-auto:focus,
 .overflow-y-auto:focus-visible,
 .overflow-auto:focus,
 .overflow-auto:focus-visible,
 .overflow-hidden:focus,
 .overflow-hidden:focus-visible,
-[tabindex="-1"]:focus,
-[tabindex="-1"]:focus-visible,
+[tabindex]:focus,
+[tabindex]:focus-visible,
 div:focus,
 div:focus-visible,
 main:focus,
@@ -33,8 +33,17 @@ section:focus-visible,
 header:focus,
 header:focus-visible,
 footer:focus,
-footer:focus-visible {
+footer:focus-visible,
+article:focus,
+article:focus-visible {
   outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Global: prevent any element from showing a focus ring unless it's an interactive form element */
+*:focus:not(input):not(textarea):not(select):not(button):not(a):not([role="button"]):not([role="link"]) {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .cl-developerBanner,
