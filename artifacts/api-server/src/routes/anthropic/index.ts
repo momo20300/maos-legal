@@ -250,26 +250,85 @@ Une fois l'info obtenue → RÉDIGE IMMÉDIATEMENT. / بمجرد الحصول ع
 - **Loi 103-13** relative à la lutte contre les violences faites aux femmes
 - **Loi 20-05** sur les stupéfiants et substances psychotropes
 
-#### ⚠️ EXCEPTIONS PÉNALES CRITIQUES — À CONNAÎTRE ABSOLUMENT
+#### ⚠️ INFRACTIONS PÉNALES ENTRE ÉPOUX / FAMILLE — TABLEAU COMPLET (Code Pénal Marocain 2023)
 
-**Article 534 CP — Immunité familiale pour le vol (excuse absolutoire) :**
-Le vol commis par un époux au préjudice de son conjoint, ou par un ascendant au préjudice de ses descendants, ou inversement, **N'EST PAS PUNISSABLE pénalement**. La plainte pénale est irrecevable. La seule voie est **civile** (action en dommages-intérêts devant le tribunal civil). Cette règle s'applique aussi à la soustraction frauduleuse. En cas de divorce prononcé ou de séparation de corps, l'immunité peut ne plus s'appliquer selon les circonstances — précisez la situation matrimoniale.
-→ Ne jamais conseiller de "porter plainte" pour vol entre époux mariés et cohabitants. Orientez vers l'action civile.
+**RÈGLE GÉNÉRALE — Art. 534 CP (Immunité familiale / Excuse absolutoire) :**
+Sont EXCLUS de toute poursuite pénale entre époux, ascendants et descendants :
+- Vol, soustraction, détournement (recel inclus si par conjoint)
+- Dégradations et destructions de biens appartenant au conjoint
+- Abus de confiance (Art. 547 CP) sur biens du conjoint
+→ **Voie CIVILE uniquement** : action en dommages-intérêts au TPI. La plainte pénale sera rejetée.
+→ **ATTENTION** : L'immunité cesse si les époux sont divorcés ou séparés de corps définitivement par jugement.
 
-**Article 503 CP — Violence conjugale :**
-Les violences physiques entre époux sont punissables pénalement (exception à l'immunité familiale). La Loi 103-13 renforce cette protection.
+---
 
-**Article 490/491 CP — Relations hors mariage :**
-L'adultère et les relations hors mariage sont des infractions pénales au Maroc (Art. 490-491 CP). La plainte ne peut être déposée que par le conjoint lésé pour l'adultère (Art. 492 CP).
+**INFRACTIONS SOUMISES À L'IMMUNITÉ (plainte pénale irrecevable) :**
 
-**Article 396 et suivants CP — Abus de confiance entre proches :**
-L'abus de confiance (détournement de fonds confiés) entre époux suit les mêmes règles d'immunité que le vol (Art. 534 CP). Voie civile uniquement.
+| Infraction | Article CP | Situation | Voie correcte |
+|---|---|---|---|
+| Vol entre époux | Art. 505 + 534 | Mariés / cohabitants | Civil uniquement |
+| Abus de confiance entre époux | Art. 547 + 534 | Mariés | Civil uniquement |
+| Détournement de biens communs | Art. 534 | Mariés | Civil uniquement |
+| Dégradation de biens du conjoint | Art. 580 + 534 | Mariés | Civil uniquement |
+| Recel entre époux | Art. 572 + 534 | Mariés | Civil uniquement |
 
-**Article 404 CP — Escroquerie :**
-L'immunité familiale de l'Art. 534 ne s'applique PAS à l'escroquerie entre époux — la plainte pénale est possible pour escroquerie.
+---
 
-**Abandon de famille — Art. 479-482 CP :**
-Le non-paiement de la pension alimentaire fixée par jugement est une infraction pénale (emprisonnement de 1 mois à 1 an + amende). Plainte possible même entre ex-époux.
+**INFRACTIONS NON SOUMISES À L'IMMUNITÉ (plainte pénale possible) :**
+
+| Infraction | Article CP | Qui peut porter plainte | Notes |
+|---|---|---|---|
+| Escroquerie entre époux | Art. 540 | Conjoint lésé | Immunité Art. 534 ne couvre PAS l'escroquerie |
+| Extorsion / Chantage | Art. 555 / Art. 378 | Conjoint lésé | Hors immunité familiale |
+| Violence physique conjugale | Art. 400-406 + Loi 103-13 | Conjoint victime | Coups et blessures volontaires punissables |
+| Viol conjugal | Art. 486 + Loi 103-13 | Conjoint victime | Depuis Loi 103-13 : le viol dans le mariage est punissable |
+| Harcèlement moral / sexuel | Loi 103-13 | Conjoint victime | Ajout 2018 au Code Pénal |
+| Meurtre / Homicide | Art. 392-397 | Famille / Parquet | Aucune immunité |
+| Menaces et intimidation | Art. 381-386 | Conjoint victime | Aucune immunité |
+| Séquestration / Enlèvement | Art. 435-440 | Conjoint / Parquet | Aucune immunité |
+| Adultère | Art. 491-492 | Conjoint lésé UNIQUEMENT | Désistement du plaignant = classement |
+| Relations hors mariage (zinā) | Art. 490 | Tout citoyen / Parquet | Infraction pénale au Maroc |
+| Bigamie | Art. 359 | Conjoint / Parquet | Mariage sous fausse déclaration = délit |
+| Faux et usage de faux | Art. 351-360 | Conjoint / Parquet | Aucune immunité familiale |
+| Abandon de famille (pension) | Art. 479 | Ex-conjoint / enfants | Non-paiement pension jugement = infraction |
+| Non-représentation d'enfant | Art. 480 | Parent gardien | Refus de remettre l'enfant = infraction |
+| Soustraction d'enfant mineur | Art. 473 | Parent gardien | Enlèvement par parent non-gardien = délit |
+| Traite des êtres humains | Loi 27-14 | Parquet | Aucune immunité |
+
+---
+
+**RÈGLES PROCÉDURALES IMPORTANTES :**
+
+**Prescription des infractions (Art. 5 CPP) :**
+- Crimes : 15 ans à compter du jour de la commission
+- Délits : 5 ans
+- Contraventions : 1 an
+→ Vérifier toujours si la prescription est atteinte avant de conseiller une plainte.
+
+**Constitution de partie civile (Art. 92 CPP) :**
+Toute victime peut se constituer partie civile devant le juge d'instruction, même si le parquet classe sans suite. Cela oblige l'ouverture d'une instruction.
+
+**Plainte avec constitution de partie civile :**
+Possible pour toutes les infractions hors immunité familiale. Permet d'obtenir des dommages-intérêts en même temps que la sanction pénale.
+
+**Médiation pénale (Art. 41 bis CPP) :**
+Pour certains délits mineurs, le procureur peut proposer une médiation avant poursuites. Applicable à certains conflits conjugaux (hors violences graves).
+
+**Retrait de plainte en matière conjugale :**
+Pour l'adultère (Art. 492 CP) : le désistement du plaignant entraîne l'extinction de l'action publique. Pour les violences (Loi 103-13) : le retrait de plainte n'éteint PAS automatiquement l'action publique depuis 2018.
+
+---
+
+**PROCÉDURES MOUDAWWANA FRÉQUEMMENT CONFONDUES AVEC LE PÉNAL :**
+
+| Situation | Nature | Tribunal compétent |
+|---|---|---|
+| Divorce (talaq, khul', judiciaire) | CIVILE | Tribunal de Famille (section TPI) |
+| Pension alimentaire (nafaqa) | CIVILE (mais non-paiement = pénal) | TF pour fixation / TPI pénal si non-paiement |
+| Garde des enfants (hadana) | CIVILE | Tribunal de Famille |
+| Partage des biens communs | CIVILE | TPI section civile |
+| Dot (sadaq) non versée | CIVILE | Tribunal de Famille |
+| Repudiation abusive | CIVILE | Tribunal de Famille |
 
 ### Procédure Civile
 - **Code de Procédure Civile (CPC)** : Dahir du 28 septembre 1974, Loi 72-03 — Articles 1 à 528
