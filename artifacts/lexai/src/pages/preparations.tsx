@@ -383,7 +383,7 @@ export default function PreparationsPage() {
       <div className="flex flex-1 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
 
         {/* LEFT: form panel */}
-        <div className="w-[400px] shrink-0 flex flex-col border-r border-border bg-card overflow-y-auto">
+        <div className="w-[400px] shrink-0 flex flex-col border-e border-border bg-card overflow-y-auto">
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 border-b border-border shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#c9a227] to-[#a07c1e] flex items-center justify-center shrink-0">
@@ -452,7 +452,7 @@ export default function PreparationsPage() {
         </div>
 
         {/* RIGHT: exercise content */}
-        <div className="flex-1 overflow-y-auto bg-background">
+        <div className="flex-1 overflow-y-auto bg-background outline-none">
           <div className="max-w-3xl mx-auto px-6 py-6 space-y-5">
 
             {/* Empty state */}
