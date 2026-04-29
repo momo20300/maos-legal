@@ -6,7 +6,9 @@ import { useRoute, Link } from "wouter";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft } from "lucide-react";
+import { Send, Loader2, Info, FileText, Paperclip, Camera, X, FileImage, ScanSearch, ChevronLeft, FileDown } from "lucide-react";
+import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
+import { format } from "date-fns";
 import { JusticeScaleSVG } from "@/components/ui/justice-scale";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +22,7 @@ export default function ConversationPage() {
   const [, params] = useRoute("/conversations/:id");
   const id = Number(params?.id);
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
 
   const [input, setInput] = useState("");
@@ -94,6 +96,25 @@ export default function ConversationPage() {
     queryClient.invalidateQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
     queryClient.refetchQueries({ queryKey: getListAnthropicMessagesQueryKey(id) });
   }, [queryClient, id]);
+
+  const handlePdfPrint = useCallback(() => {
+    if (!conversation || !messages) return;
+    const isAR = isArabicDocument(conversation.title ?? "") || language === "ar";
+    const dateStr = format(new Date(conversation.createdAt), "d MMMM yyyy");
+    let content = isAR
+      ? `# ${conversation.title}\n\n**الجهة القضائية :** ${conversation.jurisdiction ?? ""} | **المجال القانوني :** ${conversation.legalDomain ?? ""} | **التاريخ :** ${dateStr}\n\n---\n\n`
+      : `# ${conversation.title}\n\n**Juridiction :** ${conversation.jurisdiction ?? ""} | **Domaine :** ${conversation.legalDomain ?? ""} | **Date :** ${dateStr}\n\n---\n\n`;
+    for (const msg of messages) {
+      if (msg.role === "user") {
+        content += isAR ? `**أنت :**\n${msg.content}\n\n` : `**Vous :**\n${msg.content}\n\n`;
+      } else if (msg.role === "assistant") {
+        content += isAR ? `**MAOS Legal :**\n${msg.content}\n\n---\n\n` : `**MAOS Legal :**\n${msg.content}\n\n---\n\n`;
+      }
+    }
+    const html = buildPrintHtml(content, isAR);
+    const win = window.open("", "_blank", "width=850,height=1100");
+    if (win) { win.document.write(html); win.document.close(); }
+  }, [conversation, messages, language]);
 
   const handleFileChange = useCallback((file: File | null) => {
     if (!file) return;
@@ -308,6 +329,14 @@ export default function ConversationPage() {
             ) : null}
             <div className="flex items-center gap-1.5 shrink-0">
               <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
+              <button
+                onClick={handlePdfPrint}
+                disabled={!conversation || !messages}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[#C9A84C]/80 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors disabled:opacity-30"
+                title={language === "ar" ? "تنزيل PDF" : "Télécharger PDF"}
+              >
+                <FileDown className="w-4 h-4" />
+              </button>
               <div className="flex items-center gap-1 shrink-0 text-muted-foreground bg-muted px-2 py-1 rounded-full border border-border">
                 <ScanSearch className="w-3.5 h-3.5 text-accent" />
               </div>
@@ -347,6 +376,15 @@ export default function ConversationPage() {
 
             <div className="flex items-center gap-2">
               <VoiceCallInlineButton conversationId={id} onArchived={handleCallArchived} />
+              <button
+                onClick={handlePdfPrint}
+                disabled={!conversation || !messages}
+                className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[#C9A84C]/80 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 border border-[#C9A84C]/30 hover:border-[#C9A84C]/60 transition-all text-xs font-medium disabled:opacity-30"
+                title={language === "ar" ? "تنزيل PDF" : "Télécharger PDF"}
+              >
+                <FileDown className="w-3.5 h-3.5" />
+                <span>{language === "ar" ? "PDF" : "PDF"}</span>
+              </button>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border">
                 <ScanSearch className="w-3.5 h-3.5 text-accent" />
                 <span>{t.chat.analyzeDocBadge}</span>
