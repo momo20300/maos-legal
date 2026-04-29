@@ -19,7 +19,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { JurisdictionBadge } from "@/components/chat/jurisdiction-badge";
 import { format } from "date-fns";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -67,6 +67,7 @@ export default function ChatPage() {
   const isMobile = useIsMobile();
   const isRTL = language === "ar";
   const [showForm, setShowForm] = useState(false);
+  const [pdfLoadingId, setPdfLoadingId] = useState<number | null>(null);
 
   const formSchema = useMemo(() =>
     z.object({
@@ -113,16 +114,36 @@ export default function ChatPage() {
     if (win) { win.document.write(html); win.document.close(); }
   };
 
-  const handleConvPdf = (e: React.MouseEvent, conv: any) => {
+  const handleConvPdf = useCallback(async (e: React.MouseEvent, conv: any) => {
     e.preventDefault();
     e.stopPropagation();
+    if (pdfLoadingId === conv.id) return;
+    setPdfLoadingId(conv.id);
     const isAR = isArabicDocument(conv.title ?? "") || language === "ar";
     const dateStr = format(new Date(conv.createdAt), "d MMMM yyyy");
-    const content = isAR
-      ? `# ${conv.title}\n\n---\n\n**الجهة القضائية :** ${conv.jurisdiction}\n**المجال القانوني :** ${conv.legalDomain}\n**التاريخ :** ${dateStr}`
-      : `# ${conv.title}\n\n---\n\n**Juridiction :** ${conv.jurisdiction}\n**Domaine juridique :** ${conv.legalDomain}\n**Date :** ${dateStr}`;
-    openPrintWindow(buildPrintHtml(content, isAR));
-  };
+    try {
+      const res = await fetch(`${BASE_URL}/api/anthropic/conversations/${conv.id}/messages`);
+      const msgs: Array<{ role: string; content: string }> = await res.json();
+      let content = isAR
+        ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""} | **المجال القانوني :** ${conv.legalDomain ?? ""} | **التاريخ :** ${dateStr}\n\n---\n\n`
+        : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""} | **Domaine :** ${conv.legalDomain ?? ""} | **Date :** ${dateStr}\n\n---\n\n`;
+      for (const msg of (Array.isArray(msgs) ? msgs : [])) {
+        if (msg.role === "user") {
+          content += isAR ? `**أنت :**\n${msg.content}\n\n` : `**Vous :**\n${msg.content}\n\n`;
+        } else if (msg.role === "assistant") {
+          content += isAR ? `**MAOS Legal :**\n${msg.content}\n\n---\n\n` : `**MAOS Legal :**\n${msg.content}\n\n---\n\n`;
+        }
+      }
+      openPrintWindow(buildPrintHtml(content, isAR));
+    } catch {
+      const content = isAR
+        ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""}\n**المجال القانوني :** ${conv.legalDomain ?? ""}\n**التاريخ :** ${dateStr}`
+        : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""}\n**Domaine juridique :** ${conv.legalDomain ?? ""}\n**Date :** ${dateStr}`;
+      openPrintWindow(buildPrintHtml(content, isAR));
+    } finally {
+      setPdfLoadingId(null);
+    }
+  }, [pdfLoadingId, language]);
 
   const handleDocPdf = (e: React.MouseEvent, doc: ArchivedDoc) => {
     e.preventDefault();
@@ -206,10 +227,13 @@ export default function ChatPage() {
                     <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all active:scale-[0.99]">
                       <div className="absolute top-3 right-3 flex items-center gap-0.5">
                         <button
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors"
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-colors disabled:opacity-40"
                           onClick={(e) => handleConvPdf(e, conv)}
+                          disabled={pdfLoadingId === conv.id}
                         >
-                          <FileDown className="w-3.5 h-3.5" />
+                          {pdfLoadingId === conv.id
+                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            : <FileDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
                           className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
@@ -520,10 +544,13 @@ export default function ChatPage() {
                         <div className="group relative bg-card border border-border rounded-xl p-4 hover:border-[#c9a227]/50 transition-all cursor-pointer h-full">
                           <div className="absolute top-2.5 right-2.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
                             <button
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all"
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all disabled:opacity-40"
                               onClick={(e) => handleConvPdf(e, conv)}
+                              disabled={pdfLoadingId === conv.id}
                             >
-                              <FileDown className="w-3 h-3" />
+                              {pdfLoadingId === conv.id
+                                ? <Loader2 className="w-3 h-3 animate-spin" />
+                                : <FileDown className="w-3 h-3" />}
                             </button>
                             <button
                               className="w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"

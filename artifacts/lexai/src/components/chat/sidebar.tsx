@@ -2,18 +2,23 @@ import { Link, useLocation } from "wouter";
 import { useListAnthropicConversations } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Scale, Plus, Trash2, MessageSquare, FileDown } from "lucide-react";
+import { Scale, Plus, Trash2, MessageSquare, FileDown, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteAnthropicConversation } from "@workspace/api-client-react";
 import { getListAnthropicConversationsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/language-context";
 import { buildPrintHtml, isArabicDocument } from "@/components/chat/document-card";
+import { useState, useCallback } from "react";
+import { format } from "date-fns";
+
+const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export function ChatSidebar() {
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [pdfLoadingId, setPdfLoadingId] = useState<number | null>(null);
 
   const { data: conversations, isLoading } = useListAnthropicConversations({
     query: { queryKey: getListAnthropicConversationsQueryKey() }
@@ -38,17 +43,40 @@ export function ChatSidebar() {
     }
   };
 
-  const handlePdf = (e: React.MouseEvent, conv: any) => {
+  const handlePdf = useCallback(async (e: React.MouseEvent, conv: any) => {
     e.preventDefault();
     e.stopPropagation();
-    const isAR = isArabicDocument(conv.title ?? "");
-    const content = isAR
-      ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""}\n**المجال القانوني :** ${conv.legalDomain ?? ""}`
-      : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""}\n**Domaine juridique :** ${conv.legalDomain ?? ""}`;
-    const html = buildPrintHtml(content, isAR);
-    const win = window.open("", "_blank", "width=850,height=1100");
-    if (win) { win.document.write(html); win.document.close(); }
-  };
+    if (pdfLoadingId === conv.id) return;
+    setPdfLoadingId(conv.id);
+    const isAR = isArabicDocument(conv.title ?? "") || language === "ar";
+    const dateStr = format(new Date(conv.createdAt), "d MMMM yyyy");
+    try {
+      const res = await fetch(`${BASE_URL}/api/anthropic/conversations/${conv.id}/messages`);
+      const msgs: Array<{ role: string; content: string }> = await res.json();
+      let content = isAR
+        ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""} | **المجال القانوني :** ${conv.legalDomain ?? ""} | **التاريخ :** ${dateStr}\n\n---\n\n`
+        : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""} | **Domaine :** ${conv.legalDomain ?? ""} | **Date :** ${dateStr}\n\n---\n\n`;
+      for (const msg of (Array.isArray(msgs) ? msgs : [])) {
+        if (msg.role === "user") {
+          content += isAR ? `**أنت :**\n${msg.content}\n\n` : `**Vous :**\n${msg.content}\n\n`;
+        } else if (msg.role === "assistant") {
+          content += isAR ? `**MAOS Legal :**\n${msg.content}\n\n---\n\n` : `**MAOS Legal :**\n${msg.content}\n\n---\n\n`;
+        }
+      }
+      const html = buildPrintHtml(content, isAR);
+      const win = window.open("", "_blank", "width=850,height=1100");
+      if (win) { win.document.write(html); win.document.close(); }
+    } catch {
+      const content = isAR
+        ? `# ${conv.title}\n\n**الجهة القضائية :** ${conv.jurisdiction ?? ""}\n**المجال القانوني :** ${conv.legalDomain ?? ""}\n**التاريخ :** ${dateStr}`
+        : `# ${conv.title}\n\n**Juridiction :** ${conv.jurisdiction ?? ""}\n**Domaine juridique :** ${conv.legalDomain ?? ""}\n**Date :** ${dateStr}`;
+      const html = buildPrintHtml(content, isAR);
+      const win = window.open("", "_blank", "width=850,height=1100");
+      if (win) { win.document.write(html); win.document.close(); }
+    } finally {
+      setPdfLoadingId(null);
+    }
+  }, [pdfLoadingId, language]);
 
   return (
     <div className="w-64 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col h-[calc(100dvh-4rem)] shrink-0">
@@ -99,10 +127,13 @@ export function ChatSidebar() {
                       </span>
                       <div className="absolute right-1.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
                         <button
-                          className="h-6 w-6 rounded flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all shrink-0"
+                          className="h-6 w-6 rounded flex items-center justify-center text-[#C9A84C]/70 hover:text-[#C9A84C] hover:bg-[#C9A84C]/10 transition-all shrink-0 disabled:opacity-40"
                           onClick={(e) => handlePdf(e, conv)}
+                          disabled={pdfLoadingId === conv.id}
                         >
-                          <FileDown className="w-3 h-3" />
+                          {pdfLoadingId === conv.id
+                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                            : <FileDown className="w-3 h-3" />}
                         </button>
                         <Button
                           variant="ghost"
