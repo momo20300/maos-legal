@@ -29,7 +29,7 @@ export default function ConversationPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
 
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -127,7 +127,7 @@ export default function ConversationPage() {
       toast({ title: t.chat.fileSizeError, description: t.chat.fileSizeDesc, variant: "destructive" });
       return;
     }
-    setAttachedFile(file);
+    setAttachedFiles(prev => [...prev, file]);
     if (file.type.startsWith("image/")) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -142,7 +142,7 @@ export default function ConversationPage() {
 
   const clearFile = useCallback((revokeUrl = true) => {
     if (revokeUrl && previewUrl) URL.revokeObjectURL(previewUrl);
-    setAttachedFile(null);
+    setAttachedFiles([]);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
@@ -150,15 +150,15 @@ export default function ConversationPage() {
 
   const handleSend = async (overrideInput?: string) => {
     const userContent = typeof overrideInput === "string" ? overrideInput : input;
-    if ((!userContent.trim() && !attachedFile) || isStreaming || !id) return;
+    if ((!userContent.trim() && attachedFiles.length === 0) || isStreaming || !id) return;
 
     if (typeof overrideInput !== "string") setInput("");
     setIsStreaming(true);
     isStreamingRef.current = true;
     setStreamedContent("");
 
-    const isFileMessage = !!attachedFile;
-    const currentFile = attachedFile;
+    const isFileMessage = attachedFiles.length > 0;
+    const currentFile = attachedFiles[0] ?? null;
     const capturedPreviewUrl = previewUrl;
     clearFile(false);
 
@@ -190,7 +190,7 @@ export default function ConversationPage() {
 
       if (isFileMessage && currentFile) {
         const formData = new FormData();
-        formData.append("file", currentFile);
+        attachedFiles.forEach(f => formData.append("files", f));
         if (userContent.trim()) formData.append("content", userContent);
 
         response = await fetch(`${BASE_URL}/api/anthropic/conversations/${id}/analyze`, {
@@ -264,14 +264,14 @@ export default function ConversationPage() {
     }
   };
 
-  const isPdf = attachedFile?.type === "application/pdf";
+  const isPdf = currentFile?.type === "application/pdf";
 
   // Keep ref always pointing to the latest handleSend (avoids stale closure in useEffect)
   handleSendRef.current = handleSend;
 
   // Auto-send when a PDF is attached: AI reads it and asks the user what they want to know
   useEffect(() => {
-    if (attachedFile?.type === "application/pdf" && autoSendMsgRef.current !== null) {
+    if (currentFile?.type === "application/pdf" && autoSendMsgRef.current !== null) {
       const msg = autoSendMsgRef.current;
       autoSendMsgRef.current = null;
       // Small delay to ensure state is fully settled
@@ -494,7 +494,7 @@ export default function ConversationPage() {
                 <div className="flex items-center gap-3 text-muted-foreground text-sm py-4">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="font-serif italic">
-                    {attachedFile ? t.chat.analyzingDoc : t.chat.analyzingLegal}
+                    {attachedFiles.length > 0 ? t.chat.analyzingDoc : t.chat.analyzingLegal}
                   </span>
                 </div>
               )}
@@ -508,7 +508,7 @@ export default function ConversationPage() {
               <div className="max-w-4xl mx-auto space-y-2">
 
                 {/* File Preview */}
-                {attachedFile && (
+                {attachedFiles.length > 0 && (
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-accent/30 bg-accent/5">
                     {previewUrl ? (
                       <img src={previewUrl} alt="preview" className="w-14 h-14 object-cover rounded-lg border border-border shrink-0" />
@@ -535,7 +535,7 @@ export default function ConversationPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={attachedFile ? t.chat.docQuestionPlaceholder : t.chat.typeMessage}
+                    placeholder={attachedFiles.length > 0 ? t.chat.docQuestionPlaceholder : t.chat.typeMessage}
                     className="min-h-[80px] max-h-[300px] w-full resize-none border-0 focus-visible:ring-0 p-4 pb-12 bg-transparent text-sm"
                     data-testid="textarea-message"
                   />
@@ -577,7 +577,7 @@ export default function ConversationPage() {
                       data-testid="button-send"
                     >
                       {isStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                      {attachedFile ? t.chat.analyzeButton : t.chat.submitButton}
+                      {attachedFiles.length > 0 ? t.chat.analyzeButton : t.chat.submitButton}
                     </Button>
                   </div>
                 </div>

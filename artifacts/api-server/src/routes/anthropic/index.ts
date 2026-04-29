@@ -688,7 +688,7 @@ router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, re
 
   try {
     const stream = anthropic.messages.stream({
-      model: "claude-opus-4-5",
+      model: "claude-opus-4-5-20251101",
       max_tokens: 8192,
       system: getSystemPrompt(conv.jurisdiction),
       messages: chatMessages,
@@ -745,7 +745,7 @@ router.post("/anthropic/conversations/:id/messages", requireAuth, async (req, re
 router.post(
   "/anthropic/conversations/:id/analyze",
   requireAuth,
-  upload.single("file"),
+  upload.array("files",5),
   async (req, res): Promise<void> => {
     const params = SendAnthropicMessageParams.safeParse(req.params);
     if (!params.success) {
@@ -753,10 +753,10 @@ router.post(
       return;
     }
 
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const files = ((req as any).files ?? []) as Express.Multer.File[];
     const userText: string = (req.body?.content as string) || "";
 
-    if (!file) {
+    if (!files || files.length === 0) {
       res.status(400).json({ error: "No file provided" });
       return;
     }
@@ -805,11 +805,12 @@ Liste toutes les personnes, sociétés ou entités présentes dans le document, 
 ## ✅ Conseils pratiques
 Que doit faire le client maintenant ? Quels délais respecter ? Quels recours possibles ?`;
 
-    if (file.mimetype === "application/pdf") {
+    for (const file of files) {
+        if (file.mimetype === "application/pdf") {
   // Use Anthropic native PDF support — no pdf-parse needed
   const base64Pdf = file.buffer.toString("base64");
   const promptText = userText || AUTO_ANALYSIS_PROMPT;
-  claudeContent = [
+  claudeContent.push(
     {
       type: "document",
       source: {
@@ -817,9 +818,8 @@ Que doit faire le client maintenant ? Quels délais respecter ? Quels recours po
         media_type: "application/pdf" as const,
         data: base64Pdf,
       },
-    } as any,
-    { type: "text", text: promptText },
-  ];
+
+    );
   storedContent = userText
     ? `\u{1F4C4} [PDF: ${file.originalname}]\n\n${userText}`
     : `\u{1F4C4} [PDF: ${file.originalname}]\n\nAnalyse automatique demandee`;
@@ -836,17 +836,22 @@ Que doit faire le client maintenant ? Quels délais respecter ? Quels recours po
 
       const promptText = userText || AUTO_ANALYSIS_PROMPT;
 
-      claudeContent = [
+      claudeContent.push(
         {
           type: "image",
           source: { type: "base64", media_type: mediaType, data: base64Data },
-        },
-        { type: "text", text: promptText },
-      ];
+
+            );
       storedContent = userText
         ? `🖼️ [Image: ${file.originalname}]\n\n${userText}`
         : `🖼️ [Image: ${file.originalname}]\n\nAnalyse automatique demandée`;
     }
+
+      // Add text prompt once after all files processed
+      if (claudeContent.length > 0) {
+        claudeContent.push({ type: "text", text: userText || AUTO_ANALYSIS_PROMPT });
+      }
+      if (!storedContent) storedContent = userText || "Analyse automatique";
 
     // Save user message to DB (store image as base64 data URL if ≤ 2MB)
     const attachmentData: string | null =
@@ -883,7 +888,7 @@ Que doit faire le client maintenant ? Quels délais respecter ? Quels recours po
 
     try {
       const stream = anthropic.messages.stream({
-        model: "claude-opus-4-5",
+        model: "claude-opus-4-5-20251101",
         max_tokens: 8192,
         system: getSystemPrompt(conv.jurisdiction),
         messages: chatMessages as Parameters<typeof anthropic.messages.stream>[0]["messages"],
