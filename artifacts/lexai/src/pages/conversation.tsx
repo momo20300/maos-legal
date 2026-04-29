@@ -20,7 +20,7 @@ const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function ConversationPage() {
   const [, params] = useRoute("/conversations/:id");
-  const id = Number(params?.id);
+  const id = Number(params?.id);h
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -289,7 +289,7 @@ export default function ConversationPage() {
         type="file"
         accept="image/*,.pdf"
         className="hidden"
-        onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+        multiple              onChange={(e) => Array.from(e.target.files ?? []).forEach(f => handleFileChange(f))}
       />
       <input
         ref={cameraInputRef}
@@ -297,7 +297,7 @@ export default function ConversationPage() {
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+        multiple              onChange={(e) => Array.from(e.target.files ?? []).forEach(f => handleFileChange(f))}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -518,9 +518,9 @@ export default function ConversationPage() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{attachedFile.name}</p>
+                      <p className="text-sm font-medium truncate">{currentFile?.name ?? ''}</p>
                       <p className="text-xs text-muted-foreground">
-                        {isPdf ? t.chat.fileTypePdf : t.chat.fileTypeImage} — {(attachedFile.size / 1024).toFixed(0)} Ko
+                        {isPdf ? t.chat.fileTypePdf : t.chat.fileTypeImage} — {(currentFile?.size ?? 0 / 1024).toFixed(0)} Ko
                       </p>
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0" onClick={() => clearFile()}>
