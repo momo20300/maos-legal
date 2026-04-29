@@ -13,15 +13,7 @@ import {
 import { requireAuth } from "../../middlewares/requireAuth";
 import multer from "multer";
 
-// pdf-parse uses CJS exports; use globalThis.require (set by esbuild banner) to load the CJS version
-type PdfParseResult = { text: string; numpages: number };
-const pdfParse: (buffer: Buffer) => Promise<PdfParseResult> =
-  typeof globalThis.require === "function"
-    ? (globalThis as any).require("pdf-parse")
-    : /* runtime fallback: dynamic import handled below */ (async (buf: Buffer) => {
-        const mod = await import("pdf-parse" as string);
-        return (mod.default ?? mod)(buf);
-      });
+// PDF: Anthropic native PDF API used (no pdf-parse)
 
 const router: IRouter = Router();
 
@@ -814,22 +806,24 @@ Liste toutes les personnes, sociétés ou entités présentes dans le document, 
 Que doit faire le client maintenant ? Quels délais respecter ? Quels recours possibles ?`;
 
     if (file.mimetype === "application/pdf") {
-      try {
-        const parsed = await pdfParse(file.buffer);
-        const extractedText = parsed.text.trim();
-        const prompt = userText
-          ? `${userText}\n\n--- Contenu du document PDF (${file.originalname}) ---\n${extractedText}`
-          : `${AUTO_ANALYSIS_PROMPT}\n\n--- Contenu du document PDF (${file.originalname}) ---\n${extractedText}`;
-
-        claudeContent = [{ type: "text", text: prompt }];
-        storedContent = userText
-          ? `📄 [PDF: ${file.originalname}]\n\n${userText}`
-          : `📄 [PDF: ${file.originalname}]\n\nAnalyse automatique demandée`;
-      } catch {
-        res.status(400).json({ error: "Failed to parse PDF" });
-        return;
-      }
-    } else {
+  // Use Anthropic native PDF support — no pdf-parse needed
+  const base64Pdf = file.buffer.toString("base64");
+  const promptText = userText || AUTO_ANALYSIS_PROMPT;
+  claudeContent = [
+    {
+      type: "document",
+      source: {
+        type: "base64",
+        media_type: "application/pdf" as const,
+        data: base64Pdf,
+      },
+    } as any,
+    { type: "text", text: promptText },
+  ];
+  storedContent = userText
+    ? `\u{1F4C4} [PDF: ${file.originalname}]\n\n${userText}`
+    : `\u{1F4C4} [PDF: ${file.originalname}]\n\nAnalyse automatique demandee`;
+} else {
       // Image file — use Claude's native vision
       const mimeToType: Record<string, "image/jpeg" | "image/png" | "image/webp" | "image/gif"> = {
         "image/jpeg": "image/jpeg",
