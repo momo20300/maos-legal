@@ -212,7 +212,7 @@ export function buildPrintHtml(content: string, isRTL: boolean): string {
       font-family: ${isRTL ? "'Amiri', 'Scheherazade New', serif" : "'Inter', 'Helvetica Neue', Arial, sans-serif"};
       font-size: 11pt;
       line-height: 1.75;
-      color: #1a1a2e;
+      color: #2d3340;
       background: #fff;
       direction: ${isRTL ? "rtl" : "ltr"};
     }
@@ -239,7 +239,7 @@ export function buildPrintHtml(content: string, isRTL: boolean): string {
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 3.6cm;
-      background: #1a1a2e;
+      background: #2d3340;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -309,7 +309,7 @@ export function buildPrintHtml(content: string, isRTL: boolean): string {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 13pt;
       font-weight: 600;
-      color: #1a1a2e;
+      color: #2d3340;
       margin: 1.6em 0 0.5em;
       padding-bottom: 7px;
       border-bottom: 1.5px solid rgba(201,168,76,0.35);
@@ -348,10 +348,10 @@ export function buildPrintHtml(content: string, isRTL: boolean): string {
       font-size: 10pt;
       border: 1px solid #d5cebb;
     }
-    thead tr { background: #1a1a2e; }
+    thead tr { background: #2d3340; }
     th {
       color: #C9A84C;
-      border: 1px solid #2e2e50;
+      border: 1px solid #3d4455;
       padding: 8px 12px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
@@ -401,7 +401,7 @@ export function buildPrintHtml(content: string, isRTL: boolean): string {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: 2.8cm;
-      background: #1a1a2e;
+      background: #2d3340;
       z-index: 10;
       display: flex;
       flex-direction: column;
