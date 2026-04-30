@@ -819,7 +819,8 @@ Que doit faire le client maintenant ? Quels délais respecter ? Quels recours po
         data: base64Pdf,
       },
 
-    );
+    }
+  );
   storedContent = userText
     ? `\u{1F4C4} [PDF: ${file.originalname}]\n\n${userText}`
     : `\u{1F4C4} [PDF: ${file.originalname}]\n\nAnalyse automatique demandee`;
@@ -841,7 +842,8 @@ Que doit faire le client maintenant ? Quels délais respecter ? Quels recours po
           type: "image",
           source: { type: "base64", media_type: mediaType, data: base64Data },
 
-            );
+        }
+      );
       storedContent = userText
         ? `🖼️ [Image: ${file.originalname}]\n\n${userText}`
         : `🖼️ [Image: ${file.originalname}]\n\nAnalyse automatique demandée`;
